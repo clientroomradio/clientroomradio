@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
   <head>
     <title>Clientroomradio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
   </head>
-  <body>
+  <body ng-controller="MainController">
     <!-- Header -->
     <div class="navbar navbar-inverse navbar-fixed-top bs-docs-nav">
       <div class="container">
@@ -23,9 +23,15 @@
     <div class="container container--first"></div>
 
     <!-- Login -->
-    <div class="container" ng-controller="LoginController">
+    <div class="container" ng-show="username==null">
       <h1>Hello traveler - Please login</h1>
-      <button class="btn btn-primary">Login via Last.fm</button>
+      <button class="btn btn-primary" ng-click="login()">Login via Last.fm</button>
+    </div>
+
+    <!-- Main area -->
+    <div class="container" ng-hide="username==null">
+      <h1>Welcome in {{radioname}}, {{username}}</h1>
+    
     </div>
 
     <!-- Javascript - Libs -->
@@ -33,7 +39,11 @@
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
 
+    <!-- Javascript - Config -->
+    <script src="/config.js"></script>
+
     <!-- Javascript - Controllers -->
-    <script src="/js"></script>
+    <script src="/js/controller/LoginController.js"></script>
+    <script src="/js/controller/MainController.js"></script>
   </body>
 </html>
