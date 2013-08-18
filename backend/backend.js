@@ -16,10 +16,10 @@ var lastfm = new LastFmNode({
 function updateNowPlaying(track) {
 	_.each(users, function(data, user) {
 		var request = lastfm.request("track.updateNowPlaying", {
-			album: track[0].album,
-			track: track[0].title,
-			artist: track[0].creator,
-			duration: (track[0].duration / 1000),
+			album: track.album,
+			track: track.title,
+			artist: track.creator,
+			duration: (track.duration / 1000),
 			sk: data.sk,
 			handlers: {
 				success: function(lfm) {
@@ -34,20 +34,20 @@ function updateNowPlaying(track) {
 }
 
 function scrobble(track) {
-	if ( new Date().getTime() - track[0].timestamp > track[0].duration / 2 ) {
+	if ( new Date().getTime() - track.timestamp > track.duration / 2 ) {
 		// we've listened to more than half the song
 
 		_.each(users, function(data, user) {
 			if ( !_.contains(_.keys(skippers), user) ) {
 				// the user hasn't voted to skip this track
 				var request = lastfm.request("track.scrobble", {
-					"album[0]": track[0].album,
-					"track[0]": track[0].title,
-					"artist[0]": track[0].creator,
-					"timestamp[0]": Math.round(track[0].timestamp / 1000),
-					"duration[0]": Math.round(track[0].duration / 1000),
+					"album[0]": track.album,
+					"track[0]": track.title,
+					"artist[0]": track.creator,
+					"timestamp[0]": Math.round(track.timestamp / 1000),
+					"duration[0]": Math.round(track.duration / 1000),
 					sk: data.sk,
-					"streamid[0]": track[0].extension.streamid,
+					"streamid[0]": track.extension.streamid,
 					"chosenByUser[0]": "0",
 					handlers: {
 						success: function(lfm) {
@@ -83,11 +83,11 @@ function onComplete(err) {
 }
 
 function playTrack() {
-	var track = tracks.splice(0, 1);
-	console.log(track[0].title, '-', track[0].creator);
+	var track = tracks.shift();
+	console.log(track.title, '-', track.creator);
 
 	// add a timestamp to the track as we start it
-	track[0].timestamp = new Date().getTime();
+	track.timestamp = new Date().getTime();
 
 	updateNowPlaying(track);
 
