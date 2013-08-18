@@ -1,0 +1,13 @@
+.current-track img {
+	height: 100px;
+	width: 100px;
+}
+
+.current-track-buttons {
+	margin-top: 10px;
+}
+
+.skippers {
+	display: inline;
+	margin-left: 10px;
+}

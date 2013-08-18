@@ -2,7 +2,14 @@ module.exports.start = function (config, rebus) {
 	var express = require('express');
 	var LastFmNode = require('lastfm').LastFmNode;
 
+	var currentTrack = {};
+
+	var sockjs = require('sockjs').createServer();
+
 	var app = express();
+	var httpServer = require('http').createServer(app);
+
+	sockjs.installHandlers(httpServer , {prefix:'/sockjs'});
 
 	var lastfm = new LastFmNode({
 	  api_key: config.api_key, 
@@ -40,5 +47,60 @@ module.exports.start = function (config, rebus) {
 		res.send('var config = ' + JSON.stringify(config) + "; var loggedInAs =" + JSON.stringify(username) + ";");
 	});
 
-	app.listen(config.port);
+	httpServer.listen(config.port);
+
+	// events
+	var EventEmitter = require("events").EventEmitter;
+	var events = new EventEmitter();
+	events.setMaxListeners(0);
+
+	// rebus
+	rebus.value.currentTrack;
+ 	var currentTrackNotification = rebus.subscribe('currentTrack', function(newCurrentTrack) {
+ 		currentTrack = newCurrentTrack;
+ 		events.emit('newTrack');
+  	});
+  	var usersNotification = rebus.subscribe('users', function() {
+ 		events.emit('usersChange');
+  	});
+  	var skippersNotification = rebus.subscribe('skippers', function() {
+ 		events.emit('skippersChange');
+  	});
+
+
+	// sockjs
+	sockjs.on('connection', function(conn) {
+		
+		console.log('connected to ...')
+
+		var send = function(type, data) {
+			conn.write(JSON.stringify({type: type, data: data}));
+		}
+
+		var sendNewTrack = function() {
+			send('newTrack', currentTrack);
+		};
+		events.addListener('newTrack', sendNewTrack);
+		sendNewTrack();
+
+		var sendUsers = function() {
+			send('users', rebus.value.users);
+		};
+		events.addListener('usersChange', sendUsers);
+		sendUsers();
+
+		var sendSkippers = function() {
+			send('skippers', rebus.value.skippers);
+		};
+		events.addListener('skippersChange', sendSkippers);
+		sendSkippers();
+
+		conn.on('data', function(dataAsString) {
+			var data = JSON.parse(dataAsString);
+			console.log("received", data);
+		});
+	    conn.on('close', function() {
+	    	console.log('disconnects');
+	    });
+	});
 }

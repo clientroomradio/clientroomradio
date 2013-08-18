@@ -4,6 +4,9 @@
     <title>Clientroomradio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css">
+
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
     <link rel="stylesheet" href="css/main.css">
   </head>
   <body ng-controller="MainController">
@@ -36,15 +39,80 @@
 
     <!-- Main area -->
     <div class="container" ng-hide="username==null">
-      <div class="media">
-        <a class="pull-left" href="#">
-          <img class="media-object" src="http://userserve-ak.last.fm/serve/126s/88038511.png" alt="...">
-        </a>
-        <div class="media-body">
-          <h4 class="media-heading">Media heading</h4>
-          ...
+
+      <div class="panel">
+        <div class="panel-body">
+          <div class="media current-track">
+            <a class="pull-left" href="#">
+              <img class="media-object img-rounded" ng-src="{{currentTrack.image}}" alt="{{currentTrack.creator}} - {{currentTrack.title}}">
+            </a>
+            <div class="media-body">
+              <h4 class="media-heading">{{currentTrack.creator}} - {{currentTrack.title}} ({{durationInText()}})</h4>
+              
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"><span class="sr-only"></span></div>
+              </div>
+
+              
+
+              <div class="current-track-libraries">
+                <i class="icon-group"></i>
+
+                <span ng-repeat="contextUser in currentTrack.context">
+                  {{contextUser.username}} ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
+                </span>
+              </div>
+              
+            </div>
+          </div>
+
+
+          <div class="current-track-buttons">
+
+            <button type="button" class="btn btn-default pull-right" ng-hide="loved" ng-click="love()">
+              <i class="icon-heart-empty"></i> Love
+            </button>
+            <button type="button" class="btn btn-danger pull-right" ng-show="loved" ng-click="unlove()">
+              <i class="icon-heart"></i> 
+              Un-love
+            </button>
+
+            <div>
+              <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="skipped">
+                <i class="icon-thumbs-down"></i> Skip
+              </button>
+              <p class="skippers">
+                {{skippers.length}} of {{skippersNeeded()}} 
+                <span class="text-muted" ng-hide="skippers.length==0">       
+                  (<span ng-repeat="skipper in skippers">{{skipper}}<span ng-show="$last==false">, </span></span>)
+                </span>
+              </p>
+            </div>
+
+            
+          </div>
         </div>
-      </div>
+      </div>  
+
+      <div class="row">
+        <div class="col-xs-12 col-md-8">
+
+          <div class="panel">
+            <div class="panel-body">
+              Chat
+            </div>
+            <div class="panel-footer">
+              Input here 
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-xs-6 col-md-4">
+          <ul class="list-group">
+            <li ng-repeat="(username, bla) in users" class="list-group-item">{{username}}</li>
+          </ul>
+        </div>
       
     </div>
 
@@ -53,6 +121,7 @@
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
     <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
 
     <!-- Javascript - Config -->
     <script src="/config.js"></script>
