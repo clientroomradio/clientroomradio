@@ -12,6 +12,12 @@ module.exports.start = function (config, rebus) {
 	app.use(express.static(__dirname + '/static'));
 	app.use(express.cookieParser());
 
+	app.get('/logout', function(req, res) {
+		res.clearCookie('username');
+		res.clearCookie('sk');
+		res.redirect('/');
+	});
+
 	app.get('/login', function(req, res) {
 		var token = req.param('token');
 

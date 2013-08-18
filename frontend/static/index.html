@@ -8,36 +8,51 @@
   </head>
   <body ng-controller="MainController">
     <!-- Header -->
-    <div class="navbar navbar-inverse navbar-fixed-top bs-docs-nav">
+    <div class="navbar navbar-inverse navbar-static-top bs-docs-nav">
       <div class="container">
-        <a href="/" class="navbar-brand">Clientroomradio</a>
+        <a href="/" class="navbar-brand">{{radioname}}</a>
         <div class="nav-collapse collapse bs-navbar-collapse">
           <ul class="nav navbar-nav">
             <li>
-              <a href="/howto">How-to</a>
+              <!--<a href="/howto">How-to</a>-->
             </li>
           </ul>
         </div>
+
+        
+        <a class="btn btn-default navbar-btn pull-right" href="/logout" ng-show="username">Log out</a>
+        
       </div>
     </div>
-    <div class="container container--first"></div>
 
     <!-- Login -->
-    <div class="container" ng-show="username==null">
-      <h1>Hello traveler - Please login</h1>
-      <button class="btn btn-primary" ng-click="login()">Login via Last.fm</button>
+    <div class="jumbotron" ng-show="username==null">
+      <div class="container">
+        <h1>It's Friday, Friday...</h1>
+        <p>Click to join:</p>
+        <button class="btn btn-primary" ng-click="login()">Login via Last.fm</button>
+      </div>
     </div>
 
     <!-- Main area -->
     <div class="container" ng-hide="username==null">
-      <h1>Welcome in {{radioname}}, {{username}}</h1>
-    
+      <div class="media">
+        <a class="pull-left" href="#">
+          <img class="media-object" src="http://userserve-ak.last.fm/serve/126s/88038511.png" alt="...">
+        </a>
+        <div class="media-body">
+          <h4 class="media-heading">Media heading</h4>
+          ...
+        </div>
+      </div>
+      
     </div>
 
     <!-- Javascript - Libs -->
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+    <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 
     <!-- Javascript - Config -->
     <script src="/config.js"></script>
