@@ -1,4 +1,4 @@
-function MainController($scope) {
+function MainController($scope, socket) {
 	$scope.username = loggedInAs;
 	$scope.radioname = config.radioname;
 	$scope.currentTrack = {};
@@ -27,8 +27,12 @@ function MainController($scope) {
 
 	// Some helper functions
 	$scope.skippersNeeded = function() {
-		return Math.ceil(_.keys($scope.users).length / 2);
+		return Math.ceil($scope.getUserCount() / 2);
 	} 
+
+	$scope.getUserCount = function() {
+		return _.keys($scope.users).length;
+	}
 
 	// Update progress bar
 	var intervalProgressBar = null;
@@ -51,35 +55,19 @@ function MainController($scope) {
 		return Math.floor(inSec / 60) + ':' + (inSec % 60);
 	}
 
-	// Sockjs
-	var sock = new SockJS('http://localhost:3000/sockjs');
-	sock.onopen = function() {
-		console.log('open');
-	};
-	sock.onmessage = function(e) {
-
-		var payload = JSON.parse(e.data);
-		var type = payload.type;
-		var data = payload.data;
-
-		if (type == 'newTrack') {
-			$scope.currentTrack = data;
-			resetProgressBar();
-		}
-
-		if (type == 'users') {
-			$scope.users = data;
-			console.log('users', data);
-		}
-
-		if (type == 'skippers') {
-			$scope.skippers = data;
-			console.log('skippers', data);
-		}
-
+	socket.newTrackCallback.add(function(data) {
+		$scope.currentTrack = data;
+		resetProgressBar();
 		$scope.$apply();
-	};
-	sock.onclose = function() {
-		console.log('close');
-	};
+	});
+			
+	socket.usersCallback.add(function(data) {
+		$scope.users = data;
+		$scope.$apply();
+	});
+
+	socket.skippersCallback.add(function(data) {
+		$scope.skippers = data;
+		$scope.$apply();
+	});
 }

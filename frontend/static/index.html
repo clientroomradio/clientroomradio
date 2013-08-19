@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app="crrAngular">
   <head>
     <title>Clientroomradio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +32,6 @@
     <div class="jumbotron" ng-show="username==null">
       <div class="container">
         <h1>It's Friday, Friday...</h1>
-        <p>Click to join:</p>
         <button class="btn btn-primary" ng-click="login()">Login via Last.fm</button>
       </div>
     </div>
@@ -59,7 +58,7 @@
                 <i class="icon-group"></i>
 
                 <span ng-repeat="contextUser in currentTrack.context">
-                  {{contextUser.username}} ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
+                 {{contextUser.username}} ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
                 </span>
               </div>
               
@@ -78,9 +77,20 @@
             </button>
 
             <div>
-              <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="skipped">
-                <i class="icon-thumbs-down"></i> Skip
-              </button>
+              <div class="btn-group " ng-disabled="skipped">
+                <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="skipped">
+                  <i class="icon-thumbs-down"></i> Skip
+                </button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-disabled="skipped">
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" ng-init="messages=[
+                  'Meh.', 'Not again', 'Great song, but not right now', 'I scrobbled this by accident', 'THIS IS HELL!'
+                ]">
+                  <li ng-repeat="message in messages"><a href="javascript:void" ng-click="skip(message)">{{message}}</a></li>
+                </ul>
+              </div>
+             
               <p class="skippers">
                 {{skippers.length}} of {{skippersNeeded()}} 
                 <span class="text-muted" ng-hide="skippers.length==0">       
@@ -95,23 +105,46 @@
       </div>  
 
       <div class="row">
-        <div class="col-xs-12 col-md-8">
+        <div class="col-10">
 
-          <div class="panel">
-            <div class="panel-body">
-              Chat
+          <div class="panel" ng-controller="ChatController">
+            <div class="panel-body chat-content">
+
             </div>
             <div class="panel-footer">
-              Input here 
+             <div class="input-group input-group-sm">
+              <span class="input-group-addon">{{username}}</span>
+              <input type="text" class="form-control chat-input" ng-keyup="onKeyUp()">
+             </div>
             </div>
           </div>
 
         </div>
 
-        <div class="col-xs-6 col-md-4">
+        <div class="col-2">
+          <div class="panel">
+            <div class="panel-heading">Panel heading</div>
+            <div class="panel-body">
+              <button type="button" class="btn btn-danger pull-right" ng-show="loved" ng-click="unlove()">
+                <i class="icon-heart"></i> 
+                Un-love
+              </button>
+            </div>
+
+            
+          </div>
+
+
           <ul class="list-group">
+            <li class="list-group-item active listener-count">
+              <ng-pluralize count="getUserCount()"
+                 when="{'one': '1 Listener',
+                     'other': '{} Listeners'}">
+              </ng-pluralize>
+            </li>
             <li ng-repeat="(username, bla) in users" class="list-group-item">{{username}}</li>
           </ul>
+
         </div>
       
     </div>
@@ -129,5 +162,15 @@
     <!-- Javascript - Controllers -->
     <script src="/js/controller/LoginController.js"></script>
     <script src="/js/controller/MainController.js"></script>
+    <script src="/js/controller/ChatController.js"></script>
+
+    <!-- Javascript - Services -->
+    <script src="/js/services/Socket.js"></script>
+
+    <!-- Start services -->
+    <script src="/js/services.js"></script>
+    <script>
+      initClientRoomRadio('http://localhost:3000/sockjs');
+    </script>
   </body>
 </html>

@@ -1,3 +1,7 @@
+body {
+	overflow: hidden;
+}
+
 .current-track img {
 	height: 100px;
 	width: 100px;
@@ -10,4 +14,48 @@
 .skippers {
 	display: inline;
 	margin-left: 10px;
+}
+
+/* Chat */
+.chat-content {
+	overflow-y: scroll;
+	padding-right: 5px;
+}
+
+.chat-line {
+	clear:left;
+}
+
+.chat-content .chat-time {
+	color: #888;
+	float: left;
+	font-size: 0.7em;
+	padding-top: 0.47em;
+	height: 100;
+}
+.chat-content .chat-name {
+	font-weight: bold;
+	color: #888;
+}
+.chat-content .chat-name {
+	font-weight: bold;
+	color: #222;
+}
+
+.chat-content .chat-text {
+	margin-left: 55px;
+} 
+
+.chat-line--me {
+	font-style: italic;
+}
+.chat-line--me .chat-name:before {
+	content:"— ";
+	color: #888;
+	font-weight: normal;
+}
+
+/* Listeners */
+.listener-count {
+	background-color: #f5f5f5;
 }

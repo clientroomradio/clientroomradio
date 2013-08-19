@@ -68,7 +68,11 @@ module.exports.start = function (config, rebus) {
   	});
 
 
+
 	// sockjs
+	var eventsClass = require('events');
+	var eventEmitter = new eventsClass.EventEmitter();
+
 	sockjs.on('connection', function(conn) {
 		
 		console.log('connected to ...')
@@ -96,10 +100,20 @@ module.exports.start = function (config, rebus) {
 		sendSkippers();
 
 		conn.on('data', function(dataAsString) {
-			var data = JSON.parse(dataAsString);
+			var payload = JSON.parse(dataAsString);
+			var type = payload.type;
+			var data = payload.data;
+			if (type == 'chatMessage') {
+				eventEmitter.emit('broadcast', 'chat', data);
+				return;	
+			}
 			console.log("received", data);
 		});
+
+		eventEmitter.on('broadcast', send);
+
 	    conn.on('close', function() {
+	    	eventEmitter.removeListener('broadcast', send);
 	    	console.log('disconnects');
 	    });
 	});
