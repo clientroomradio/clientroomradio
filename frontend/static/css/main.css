@@ -2,6 +2,10 @@ body {
 	overflow: hidden;
 }
 
+.pull-right-button {
+	margin-right: 5px;
+}
+
 .current-track img {
 	height: 100px;
 	width: 100px;
@@ -35,7 +39,7 @@ body {
 }
 .chat-content .chat-name {
 	font-weight: bold;
-	color: #888;
+	
 }
 .chat-content .chat-name {
 	font-weight: bold;
@@ -46,13 +50,22 @@ body {
 	margin-left: 55px;
 } 
 
-.chat-line--me {
+.chat-line--me,
+.chat-line--sys {
 	font-style: italic;
 }
 .chat-line--me .chat-name:before {
 	content:"— ";
 	color: #888;
 	font-weight: normal;
+}
+
+.chat-line--sys {
+	color: #bbb;
+}
+
+.chat-line--sys .chat-name {
+	color: #bbb;
 }
 
 /* Listeners */

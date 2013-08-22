@@ -92,7 +92,7 @@ function playTrack() {
 	updateNowPlaying(track);
 
 	bus.publish('currentTrack',	track, onComplete);
-	bus.publish('skippers', {}, onComplete );
+	bus.publish('skippers', [], onComplete );
 
 	// simulate a song lasting 3 seconds
 	// TODO: actually play the song

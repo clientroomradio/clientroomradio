@@ -3,6 +3,7 @@ var Socket = function(SOCKJS_URL) {
 	this.openCallback = $.Callbacks();
 	this.closeCallback = $.Callbacks();
 	this.chatCallback = $.Callbacks();
+	this.sysCallback = $.Callbacks();
 	this.newTrackCallback = $.Callbacks();
 	this.usersCallback = $.Callbacks();
 	this.skippersCallback = $.Callbacks();
@@ -17,9 +18,21 @@ var Socket = function(SOCKJS_URL) {
 		};
 		sockjs.send(JSON.stringify(payload));
 	}
+
 	that.sendChatMessage = function(message) {
 		send('chatMessage', message);
-		console.log(message);
+	}
+
+	that.sendSkip = function(user, message) {
+		send('skip', {user: loggedInAs, text: message});
+	}
+
+	that.love = function(user) {
+		send('love', {user: loggedInAs});
+	}
+
+	that.unlove = function(user) {
+		send('unlove', {user: loggedInAs});
 	}
 
 	function connect () {
@@ -49,6 +62,11 @@ var Socket = function(SOCKJS_URL) {
 
 			if (type == 'chat') {
 				that.chatCallback.fire(data);
+				return;
+			}
+
+			if (type == 'sys') {
+				that.sysCallback.fire(data);
 				return;
 			}
 

@@ -3,6 +3,7 @@ function ChatController($scope, $element, socket) {
 	var $input= $('.chat-input', $element);
 
 	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
+	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
 
 	function getTimeString() {
 
@@ -38,14 +39,43 @@ function ChatController($scope, $element, socket) {
 
 		$chatContent.append($el);
 		scrollDown();
+	});
+
+	socket.sysCallback.add(function(data) {
+		var $el = $simpleChatLineTemplate.clone();
+		$el.addClass('chat-line--sys').addClass('chat-line--' + data.type);
+
+		if (data.type == 'skip') {
+			if (data.text) {
+				$('.chat-inner-text', $el).text('skipped: "'+data.text+'"');
+			} else {
+				$('.chat-inner-text', $el).text('skipped.');
+			}
+		} else if (data.type == 'alreadySkipped') {
+			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');
+		} else if (data.type == 'love') {
+			$('.chat-inner-text', $el).text('just loved this track');
+		} else if (data.type == 'unlove') {
+			$('.chat-inner-text', $el).text('just un-loved this track');
+		}
+		
+		$('.chat-name', $el).text(data.user);
+		$('.chat-time', $el).text(getTimeString());
+
+		$chatContent.append($el);
+		scrollDown();
 	})
 
 	$input.keyup(function(e){
 		if(e.keyCode == 13)
 		{
 			var inputText = $input.val();
-			socket.sendChatMessage({'user': loggedInAs, 'text': inputText});
-
+			if (inputText.indexOf('?skip') == 0) {
+				inputText = inputText.substring(6);
+				socket.sendSkip(inputText);
+			} else {
+				socket.sendChatMessage({'user': loggedInAs, 'text': inputText});
+			}
 			$input.val('');
 		}
 	});

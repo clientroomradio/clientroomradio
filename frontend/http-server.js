@@ -33,7 +33,7 @@ module.exports.start = function (config, rebus) {
 			res.cookie('sk', session.key);
 
 			var users = rebus.value.users || {};
-			users[session.user] = {'sk': session.key};
+			users[session.user] = {'sk': session.key, scrobbling:true};
 			rebus.publish('users', users);
 
 			res.redirect('/');
@@ -107,6 +107,83 @@ module.exports.start = function (config, rebus) {
 				eventEmitter.emit('broadcast', 'chat', data);
 				return;	
 			}
+			if (type == 'skip') {
+				
+				var skippers = rebus.value.skippers;
+				var alreadySkipped = false;
+				for(var i=0, len=skippers.length; i < len; i++){
+					var user = skippers[i];
+
+					if (user == data.user) {
+						alreadySkipped = true;
+					}
+				}
+				if (alreadySkipped) {
+					eventEmitter.emit('broadcast', 'sys', {
+						type: 'alreadySkipped',
+						user: data.user
+					});
+				} else {
+					skippers.push(data.user);
+					rebus.publish('skippers', skippers );
+
+					eventEmitter.emit('broadcast', 'sys', {
+						type: 'skip',
+						text: data.text,
+						user: data.user
+					});
+				}
+
+				
+				return;	
+			}
+			if (type == 'love') {
+
+
+				var request = lastfm.request("track.love", {
+					track: currentTrack.title,
+					artist: currentTrack.creator,
+					sk: rebus.value.users[data.user].sk,
+					handlers: {
+						success: function(lfm) {
+							console.log("loving for:", data.user);
+						},
+						error: function(error) {
+							console.log("Error: " + error.message);
+						}
+					}
+				});
+
+				eventEmitter.emit('broadcast', 'sys', {
+					type: 'love',
+					user: data.user
+				});
+				return;
+			}
+			if (type == 'unlove') {
+				
+				var request = lastfm.request("track.unlove", {
+					track: currentTrack.title,
+					artist: currentTrack.creator,
+					sk: rebus.value.users[data.user].sk,
+					handlers: {
+						success: function(lfm) {
+							console.log("unloving for:", data.user);
+						},
+						error: function(error) {
+							console.log("Error: " + error.message);
+						}
+					}
+				});
+
+				eventEmitter.emit('broadcast', 'sys', {
+					type: 'unlove',
+					user: data.user
+				});
+
+				return;
+			}
+
 			console.log("received", data);
 		});
 

@@ -7,7 +7,7 @@ function MainController($scope, socket) {
 	$scope.currentPositionInTrack = 0;
 	$scope.loved = false;
 	$scope.skipped = false;
-
+	$scope.scrobbling = true;
 
 	$scope.login = function() {
 		location.href = "http://www.last.fm/api/auth/?api_key="+config.api_key+"&cb=http://"+config.host+":"+config.port+"/login";
@@ -15,14 +15,20 @@ function MainController($scope, socket) {
 
 	$scope.love = function() {
 		$scope.loved = true;
+		socket.love();
 	}
 
 	$scope.unlove = function() {
 		$scope.loved = false;
+		socket.unlove();
 	}
 
-	$scope.skip = function() {
-		$scope.skipped = true;
+	$scope.skip = function(message) {
+		socket.sendSkip(message);
+	}
+
+	$scope.setScrobbling = function(value) {
+		$scope.scrobbling = value;
 	}
 
 	// Some helper functions
@@ -57,7 +63,16 @@ function MainController($scope, socket) {
 
 	socket.newTrackCallback.add(function(data) {
 		$scope.currentTrack = data;
+
+		$scope.loved = false;
+		for(var i=0, len=data.context.length; i < len; i++){
+			if(data.context[i].userloved == 1 && loggedInAs == data.context[i].username) {
+				$scope.loved = true;
+			}
+		}
+
 		resetProgressBar();
+		$scope.skipped = false;
 		$scope.$apply();
 	});
 			
@@ -68,6 +83,19 @@ function MainController($scope, socket) {
 
 	socket.skippersCallback.add(function(data) {
 		$scope.skippers = data;
+		for(var i=0, len=data.length; i < len; i++){
+			var user = data[i];
+			if (user == loggedInAs) {
+				$scope.skipped = true;
+			}
+		}
 		$scope.$apply();
+	});
+
+	socket.sysCallback.add(function(data) {
+		if (data.type == 'skip') {
+			$scope.skipped = true;
+			$scope.$apply();
+		}
 	});
 }

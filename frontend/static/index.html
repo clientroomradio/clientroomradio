@@ -14,17 +14,14 @@
     <div class="navbar navbar-inverse navbar-static-top bs-docs-nav">
       <div class="container">
         <a href="/" class="navbar-brand">{{radioname}}</a>
-        <div class="nav-collapse collapse bs-navbar-collapse">
+        <!--<div class="nav-collapse collapse bs-navbar-collapse">
           <ul class="nav navbar-nav">
             <li>
-              <!--<a href="/howto">How-to</a>-->
+              <a href="/howto">How-to</a>
             </li>
           </ul>
-        </div>
-
-        
-        <a class="btn btn-default navbar-btn pull-right" href="/logout" ng-show="username">Log out</a>
-        
+        </div>-->
+        <a class="btn btn-default pull-right navbar-btn" href="/logout" ng-show="username">Log out</a>
       </div>
     </div>
 
@@ -61,13 +58,11 @@
                  {{contextUser.username}} ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
                 </span>
               </div>
-              
             </div>
           </div>
 
 
           <div class="current-track-buttons">
-
             <button type="button" class="btn btn-default pull-right" ng-hide="loved" ng-click="love()">
               <i class="icon-heart-empty"></i> Love
             </button>
@@ -75,6 +70,10 @@
               <i class="icon-heart"></i> 
               Un-love
             </button>
+            <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)">
+              <i class="icon-bullhorn"></i> Scrobbling {{scrobbling?'on':'off'}}
+            </button>
+
 
             <div>
               <div class="btn-group " ng-disabled="skipped">
@@ -85,9 +84,9 @@
                   <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu" ng-init="messages=[
-                  'Meh.', 'Not again', 'Great song, but not right now', 'I scrobbled this by accident', 'THIS IS HELL!'
+                  'Meh.', 'Not again', 'Not right now', 'I scrobbled this by accident', 'THIS IS HELL!'
                 ]">
-                  <li ng-repeat="message in messages"><a href="javascript:void" ng-click="skip(message)">{{message}}</a></li>
+                  <li ng-repeat="message in messages"><a href="javascript:void()" ng-click="skip(message)">{{message}}</a></li>
                 </ul>
               </div>
              
@@ -122,19 +121,6 @@
         </div>
 
         <div class="col-2">
-          <div class="panel">
-            <div class="panel-heading">Panel heading</div>
-            <div class="panel-body">
-              <button type="button" class="btn btn-danger pull-right" ng-show="loved" ng-click="unlove()">
-                <i class="icon-heart"></i> 
-                Un-love
-              </button>
-            </div>
-
-            
-          </div>
-
-
           <ul class="list-group">
             <li class="list-group-item active listener-count">
               <ng-pluralize count="getUserCount()"
@@ -142,7 +128,7 @@
                      'other': '{} Listeners'}">
               </ng-pluralize>
             </li>
-            <li ng-repeat="(username, bla) in users" class="list-group-item">{{username}}</li>
+            <li ng-repeat="(username, data) in users" class="list-group-item">{{username}} <i ng-show="data.scrobbling" class="icon-bullhorn"></i></li>
           </ul>
 
         </div>
@@ -152,7 +138,7 @@
     <!-- Javascript - Libs -->
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
     <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
 
