@@ -233,6 +233,19 @@ module.exports.start = function (config, rebus) {
 
 					return;
 				}
+				if (type == 'scrobbleStatus') {
+
+					var users = rebus.value.users || {};
+					users[username].scrobbling = data?true:false;
+					rebus.publish('users', users);
+
+					eventEmitter.emit('broadcast', 'chat', {
+						system: data?'scrobbleOn':'scrobbleOff',
+						user: username
+					});
+
+					return;
+				}
 
 				console.log("received", data);
 			});

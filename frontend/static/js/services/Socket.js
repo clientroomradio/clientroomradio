@@ -25,8 +25,11 @@ var Socket = function(SOCKJS_URL) {
 	}
 
 	that.sendSkip = function(message) {
-		console.log(message);
 		send('skip', {text: message});
+	}
+
+	that.sendScrobbleStatus = function(status) {
+		send('scrobbleStatus', status);
 	}
 
 	that.love = function() {

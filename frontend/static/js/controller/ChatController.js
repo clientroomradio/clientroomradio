@@ -49,7 +49,11 @@ function ChatController($scope, $element, socket) {
 			$('.chat-inner-text', $el).text('just loved this track');
 		} else if (data.system == 'unlove') {
 			$('.chat-inner-text', $el).text('just un-loved this track');
-		} else {
+		} else if (data.system == 'scrobbleOff') {
+			$('.chat-inner-text', $el).text('turned scrobbling off');
+		} else if (data.system == 'scrobbleOn') {
+			$('.chat-inner-text', $el).text('turned scrobbling on');
+		}else {
 			$('.chat-inner-text', $el).text(data.text);
 		}
 
