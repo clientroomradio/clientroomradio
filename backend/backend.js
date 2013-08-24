@@ -8,6 +8,7 @@ var _ = require("underscore");
 var config = require("../config.js");
 var fs = require("fs");
 var rebus = require('rebus');
+var http = require('http');
 
 var LastFmNode = require('lastfm').LastFmNode;
 
@@ -239,7 +240,7 @@ function onUsersChanged(newUsers) {
 }
 
 function onSkippersChanged(newSkippers) {
-	skippers = aSkippers;
+	skippers = newSkippers;
 	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
 		console.log( "SKIP!" );
 		player.pause();
@@ -295,8 +296,6 @@ function doSend(path, data) {
 	};
 
 	var req = http.request(options, function(res) {
-		console.log('STATUS: ' + res.statusCode);
-		console.log('HEADERS: ' + JSON.stringify(res.headers));
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			console.log( path + ' BODY: ' + chunk);
@@ -312,7 +311,7 @@ function doSend(path, data) {
 	req.end();
 }
 
-setInterval(updateProgress, 1000)
+setInterval(updateProgress, 500)
 
 
 
