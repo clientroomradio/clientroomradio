@@ -22,51 +22,63 @@ var lastfm = new LastFmNode({
 	useragent: 'clientroomradio/v0.1 Client Room Radio'
 });
 
-function updateNowPlaying(track) {
-	_.each(users, function(data, user) {
-		var request = lastfm.request("track.updateNowPlaying", {
-			album: track.album,
-			track: track.title,
-			artist: track.creator,
-			duration: (track.duration / 1000),
-			sk: data.sk,
-			handlers: {
-				success: function(lfm) {
-					console.log("updated now playing for:", user);
-				},
-				error: function(error) {
-					console.log("Error: " + error.message);
-				}
+function doUpdateNowPlaying(username, session_key, track) {
+	var request = lastfm.request("track.updateNowPlaying", {
+		album: track.album,
+		track: track.title,
+		artist: track.creator,
+		duration: (track.duration / 1000),
+		sk: session_key,
+		handlers: {
+			success: function(lfm) {
+				console.log("updated now playing for:", username);
+			},
+			error: function(error) {
+				console.log("Error: " + error.message);
 			}
-		});
+		}
+	});
+}
+
+function updateNowPlaying(track) {
+	// always scrobble to clientroom
+	doUpdateNowPlaying("clientroom", config.sk, track);
+
+	_.each(users, function(data, user) {
+		doUpdateNowPlaying(user, data.sk, track);
+	});
+}
+
+function doScrobble(username, session_key, track) {
+	var request = lastfm.request("track.scrobble", {
+		"album[0]": track.album,
+		"track[0]": track.title,
+		"artist[0]": track.creator,
+		"timestamp[0]": Math.round(track.timestamp / 1000),
+		"duration[0]": Math.round(track.duration / 1000),
+		sk: session_key,
+		"streamid[0]": track.extension.streamid,
+		"chosenByUser[0]": "0",
+		handlers: {
+			success: function(lfm) {
+				console.log("updated now playing for:", username);
+			},
+			error: function(error) {
+				console.log("Error: " + error.message);
+			}
+		}
 	});
 }
 
 function scrobble(track) {
 	if ( new Date().getTime() - track.timestamp > track.duration / 2 ) {
 		// we've listened to more than half the song
+		doScrobble("clientroom", config.sk, track);
 
 		_.each(users, function(data, user) {
 			if ( !_.contains(_.keys(skippers), user) ) {
 				// the user hasn't voted to skip this track
-				var request = lastfm.request("track.scrobble", {
-					"album[0]": track.album,
-					"track[0]": track.title,
-					"artist[0]": track.creator,
-					"timestamp[0]": Math.round(track.timestamp / 1000),
-					"duration[0]": Math.round(track.duration / 1000),
-					sk: data.sk,
-					"streamid[0]": track.extension.streamid,
-					"chosenByUser[0]": "0",
-					handlers: {
-						success: function(lfm) {
-							console.log("updated now playing for:", user);
-						},
-						error: function(error) {
-							console.log("Error: " + error.message);
-						}
-					}
-				});
+				doScrobble(user, data.sk, track);
 			}
 		});
 	}
