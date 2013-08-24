@@ -119,6 +119,10 @@ function playTrack() {
 }
 
 function onEndTrack() {
+	setTimeout(doOnEndTrack, 15000);
+}
+
+function doOnEndTrack() {
 	scrobble(bus.value.currentTrack);
 
 	// check if there are more songs to play
