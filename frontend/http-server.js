@@ -3,6 +3,7 @@ module.exports.start = function (config, rebus) {
 	var LastFmNode = require('lastfm').LastFmNode;
 
 	var currentTrack = {};
+	var currentProgress = 0;
 
 	var sockjs = require('sockjs').createServer();
 
@@ -57,6 +58,8 @@ module.exports.start = function (config, rebus) {
 
 	appInternal.post('/progress', function(req, res){
 		console.log("progress:", req.body.progress);
+		currentProgress = req.body.progress;
+		events.emit('updateProgress');
 	    res.end();
 	});
 
@@ -111,6 +114,12 @@ module.exports.start = function (config, rebus) {
 		};
 		events.addListener('usersChange', sendUsers);
 		sendUsers();
+
+		var updateProgress = function() {
+			send('progress', currentProgress);
+		};
+		events.addListener('updateProgress', updateProgress);
+		updateProgress();
 
 		var sendSkippers = function() {
 			send('skippers', rebus.value.skippers);
