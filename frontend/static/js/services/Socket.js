@@ -24,21 +24,22 @@ var Socket = function(SOCKJS_URL) {
 		send('chatMessage', message);
 	}
 
-	that.sendSkip = function(user, message) {
-		send('skip', {user: loggedInAs, text: message});
+	that.sendSkip = function(message) {
+		console.log(message);
+		send('skip', {text: message});
 	}
 
-	that.love = function(user) {
-		send('love', {user: loggedInAs});
+	that.love = function() {
+		send('love', {});
 	}
 
-	that.unlove = function(user) {
-		send('unlove', {user: loggedInAs});
+	that.unlove = function() {
+		send('unlove', {});
 	}
 
 	function connect () {
 		sockjs = new SockJS(SOCKJS_URL);
-
+		
 		sockjs.onmessage = function(payload) {
 			payload = $.parseJSON(payload.data);
 			console.log(payload);
@@ -81,6 +82,8 @@ var Socket = function(SOCKJS_URL) {
 
 
 		sockjs.onopen = function() {
+			sockjs.send($.cookie('session'));
+
 			if (reconnectTimeout != null) {
 				reconnectTimeout = null;
 				clearTimeout(reconnectTimeout);

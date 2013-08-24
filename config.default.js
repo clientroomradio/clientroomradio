@@ -6,6 +6,7 @@ var config = {
   "frontendPort": 3000,
   "internalPort": 3001,
   "external": {
+  	"api_key": "<API_KEY>",
   	"name": "Client Room Radio",
   	"stream": "http://localhost:8080/stream.mp3"
   }
