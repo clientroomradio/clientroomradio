@@ -8,8 +8,12 @@ var config = require("../config.js");
 
 var LastFmNode = require('lastfm').LastFmNode;
 
-var http = require("http");
-var url = require("url");
+var vlc = require('vlc')([
+  '-I', 'dummy',
+  '-V', 'dummy',
+  '--verbose', '1',
+  '--sout=#http{dst=:8080/stream.mp3}'
+]);
 
 // Array of HttpServerResponse objects that are listening clients.
 var clients = [];
@@ -31,10 +35,10 @@ function doUpdateNowPlaying(username, session_key, track) {
 		sk: session_key,
 		handlers: {
 			success: function(lfm) {
-				console.log("Scrobbled track for:", username);
+				console.log("Updated now playing for:", username);
 			},
 			error: function(error) {
-				console.log("Scrobble error: " + error.message);
+				console.log("Now playing error:" + error.message);
 			}
 		}
 	});
@@ -61,10 +65,10 @@ function doScrobble(username, session_key, track) {
 		"chosenByUser[0]": "0",
 		handlers: {
 			success: function(lfm) {
-				console.log("Updated now playing for:", username);
+				console.log("Scrobbled track for:", username);
 			},
 			error: function(error) {
-				console.log("Now playing error: " + error.message);
+				console.log("Scrobble error:" + error.message);
 			}
 		}
 	});
@@ -85,6 +89,8 @@ function scrobble(track) {
 }
 
 function getStation() {
+	return 'lastfm://tag/under a minute';
+
 	var stationUsers = '';
 
 	for ( username in users ) {
@@ -119,10 +125,6 @@ function playTrack() {
 }
 
 function onEndTrack() {
-	setTimeout(doOnEndTrack, 15000);
-}
-
-function doOnEndTrack() {
 	scrobble(bus.value.currentTrack);
 
 	// check if there are more songs to play
@@ -233,6 +235,7 @@ var bus = rebus('../rebus-storage', function(err) {
   	skippers = aSkippers;
   	if ( _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
   		console.log( "SKIP!" );
+  		player.pause();
   	}
   });
 
@@ -240,86 +243,27 @@ var bus = rebus('../rebus-storage', function(err) {
   radioTune();
 });
 
-function onMp3Data(chunk) {
-	process.stdout.write(".");
-	for ( var i = 0 ; i < clients.length ; i++ ) {
-		clients[i].write(chunk);
+function checkPlayingState() {
+	if (player.is_playing) {
+		setTimeout(checkPlayingState, 500);
+	} else {
+		onEndTrack();
+		setTimeout(checkPlayingState, 10000);
 	}
 }
 
-function onMp3Error(e) {
-	console.log("Got error: " + e.message);
-}
+var player;
+setTimeout(checkPlayingState, 10000);
 
 function getmp3(mp3) {
-
-  http.get(mp3, function(resource) {
-    console.log("Got response: " + resource.statusCode);
-
-    if (resource.statusCode > 300 && resource.statusCode < 400 && resource.headers.location) {
-	    // The location for some (most) redirects will only contain the path,  not the hostname;
-	    // detect this and add the host to the path.
-	    if (url.parse(resource.headers.location).hostname) {
-	    	console.log("YEAH");
-	          // Hostname included; make request to res.headers.location
-	          http.get(resource.headers.location, function(redirResource) {
-	          	redirResource.on("data", onMp3Data).on('error', onMp3Error ).on('end', onEndTrack);
-	          });
-
-	    } else {
-	          // Hostname not included; get host from requested URL (url.parse()) and prepend to location.
-	          console.log("FUCK");
-	    }
-
-	// Otherwise no redirect; capture the response as normal            
-	} else {
-	    resource.on("data", onMp3Data).on('error', onMp3Error ).on('end', onEndTrack);
-	}
-  });
+	var media = vlc.mediaFromUrl(mp3);
+	media.parseSync();
+	player = vlc.mediaplayer;
+	player.media = media;
+	console.log('Media duration:', media.duration);
+	player.play();
 }
 
-// Now we create the HTTP server.
-http.createServer(function(req, res) {
-
-  // Does the client support icecast metadata?
-  var acceptsMetadata = req.headers['icy-metadata'] == 1;
-
-  if (req.url == "/stream.mp3") {
-    
-    // Sorry, too busy, try again later!
-    if (clients.length >= maxClients) {
-      res.writeHead(503);
-      return res.end("The maximum number of clients ("+maxClients+") are aleady connected, try connecting again later...")
-    }
-
-    var headers = {
-      "Content-Type": "audio/mpeg",
-      "Connection": "close",
-      "Transfer-Encoding": "identity"
-    };
-
-    res.writeHead(200, headers);
-
-    clients.push(res);
-    
-    console.log("Client Connected: "+req.connection.remoteAddress+"!" + " Total " + clients.length);
-    
-    req.connection.on("close", function() {
-      // This occurs when the HTTP client closes the connection.
-      clients.splice(clients.indexOf(res), 1);
-      console.error("Client Disconnected: "+req.connection.remoteAddress+" :(" + " Total " + clients.length);
-    });
-
-  }
-
-}).listen(5555, function() {
-  console.error("HTTP Icecast server listening at: "+ "http://*:" + this.address().port);
-});
-
-process.on('uncaughtException', function(e) {
-  console.error("UNCAUGHT EXCEPTION:", e.message);
-  console.error(e.stack);
-});
 
 
 
