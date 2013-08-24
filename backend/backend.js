@@ -243,6 +243,7 @@ function onSkippersChanged(newSkippers) {
 	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
 		console.log( "SKIP!" );
 		player.pause();
+		sendChatMessage("SKIP!");
 	}
 }
 
@@ -274,6 +275,44 @@ function getmp3(mp3) {
 	setTimeout(checkPlayingState, 10000);
 }
 
+function updateProgress() {
+	if (player) {
+		doSend('/progress', '{"progress":' + player.position + '}');
+	}
+}
+
+function sendChatMessage(message) {
+	doSend('/chat', '{"message":"' + message + '"}');
+}
+
+function doSend(path, data) {
+	var options = {
+		hostname: 'localhost',
+		port: 3001,
+		path: path,
+		method: 'POST',
+		headers: {"content-type":"application/json"}
+	};
+
+	var req = http.request(options, function(res) {
+		console.log('STATUS: ' + res.statusCode);
+		console.log('HEADERS: ' + JSON.stringify(res.headers));
+		res.setEncoding('utf8');
+		res.on('data', function (chunk) {
+			console.log( path + ' BODY: ' + chunk);
+		});
+	});
+
+	req.on('error', function(e) {
+	  console.log('problem with ' + path + ' request: ' + e.message);
+	});
+
+	// write data to request body
+	req.write(data);
+	req.end();
+}
+
+setInterval(updateProgress, 1000)
 
 
 
