@@ -2,10 +2,12 @@
 var users = {};
 var tracks = [];
 var skippers = [];
+var player;
 var currentStation = '';
 var _ = require("underscore");
 var config = require("../config.js");
 var fs = require("fs");
+var rebus = require('rebus');
 
 var LastFmNode = require('lastfm').LastFmNode;
 
@@ -22,11 +24,6 @@ var vlc = require('vlc')([
   '--verbose', '1',
   '--sout=#http{dst=:8080/stream.mp3}'
 ]);
-
-// Array of HttpServerResponse objects that are listening clients.
-var clients = [];
-// The max number of listening clients allowed at a time.
-var maxClients = 15;
 
 var lastfm = new LastFmNode({
 	api_key: config.api_key,
@@ -85,7 +82,7 @@ function doScrobble(username, session_key, track) {
 }
 
 function scrobble(track) {
-	if ( new Date().getTime() - track.timestamp > track.duration / 2 ) {
+	if ( new Date().getTime() - track.timestamp > Math.round( track.duration / 2 ) ) {
 		// we've listened to more than half the song
 		doScrobble("clientroom", config.sk, track);
 
@@ -190,7 +187,7 @@ function onRadioGotPlaylist(data) {
 };
 
 function getPlaylist() {
-		var request = lastfm.request("radio.getplaylist", {
+	var request = lastfm.request("radio.getplaylist", {
 		sk: config.sk,
 		handlers: {
 			success: onRadioGotPlaylist,
@@ -224,34 +221,38 @@ function radioTune() {
 	}
 }
 
-var rebus = require('rebus');
+function onUsersChanged(newUsers) {
+	if ( _.intersection(users, newUsers).length == _.keys(users).length ) {
+		// the users have changed so we'll need to retune
+		// clearing the tracks will make this happen
+		tracks = [];
+	 }
 
-var bus = rebus('../rebus-storage', function(err) {
-  
-  var usersNotification = bus.subscribe('users', function(obj) {
-  	// the users have changed so we'll need to retune
-    // clearing the tracks will make this happen
-  	tracks = [];
-
-  	var start = (_.isEmpty(users) && !_.isEmpty(obj))
-	users = obj;
+  	var start = (_.isEmpty(users) && !_.isEmpty(newUsers));
+	users = newUsers;
 
   	if ( start ) {
   		// we've gone from no users to some users so start
   		radioTune(); 
   	}
-  });
 
-  var skippersNotification = bus.subscribe('skippers', function(aSkippers) {
-  	skippers = aSkippers;
-  	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
-  		console.log( "SKIP!" );
-  		player.pause();
-  	}
-  });
+}
 
-  users = bus.value.users;
-  radioTune();
+function onSkippersChanged(newSkippers) {
+	skippers = aSkippers;
+	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
+		console.log( "SKIP!" );
+		player.pause();
+	}
+}
+
+
+var bus = rebus('../rebus-storage', function(err) {
+	var usersNotification = bus.subscribe('users', onUsersChanged);
+	var skippersNotification = bus.subscribe('skippers', onSkippersChanged);
+
+	users = bus.value.users;
+	radioTune();
 });
 
 function checkPlayingState() {
@@ -261,9 +262,6 @@ function checkPlayingState() {
 		onEndTrack();
 	}
 }
-
-var player;
-
 
 function getmp3(mp3) {
 	var media = vlc.mediaFromUrl(mp3);
