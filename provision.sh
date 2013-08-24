@@ -6,7 +6,7 @@ echo "Provision"
 cwd=$(pwd)
 
 # Dependencies and helpers
-sudo apt-get install python-software-properties python g++ make vim screen curl -q -y
+sudo apt-get install python-software-properties python g++ make vim screen curl vlc -q -y
 
 # Node
 if hash node 2>/dev/null; then
