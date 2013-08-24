@@ -117,14 +117,14 @@ function onComplete(err) {
 
 function playTrack() {
 	var track = tracks.shift();
-	console.log(track.title, '-', track.creator);
+	console.log("PLAYING TRACK:", track.title, '-', track.creator);
 
 	// add a timestamp to the track as we start it
 	track.timestamp = new Date().getTime();
 
 	updateNowPlaying(track);
 
-	bus.publish('currentTrack',	track, onComplete);
+	bus.publish('currentTrack', track, onComplete );
 	bus.publish('skippers', [], onComplete );
 
 	getmp3(track.location);
@@ -158,8 +158,6 @@ function onRadioGotPlaylist(data) {
 
 	_.each(tracks, function(track) {
 
-		console.log(track);
-
 		_.each(users, function(data,user) {
 			var request = lastfm.request("track.getInfo", {
 				track: track.title,
@@ -169,7 +167,14 @@ function onRadioGotPlaylist(data) {
 					success: function(lfm) {
 						console.log(track.title, user, lfm.track.userplaycount)
 						track.context = track.context || [];
-						track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
+						if ( lfm.track.userplaycount ) {
+							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
+
+							if ( bus.value.currentTrack.timestamp == track.timestamp ) {
+								// update the current track with the new context
+								bus.publish('currentTrack', track, onComplete );
+							}
+						}
 					},
 					error: function(error) {
 						console.log("Error: " + error.message);
@@ -178,8 +183,6 @@ function onRadioGotPlaylist(data) {
 			});
 		});
 	});
-
-	console.log(tracks);
 
 	playTrack();
 };
