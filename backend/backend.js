@@ -5,8 +5,16 @@ var skippers = [];
 var currentStation = '';
 var _ = require("underscore");
 var config = require("../config.js");
+var fs = require("fs");
 
 var LastFmNode = require('lastfm').LastFmNode;
+
+if ( !fs.existsSync('../rebus-storage') ) {
+	fs.mkdirSync('../rebus-storage');
+	fs.writeFileSync('../rebus-storage/users.json', "{}");
+	fs.writeFileSync('../rebus-storage/skippers.json', "[]");
+	fs.writeFileSync('../rebus-storage/currentTrack.json', "{}");
+}
 
 var vlc = require('vlc')([
   '-I', 'dummy',
@@ -233,7 +241,7 @@ var bus = rebus('../rebus-storage', function(err) {
 
   var skippersNotification = bus.subscribe('skippers', function(aSkippers) {
   	skippers = aSkippers;
-  	if ( _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
+  	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
   		console.log( "SKIP!" );
   		player.pause();
   	}
@@ -248,12 +256,11 @@ function checkPlayingState() {
 		setTimeout(checkPlayingState, 500);
 	} else {
 		onEndTrack();
-		setTimeout(checkPlayingState, 10000);
 	}
 }
 
 var player;
-setTimeout(checkPlayingState, 10000);
+
 
 function getmp3(mp3) {
 	var media = vlc.mediaFromUrl(mp3);
@@ -262,6 +269,8 @@ function getmp3(mp3) {
 	player.media = media;
 	console.log('Media duration:', media.duration);
 	player.play();
+
+	setTimeout(checkPlayingState, 10000);
 }
 
 
