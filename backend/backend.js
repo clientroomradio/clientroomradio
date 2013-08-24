@@ -55,7 +55,7 @@ function updateNowPlaying(track) {
 	doUpdateNowPlaying("clientroom", config.sk, track);
 
 	_.each(users, function(data, user) {
-		if ( user.scrobbling ) {
+		if ( !(!user.scrobbling || !user.active) ) {
 			doUpdateNowPlaying(user, data.sk, track);
 		}
 	});
@@ -88,7 +88,8 @@ function scrobble(track) {
 		doScrobble("clientroom", config.sk, track);
 
 		_.each(users, function(data, user) {
-			if ( user.scrobbling && !_.contains(_.keys(skippers), user) ) {
+			if (  !(!user.scrobbling || !user.active) 
+					&& !_.contains(_.keys(skippers), user) ) {
 				// the user hasn't voted to skip this track
 				doScrobble(user, data.sk, track);
 			}
@@ -96,14 +97,16 @@ function scrobble(track) {
 	}
 }
 
-function getStation() {
+function getStation(aUsers = aUsers || users) {
 	var stationUsers = '';
 
-	for ( username in users ) {
-		if ( stationUsers.length > 0 )
-			stationUsers += ',' + username;
-		else
-			stationUsers += username;
+	for ( user in aUsers ) {
+		if (user.active) {
+			if ( stationUsers.length > 0 )
+				stationUsers += ',' + user;
+			else
+				stationUsers += user;
+		}
 	}
 
 	return 'lastfm://users/' + stationUsers + '/personal';
@@ -223,7 +226,7 @@ function radioTune() {
 }
 
 function onUsersChanged(newUsers) {
-	if ( _.intersection(users, newUsers).length == _.keys(users).length ) {
+	if ( currentStation != getStation(newUsers) ) {
 		// the users have changed so we'll need to retune
 		// clearing the tracks will make this happen
 		tracks = [];
