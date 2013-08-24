@@ -51,14 +51,16 @@ function doUpdateNowPlaying(username, session_key, track) {
 }
 
 function updateNowPlaying(track) {
-	// always scrobble to clientroom
-	doUpdateNowPlaying("clientroom", config.sk, track);
+	if ( !_.isEmpty(track) ) {
+		// always scrobble to clientroom
+		doUpdateNowPlaying("clientroom", config.sk, track);
 
-	_.each(users, function(data, user) {
-		if ( !(!user.scrobbling || !user.active) ) {
-			doUpdateNowPlaying(user, data.sk, track);
-		}
-	});
+		_.each(users, function(data, user) {
+			if ( !(!data.scrobbling || !data.active) ) {
+				doUpdateNowPlaying(user, data.sk, track);
+			}
+		});
+	}
 }
 
 function doScrobble(username, session_key, track) {
@@ -83,12 +85,12 @@ function doScrobble(username, session_key, track) {
 }
 
 function scrobble(track) {
-	if ( new Date().getTime() - track.timestamp > Math.round( track.duration / 2 ) ) {
+	if ( !_.isEmpty(track) && new Date().getTime() - track.timestamp > Math.round( track.duration / 2 ) ) {
 		// we've listened to more than half the song
 		doScrobble("clientroom", config.sk, track);
 
 		_.each(users, function(data, user) {
-			if (  !(!user.scrobbling || !user.active) 
+			if (  !(!data.scrobbling || !data.active) 
 					&& !_.contains(_.keys(skippers), user) ) {
 				// the user hasn't voted to skip this track
 				doScrobble(user, data.sk, track);
@@ -97,16 +99,28 @@ function scrobble(track) {
 	}
 }
 
-function getStation(aUsers = aUsers || users) {
+function active(aUsers) {
+	var activeUsers = {};
+
+	for ( var user in aUsers ) {
+		if ( !_.contains(aUsers[user], "active") || aUsers[user].active ) {
+			activeUsers[user] = aUsers[user];
+		}
+	}
+
+	return activeUsers;
+}
+
+function getStation(aUsers) {
+	aUsers = typeof aUsers !== 'undefined' ? aUsers : users;
+
 	var stationUsers = '';
 
-	for ( user in aUsers ) {
-		if (user.active) {
-			if ( stationUsers.length > 0 )
-				stationUsers += ',' + user;
-			else
-				stationUsers += user;
-		}
+	for ( var user in active(aUsers) ) {
+		if ( stationUsers.length > 0 )
+			stationUsers += ',' + user;
+		else
+			stationUsers += user;
 	}
 
 	return 'lastfm://users/' + stationUsers + '/personal';
@@ -136,11 +150,13 @@ function playTrack() {
 function onEndTrack() {
 	scrobble(bus.value.currentTrack);
 
-	// check if there are more songs to play
+	// clear the current track so that it doesn't get scrobbled again
+	// and so the UI is correct if there are no more tracks
+	bus.publish('currentTrack', {}, onComplete);
 
+	// check if there are more songs to play
 	if ( tracks.length == 0 ) {
 		// there are no more tracks in the current playlist
-
 		if ( getStation() != currentStation ) {
 			radioTune();
 		}
@@ -207,7 +223,9 @@ function onRadioTuned(data) {
 };
 
 function radioTune() {
-	if ( !_.isEmpty(users) ) {
+	currentStation = '';
+
+	if ( !_.isEmpty(active(users)) ) {
 		currentStation = getStation();
 
 		console.log( currentStation );
@@ -232,7 +250,7 @@ function onUsersChanged(newUsers) {
 		tracks = [];
 	 }
 
-  	var start = (_.isEmpty(users) && !_.isEmpty(newUsers));
+  	var start = (_.isEmpty(active(users)) && !_.isEmpty(active(newUsers)));
 	users = newUsers;
 
   	if ( start ) {
