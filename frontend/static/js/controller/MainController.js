@@ -1,6 +1,6 @@
 function MainController($scope, socket) {
 	$scope.username = loggedInAs;
-	$scope.radioname = config.radioname;
+	$scope.radioname = config.name;
 	$scope.currentTrack = {};
 	$scope.users = [];
 	$scope.skippers = [];
@@ -72,7 +72,6 @@ function MainController($scope, socket) {
 		}
 
 		resetProgressBar();
-		$scope.skipped = false;
 		$scope.$apply();
 	});
 			
@@ -83,6 +82,7 @@ function MainController($scope, socket) {
 
 	socket.skippersCallback.add(function(data) {
 		$scope.skippers = data;
+		$scope.skipped = false;
 		for(var i=0, len=data.length; i < len; i++){
 			var user = data[i];
 			if (user == loggedInAs) {

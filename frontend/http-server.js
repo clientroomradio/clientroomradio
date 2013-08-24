@@ -44,7 +44,7 @@ module.exports.start = function (config, rebus) {
 		var username = req.cookies.username;
 
 		res.header('Content-Type', 'application/javascript');
-		res.send('var config = ' + JSON.stringify(config) + "; var loggedInAs =" + JSON.stringify(username) + ";");
+		res.send('var config = ' + JSON.stringify(config.external) + "; var loggedInAs =" + JSON.stringify(username) + ";");
 	});
 
 	httpServer.listen(config.port);
