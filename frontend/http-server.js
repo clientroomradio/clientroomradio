@@ -47,8 +47,26 @@ module.exports.start = function (config, rebus) {
 		res.send('var config = ' + JSON.stringify(config.external) + "; var loggedInAs =" + JSON.stringify(username) + ";");
 	});
 
-	httpServer.listen(config.port);
-	console.log('Listening on port %s', config.port);
+	httpServer.listen(config.frontendPort);
+	console.log('Listening externally on port %s', config.frontendPort);
+
+	// Internal port
+
+	var appInternal = express();
+	appInternal.use(express.bodyParser());
+
+	appInternal.post('/progress', function(req, res){
+		console.log("progress:", req.body.progress);
+	    res.end();
+	});
+
+	appInternal.post('/chat', function(req, res){
+		console.log("message:", req.body.message);
+	    res.end();
+	});
+
+	appInternal.listen(config.internalPort);
+	console.log('Listening internally on port %s', config.internalPort);
 
 	// events
 	var EventEmitter = require("events").EventEmitter;
