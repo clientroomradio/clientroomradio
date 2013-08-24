@@ -31,10 +31,10 @@ function doUpdateNowPlaying(username, session_key, track) {
 		sk: session_key,
 		handlers: {
 			success: function(lfm) {
-				console.log("updated now playing for:", username);
+				console.log("Scrobbled track for:", username);
 			},
 			error: function(error) {
-				console.log("Error: " + error.message);
+				console.log("Scrobble error: " + error.message);
 			}
 		}
 	});
@@ -61,10 +61,10 @@ function doScrobble(username, session_key, track) {
 		"chosenByUser[0]": "0",
 		handlers: {
 			success: function(lfm) {
-				console.log("updated now playing for:", username);
+				console.log("Updated now playing for:", username);
 			},
 			error: function(error) {
-				console.log("Error: " + error.message);
+				console.log("Now playing error: " + error.message);
 			}
 		}
 	});
