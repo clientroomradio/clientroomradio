@@ -57,7 +57,9 @@ function updateNowPlaying(track) {
 	doUpdateNowPlaying("clientroom", config.sk, track);
 
 	_.each(users, function(data, user) {
-		doUpdateNowPlaying(user, data.sk, track);
+		if ( user.scrobbling ) {
+			doUpdateNowPlaying(user, data.sk, track);
+		}
 	});
 }
 
@@ -88,7 +90,7 @@ function scrobble(track) {
 		doScrobble("clientroom", config.sk, track);
 
 		_.each(users, function(data, user) {
-			if ( !_.contains(_.keys(skippers), user) ) {
+			if ( user.scrobbling && !_.contains(_.keys(skippers), user) ) {
 				// the user hasn't voted to skip this track
 				doScrobble(user, data.sk, track);
 			}
