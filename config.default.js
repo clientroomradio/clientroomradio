@@ -2,9 +2,13 @@ var config = {
   "api_key": "<API_KEY>",
   "secret": "<SECRET>",
   "sk": "<SK>",
-  "radioname": "test room radio",
   "host": "localhost",
-  "port": 3000
+  "frontendPort": 3000,
+  "internalPort": 3001,
+  "external": {
+  	"name": "Client Room Radio",
+  	"stream": "http://localhost:8080/stream.mp3"
+  }
 }
 
 // for nodejs 

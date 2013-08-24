@@ -41,20 +41,11 @@ function MainController($scope, socket) {
 	}
 
 	// Update progress bar
-	var intervalProgressBar = null;
-	var resetProgressBar = function() {
-		if (intervalProgressBar != null) {
-			clearInterval(intervalProgressBar);
-		}
-		$scope.currentPositionInTrack = 0;
-		intervalProgressBar = setInterval(function() {
-			$scope.currentPositionInTrack += 100;
-			$scope.$apply();
-		}, 100);
-	};
+
 	$scope.progressBarStyle = function() {
 		return {'width':  ($scope.currentPositionInTrack / $scope.currentTrack.duration * 100) + '%'};
 	};
+
 	$scope.durationInText = function() {
 		var inSec = $scope.currentTrack.duration / 1000;
 
@@ -65,16 +56,22 @@ function MainController($scope, socket) {
 		$scope.currentTrack = data;
 
 		$scope.loved = false;
-		for(var i=0, len=data.context.length; i < len; i++){
-			if(data.context[i].userloved == 1 && loggedInAs == data.context[i].username) {
-				$scope.loved = true;
+		if (data.context) {
+			for(var i=0, len=data.context.length; i < len; i++){
+				if(data.context[i].userloved == 1 && loggedInAs == data.context[i].username) {
+					$scope.loved = true;
+				}
 			}
 		}
 
-		resetProgressBar();
 		$scope.$apply();
 	});
 			
+	socket.progressCallback.add(function(progress) {
+		$scope.currentPositionInTrack = $scope.currentTrack.duration * progress;
+		$scope.$apply();
+	});
+
 	socket.usersCallback.add(function(data) {
 		$scope.users = data;
 		$scope.$apply();
