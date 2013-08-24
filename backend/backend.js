@@ -97,8 +97,6 @@ function scrobble(track) {
 }
 
 function getStation() {
-	return 'lastfm://tag/under a minute';
-
 	var stationUsers = '';
 
 	for ( username in users ) {
