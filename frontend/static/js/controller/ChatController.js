@@ -28,43 +28,42 @@ function ChatController($scope, $element, socket) {
 
 	socket.chatCallback.add(function(data) {
 		var $el = $simpleChatLineTemplate.clone();
-		if (data.text.indexOf('/me ') == 0) {
+		if (data.text && data.text.indexOf('/me ') == 0) {
 			data.text = data.text.substring(4);
 			$el.addClass('chat-line--me');
 		}
 
-		$('.chat-inner-text', $el).text(data.text);
-		$('.chat-name', $el).text(data.user);
-		$('.chat-time', $el).text(getTimeString());
+		if (data.system) {
+			$el.addClass('chat-line--sys').addClass('chat-line--' + data.type);
+		}
 
-		$chatContent.append($el);
-		scrollDown();
-	});
-
-	socket.sysCallback.add(function(data) {
-		var $el = $simpleChatLineTemplate.clone();
-		$el.addClass('chat-line--sys').addClass('chat-line--' + data.type);
-
-		if (data.type == 'skip') {
+		if (data.system == 'skip') {
 			if (data.text) {
 				$('.chat-inner-text', $el).text('skipped: "'+data.text+'"');
 			} else {
 				$('.chat-inner-text', $el).text('skipped.');
 			}
-		} else if (data.type == 'alreadySkipped') {
+		} else if (data.system == 'alreadySkipped') {
 			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');
-		} else if (data.type == 'love') {
+		} else if (data.system == 'love') {
 			$('.chat-inner-text', $el).text('just loved this track');
-		} else if (data.type == 'unlove') {
+		} else if (data.system == 'unlove') {
 			$('.chat-inner-text', $el).text('just un-loved this track');
+		} else if (data.system == 'scrobbleOff') {
+			$('.chat-inner-text', $el).text('turned scrobbling off');
+		} else if (data.system == 'scrobbleOn') {
+			$('.chat-inner-text', $el).text('turned scrobbling on');
+		}else {
+			$('.chat-inner-text', $el).text(data.text);
 		}
+
 		
 		$('.chat-name', $el).text(data.user);
 		$('.chat-time', $el).text(getTimeString());
 
 		$chatContent.append($el);
 		scrollDown();
-	})
+	});
 
 	$input.keyup(function(e){
 		if(e.keyCode == 13)

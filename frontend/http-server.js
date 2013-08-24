@@ -1,6 +1,8 @@
 module.exports.start = function (config, rebus) {
 	var express = require('express');
 	var LastFmNode = require('lastfm').LastFmNode;
+	var _ = require('underscore');
+	var uuid = require('node-uuid');
 
 	var currentTrack = {};
 	var currentProgress = 0;
@@ -21,8 +23,8 @@ module.exports.start = function (config, rebus) {
 	app.use(express.cookieParser());
 
 	app.get('/logout', function(req, res) {
+		res.clearCookie('session');
 		res.clearCookie('username');
-		res.clearCookie('sk');
 		res.redirect('/');
 	});
 
@@ -30,16 +32,29 @@ module.exports.start = function (config, rebus) {
 		var token = req.param('token');
 
 		lastfm.session({ token:token}).on('success', function(session) {
+			var sessionKey = uuid.v4();
+			res.cookie('session', sessionKey);
 			res.cookie('username', session.user);
-			res.cookie('sk', session.key);
 
 			var users = rebus.value.users || {};
-			users[session.user] = {'sk': session.key, scrobbling:true};
+			users[session.user] = {'session': sessionKey,'sk': session.key, scrobbling:true};
 			rebus.publish('users', users);
 
 			res.redirect('/');
 		});
 	});
+
+	function getUsernameForSessionToken(session) {
+		var users = rebus.value.users || {};
+		var result;
+		_.each(users, function(data, username) {
+			if (data.session == session) {
+				result = username;
+				
+			}
+		});
+		return result;
+	}
 
 	app.get('/config.js', function(req, res) {
 		var username = req.cookies.username;
@@ -96,130 +111,151 @@ module.exports.start = function (config, rebus) {
 	var eventEmitter = new eventsClass.EventEmitter();
 
 	sockjs.on('connection', function(conn) {
+
+		conn.once('data', function(session) {
+			var username = getUsernameForSessionToken(session);
+			var userData = rebus.value.users[username];
 		
-		console.log('connected to ...')
+			console.log('connected to %s', username);
 
-		var send = function(type, data) {
-			conn.write(JSON.stringify({type: type, data: data}));
-		}
-
-		var sendNewTrack = function() {
-			send('newTrack', currentTrack);
-		};
-		events.addListener('newTrack', sendNewTrack);
-		sendNewTrack();
-
-		var sendUsers = function() {
-			send('users', rebus.value.users);
-		};
-		events.addListener('usersChange', sendUsers);
-		sendUsers();
-
-		var updateProgress = function() {
-			send('progress', currentProgress);
-		};
-		events.addListener('updateProgress', updateProgress);
-		updateProgress();
-
-		var sendSkippers = function() {
-			send('skippers', rebus.value.skippers);
-		};
-		events.addListener('skippersChange', sendSkippers);
-		sendSkippers();
-
-		conn.on('data', function(dataAsString) {
-			var payload = JSON.parse(dataAsString);
-			var type = payload.type;
-			var data = payload.data;
-			if (type == 'chatMessage') {
-				eventEmitter.emit('broadcast', 'chat', data);
-				return;	
+			var send = function(type, data) {
+				conn.write(JSON.stringify({type: type, data: data}));
 			}
-			if (type == 'skip') {
+
+			var sendNewTrack = function() {
+				send('newTrack', currentTrack);
+			};
+			events.addListener('newTrack', sendNewTrack);
+			sendNewTrack();
+
+			var sendUsers = function() {
+				// shitty deep clone to filter session keys out
+				var users = JSON.parse(JSON.stringify(rebus.value.users));
 				
-				var skippers = rebus.value.skippers;
-				var alreadySkipped = false;
-				for(var i=0, len=skippers.length; i < len; i++){
-					var user = skippers[i];
+				_.each(users, function(data, name){ 
+					delete(data.sk);
+					delete(data.session);
+				});
+				send('users', users);
+			};
+			events.addListener('usersChange', sendUsers);
+			sendUsers();
 
-					if (user == data.user) {
-						alreadySkipped = true;
-					}
+			var updateProgress = function() {
+				send('progress', currentProgress);
+			};
+			events.addListener('updateProgress', updateProgress);
+			updateProgress();
+
+			var sendSkippers = function() {
+				send('skippers', rebus.value.skippers);
+			};
+			events.addListener('skippersChange', sendSkippers);
+			sendSkippers();
+
+			conn.on('data', function(dataAsString) {
+				var payload = JSON.parse(dataAsString);
+				var type = payload.type;
+				var data = payload.data;
+				if (type == 'chatMessage') {
+					eventEmitter.emit('broadcast', 'chat', data);
+					return;	
 				}
-				if (alreadySkipped) {
-					eventEmitter.emit('broadcast', 'sys', {
-						type: 'alreadySkipped',
-						user: data.user
-					});
-				} else {
-					skippers.push(data.user);
-					rebus.publish('skippers', skippers );
-
-					eventEmitter.emit('broadcast', 'sys', {
-						type: 'skip',
-						text: data.text,
-						user: data.user
-					});
-				}
-
-				
-				return;	
-			}
-			if (type == 'love') {
-
-
-				var request = lastfm.request("track.love", {
-					track: currentTrack.title,
-					artist: currentTrack.creator,
-					sk: rebus.value.users[data.user].sk,
-					handlers: {
-						success: function(lfm) {
-							console.log("loving for:", data.user);
-						},
-						error: function(error) {
-							console.log("Error: " + error.message);
+				if (type == 'skip') {
+					
+					var skippers = rebus.value.skippers;
+					var alreadySkipped = false;
+					for(var i=0, len=skippers.length; i < len; i++){
+						var user = skippers[i];
+						if (user == username) {
+							alreadySkipped = true;
 						}
 					}
-				});
-
-				eventEmitter.emit('broadcast', 'sys', {
-					type: 'love',
-					user: data.user
-				});
-				return;
-			}
-			if (type == 'unlove') {
-				
-				var request = lastfm.request("track.unlove", {
-					track: currentTrack.title,
-					artist: currentTrack.creator,
-					sk: rebus.value.users[data.user].sk,
-					handlers: {
-						success: function(lfm) {
-							console.log("unloving for:", data.user);
-						},
-						error: function(error) {
-							console.log("Error: " + error.message);
-						}
+					if (alreadySkipped) {
+						eventEmitter.emit('broadcast', 'chat', {
+							system: 'alreadySkipped',
+							user: username
+						});
+					} else {
+						skippers.push(username);
+						rebus.publish('skippers', skippers );
+						eventEmitter.emit('broadcast', 'chat', {
+							system: 'skip',
+							text: data.text,
+							user: username
+						});
 					}
-				});
+					
+					return;	
+				}
+				if (type == 'love') {
 
-				eventEmitter.emit('broadcast', 'sys', {
-					type: 'unlove',
-					user: data.user
-				});
+					var request = lastfm.request("track.love", {
+						track: currentTrack.title,
+						artist: currentTrack.creator,
+						sk: userData.sk,
+						handlers: {
+							success: function(lfm) {
+								console.log("loving for:", username);
+							},
+							error: function(error) {
+								console.log("Error: " + error.message);
+							}
+						}
+					});
 
-				return;
-			}
+					eventEmitter.emit('broadcast', 'chat', {
+						system: 'love',
+						user: username
+					});
+					return;
+				}
+				if (type == 'unlove') {
+					
+					var request = lastfm.request("track.unlove", {
+						track: currentTrack.title,
+						artist: currentTrack.creator,
+						sk: userData.sk,
+						handlers: {
+							success: function(lfm) {
+								console.log("unloving for:", username);
+							},
+							error: function(error) {
+								console.log("Error: " + error.message);
+							}
+						}
+					});
 
-			console.log("received", data);
+					eventEmitter.emit('broadcast', 'chat', {
+						system: 'unlove',
+						user: username
+					});
+
+					return;
+				}
+				if (type == 'scrobbleStatus') {
+
+					var users = rebus.value.users || {};
+					users[username].scrobbling = data?true:false;
+					rebus.publish('users', users);
+
+					eventEmitter.emit('broadcast', 'chat', {
+						system: data?'scrobbleOn':'scrobbleOff',
+						user: username
+					});
+
+					return;
+				}
+
+				console.log("received", data);
+			});
+
+			eventEmitter.on('broadcast', send);
+
+		    conn.on('close', function() {
+		    	eventEmitter.removeListener('broadcast', send);
+		    	console.log('disconnects');
+		    });
 		});
-
-		eventEmitter.on('broadcast', send);
-
-	    conn.on('close', function() {
-	    	eventEmitter.removeListener('broadcast', send);
-	    	console.log('disconnects');
-	    });
 	});
 }

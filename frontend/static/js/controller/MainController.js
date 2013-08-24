@@ -2,7 +2,7 @@ function MainController($scope, socket) {
 	$scope.username = loggedInAs;
 	$scope.radioname = config.name;
 	$scope.currentTrack = {};
-	$scope.users = [];
+	$scope.users = {};
 	$scope.skippers = [];
 	$scope.currentPositionInTrack = 0;
 	$scope.loved = false;
@@ -29,6 +29,7 @@ function MainController($scope, socket) {
 
 	$scope.setScrobbling = function(value) {
 		$scope.scrobbling = value;
+		socket.sendScrobbleStatus(value);
 	}
 
 	// Some helper functions
