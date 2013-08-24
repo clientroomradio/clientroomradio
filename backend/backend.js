@@ -1,11 +1,20 @@
 
 var users = {};
 var tracks = [];
+var skippers = [];
 var currentStation = '';
 var _ = require("underscore");
 var config = require("../config.js");
 
 var LastFmNode = require('lastfm').LastFmNode;
+
+var http = require("http");
+var url = require("url");
+
+// Array of HttpServerResponse objects that are listening clients.
+var clients = [];
+// The max number of listening clients allowed at a time.
+var maxClients = 15;
 
 var lastfm = new LastFmNode({
 	api_key: config.api_key,
@@ -94,9 +103,7 @@ function playTrack() {
 	bus.publish('currentTrack',	track, onComplete);
 	bus.publish('skippers', [], onComplete );
 
-	// simulate a song lasting 3 seconds
-	// TODO: actually play the song
-	setTimeout(onEndTrack, 10000);
+	getmp3(track.location);
 }
 
 function onEndTrack() {
@@ -206,7 +213,8 @@ var bus = rebus('../rebus-storage', function(err) {
   	}
   });
 
-  var skippersNotification = bus.subscribe('skippers', function(skippers) {
+  var skippersNotification = bus.subscribe('skippers', function(aSkippers) {
+  	skippers = aSkippers;
   	if ( _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
   		console.log( "SKIP!" );
   	}
@@ -214,6 +222,87 @@ var bus = rebus('../rebus-storage', function(err) {
 
   users = bus.value.users;
   radioTune();
+});
+
+function onMp3Data(chunk) {
+	process.stdout.write(".");
+	for ( var i = 0 ; i < clients.length ; i++ ) {
+		clients[i].write(chunk);
+	}
+}
+
+function onMp3Error(e) {
+	console.log("Got error: " + e.message);
+}
+
+function getmp3(mp3) {
+
+  http.get(mp3, function(resource) {
+    console.log("Got response: " + resource.statusCode);
+
+    if (resource.statusCode > 300 && resource.statusCode < 400 && resource.headers.location) {
+	    // The location for some (most) redirects will only contain the path,  not the hostname;
+	    // detect this and add the host to the path.
+	    if (url.parse(resource.headers.location).hostname) {
+	    	console.log("YEAH");
+	          // Hostname included; make request to res.headers.location
+	          http.get(resource.headers.location, function(redirResource) {
+	          	redirResource.on("data", onMp3Data).on('error', onMp3Error ).on('end', onEndTrack);
+	          });
+
+	    } else {
+	          // Hostname not included; get host from requested URL (url.parse()) and prepend to location.
+	          console.log("FUCK");
+	    }
+
+	// Otherwise no redirect; capture the response as normal            
+	} else {
+	    resource.on("data", onMp3Data).on('error', onMp3Error ).on('end', onEndTrack);
+	}
+  });
+}
+
+// Now we create the HTTP server.
+http.createServer(function(req, res) {
+
+  // Does the client support icecast metadata?
+  var acceptsMetadata = req.headers['icy-metadata'] == 1;
+
+  if (req.url == "/stream.mp3") {
+    
+    // Sorry, too busy, try again later!
+    if (clients.length >= maxClients) {
+      res.writeHead(503);
+      return res.end("The maximum number of clients ("+maxClients+") are aleady connected, try connecting again later...")
+    }
+
+    var headers = {
+      "Content-Type": "audio/mpeg",
+      "Connection": "close",
+      "Transfer-Encoding": "identity"
+    };
+
+    res.writeHead(200, headers);
+
+    clients.push(res);
+    
+    console.log("Client Connected: "+req.connection.remoteAddress+"!" + " Total " + clients.length);
+    
+    req.connection.on("close", function() {
+      // This occurs when the HTTP client closes the connection.
+      clients.splice(clients.indexOf(res), 1);
+      console.error("Client Disconnected: "+req.connection.remoteAddress+" :(" + " Total " + clients.length);
+    });
+
+  }
+
+}).listen(5555, function() {
+  console.error("HTTP Icecast server listening at: "+ "http://*:" + this.address().port);
+});
+
+process.on('uncaughtException', function(e) {
+  console.error("UNCAUGHT EXCEPTION:", e.message);
+  console.error(e.stack);
 });
 
 
