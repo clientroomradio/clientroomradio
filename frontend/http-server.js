@@ -48,6 +48,7 @@ module.exports.start = function (config, rebus) {
 	});
 
 	httpServer.listen(config.port);
+	console.log('Listening on port %s', config.port);
 
 	// events
 	var EventEmitter = require("events").EventEmitter;

@@ -10,7 +10,7 @@ function MainController($scope, socket) {
 	$scope.scrobbling = true;
 
 	$scope.login = function() {
-		location.href = "http://www.last.fm/api/auth/?api_key="+config.api_key+"&cb=http://"+config.host+":"+config.port+"/login";
+		location.href = "http://www.last.fm/api/auth/?api_key="+config.api_key+"&cb="+$(location).attr('href')+"login";
 	}
 
 	$scope.love = function() {
