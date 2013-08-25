@@ -2,6 +2,23 @@ body {
 	overflow: hidden;
 }
 
+.navbar-brand {
+	background: url('/img/crr_32.png') 10px 8px no-repeat; 
+	padding-left: 50px;
+}
+
+.no-right-padding {
+	padding-right: 0px;
+}
+
+.no-left-padding {
+	padding-left: 0px;
+}
+
+.progress-white {
+	background: #B0D1EC;
+}
+
 .pull-right-button {
 	margin-right: 5px;
 }

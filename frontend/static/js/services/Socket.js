@@ -45,7 +45,7 @@ var Socket = function(SOCKJS_URL) {
 		
 		sockjs.onmessage = function(payload) {
 			payload = $.parseJSON(payload.data);
-			console.log(payload);
+			//console.log(payload);
 			//ar payload = jQuery.parseJSON(payloadAsString);
 			var type = payload.type;
 			var data = payload.data;

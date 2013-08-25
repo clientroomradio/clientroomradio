@@ -23,8 +23,15 @@ module.exports.start = function (config, rebus) {
 	app.use(express.cookieParser());
 
 	app.get('/logout', function(req, res) {
+		var username = getUsernameForSessionToken(req.cookies.session);
+
 		res.clearCookie('session');
 		res.clearCookie('username');
+
+		var users = rebus.value.users || {};
+		delete users[username];
+		rebus.publish('users', users);
+
 		res.redirect('/');
 	});
 
@@ -33,11 +40,18 @@ module.exports.start = function (config, rebus) {
 
 		lastfm.session({ token:token}).on('success', function(session) {
 			var sessionKey = uuid.v4();
+
+
 			res.cookie('session', sessionKey);
 			res.cookie('username', session.user);
 
 			var users = rebus.value.users || {};
-			users[session.user] = {'session': sessionKey,'sk': session.key, scrobbling:true};
+			users[session.user] = {
+				'session': sessionKey,
+				'sk': session.key, 
+				'scrobbling': true,
+				'active': true
+			};
 			rebus.publish('users', users);
 
 			res.redirect('/');
@@ -72,7 +86,6 @@ module.exports.start = function (config, rebus) {
 	appInternal.use(express.bodyParser());
 
 	appInternal.post('/progress', function(req, res){
-		console.log("progress:", req.body.progress);
 		currentProgress = req.body.progress;
 		events.emit('updateProgress');
 	    res.end();
@@ -157,11 +170,11 @@ module.exports.start = function (config, rebus) {
 				var payload = JSON.parse(dataAsString);
 				var type = payload.type;
 				var data = payload.data;
-				if (type == 'chatMessage') {
+				if (type == 'chatMessage' && username) {
 					eventEmitter.emit('broadcast', 'chat', data);
 					return;	
 				}
-				if (type == 'skip') {
+				if (type == 'skip' && username) {
 					
 					var skippers = rebus.value.skippers;
 					var alreadySkipped = false;
@@ -188,7 +201,7 @@ module.exports.start = function (config, rebus) {
 					
 					return;	
 				}
-				if (type == 'love') {
+				if (type == 'love' && username) {
 
 					var request = lastfm.request("track.love", {
 						track: currentTrack.title,
@@ -210,7 +223,7 @@ module.exports.start = function (config, rebus) {
 					});
 					return;
 				}
-				if (type == 'unlove') {
+				if (type == 'unlove' && username) {
 					
 					var request = lastfm.request("track.unlove", {
 						track: currentTrack.title,
@@ -233,7 +246,7 @@ module.exports.start = function (config, rebus) {
 
 					return;
 				}
-				if (type == 'scrobbleStatus') {
+				if (type == 'scrobbleStatus' && username) {
 
 					var users = rebus.value.users || {};
 					users[username].scrobbling = data?true:false;

@@ -8,6 +8,8 @@ function MainController($scope, socket) {
 	$scope.loved = false;
 	$scope.skipped = false;
 	$scope.scrobbling = true;
+	$scope.stream = config.stream;
+	$scope.muted = false;
 
 	$scope.login = function() {
 		location.href = "http://www.last.fm/api/auth/?api_key="+config.api_key+"&cb="+$(location).attr('href')+"login";
@@ -21,6 +23,10 @@ function MainController($scope, socket) {
 	$scope.unlove = function() {
 		$scope.loved = false;
 		socket.unlove();
+	}
+
+	$scope.isPlaying = function() {
+		return $scope.currentTrack.creator ? true : false; 
 	}
 
 	$scope.skip = function(message) {
@@ -40,6 +46,30 @@ function MainController($scope, socket) {
 	$scope.getUserCount = function() {
 		return _.keys($scope.users).length;
 	}
+
+	// Music
+	$(document).ready(function(){
+
+		$("#audio-player").jPlayer({
+	 		ready: function () {
+	    		var $player = $(this).jPlayer("setMedia", {
+	    			mp3: "http://localhost:8080/stream.mp3"
+	    		});
+
+	    		$player.jPlayer("play");
+
+	    		$scope.$watch('muted', function() {
+					$player.jPlayer("mute", $scope.muted);
+				});
+	    	},
+	    	swfPath: "/js",
+	    	supplied: "mp3"
+		});
+	});
+	  
+
+
+
 
 	// Update progress bar
 

@@ -8,7 +8,7 @@ var config = {
   "external": {
   	"api_key": "<API_KEY>",
   	"name": "Client Room Radio",
-  	"stream": "http://localhost:8080/stream.mp3"
+  	"stream": "http://www.clientroomradio.com:8080/stream.mp3"
   }
 }
 
