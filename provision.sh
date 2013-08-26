@@ -28,10 +28,13 @@ else
 	sudo apt-get install nodejs -y
 fi
 
+# Make sure this script works both with and without vagrant
+if [ -d "/vagrant" ]; then
+	cd /vagrant
+fi
+
 cd backend
 npm install --no-bin-link
-cd $cwd
-
-cd frontend
+cd ../frontend
 npm install --no-bin-link
 cd $cwd
