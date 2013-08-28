@@ -332,7 +332,74 @@ function doSend(path, data) {
 	req.end();
 }
 
-setInterval(updateProgress, 500)
+setInterval(updateProgress, 500);
+
+var lame = require('lame');
+var sp = require('libspotify');
+
+var spDetails = require('./spDetails.js');
+
+var spSession = new sp.Session({
+    applicationKey: __dirname + '/spotify_appkey.key'
+});
+
+// example spotify call
+//playSpotifyTrack('artist:"R. Kelly" track:"Ignition Remix"');
+
+function playSpotifyTrack(searchTerm) {
+	spSession.login(spDetails.username, spDetails.password);
+
+	spSession.once('login', function(err) {
+	    if (err) {
+	    	this.emit('error', err);
+		}
+
+	    var spSearch = new sp.Search(searchTerm);
+	    spSearch.trackCount = 1; // we're only interested in the first result;
+	    spSearch.execute();
+	    spSearch.once('ready', function() {
+	        if(!spSearch.tracks.length) {
+	            console.log('there is no track to play :[');
+	            spSession.logout();
+	        }
+
+	        var track = spSearch.tracks[0];
+	        var spPlayer = spSession.getPlayer();
+	        spPlayer.load(track);
+	        spPlayer.play();
+
+			// VLC needs a file to play (and didn't seem to like being
+			// given PCM data) so use lame to convert Spotify's PCM data
+			// to mp3 and write that to a file that can be read by VLC
+			var w = fs.createWriteStream('spTrack.mp3');
+			var lameEncoder = new lame.Encoder();
+			spPlayer.pipe(lameEncoder).pipe(w);
+
+			var r = fs.createReadStream('spTrack.mp3');
+		    var vlcMedia = vlc.mediaFromNode(r);
+			vlcMedia.parseSync();
+			vlcPlayer = vlc.mediaplayer;
+			vlcPlayer.media = vlcMedia;
+
+			// KLUDGE: wait one sec before playing
+			// so there's some data in the buffer
+			setInterval( function() { vlcPlayer.play(); }, 1000 );
+
+	        spPlayer.on('data', function(buffer) {
+	            // buffer.length
+	            // buffer.rate
+	            // buffer.channels
+	            // 16bit samples
+	        });
+
+	        spPlayer.once('track-end', function() {
+	            console.log('track ended');
+	            sptPlayer.stop();
+	            spSession.logout();
+	        });
+	    });
+	});
+}
 
 
 
