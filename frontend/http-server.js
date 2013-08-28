@@ -28,6 +28,11 @@ module.exports.start = function (config, rebus) {
 		res.clearCookie('session');
 		res.clearCookie('username');
 
+		eventEmitter.emit('broadcast', 'chat', {
+			system: 'left',
+			user: username
+		});
+
 		var users = rebus.value.users || {};
 		delete users[username];
 		rebus.publish('users', users);
@@ -123,17 +128,47 @@ module.exports.start = function (config, rebus) {
 	var eventsClass = require('events');
 	var eventEmitter = new eventsClass.EventEmitter();
 
+	var lastHeartbeat = {}
+	setInterval(function() {
+		var current = new Date().getTime();
+		_.each(lastHeartbeat, function(timestamp, username) {
+			if (current - 10000 > timestamp) {
+				
+				delete lastHeartbeat[username];
+
+				var users = rebus.value.users || {};
+				delete users[username];
+				rebus.publish('users', users);
+
+				console.log(username, 'has timed out.');
+
+				eventEmitter.emit('broadcast', 'chat', {
+					system: 'timedOut',
+					user: username
+				});
+			}	
+		});
+	}, 10000);
+
 	sockjs.on('connection', function(conn) {
 
-		conn.once('data', function(session) {
-			var username = getUsernameForSessionToken(session);
-			var userData = rebus.value.users[username];
-		
-			console.log('connected to %s', username);
+		var send = function(type, data) {
+			conn.write(JSON.stringify({type: type, data: data}));
+		};
 
-			var send = function(type, data) {
-				conn.write(JSON.stringify({type: type, data: data}));
-			}
+		conn.once('data', function(session) {
+			var username = null;
+			var userData = null;
+
+			if (session != '') {
+				username = getUsernameForSessionToken(session);
+				userData = rebus.value.users[username];	
+
+				if (username == null) {
+					// This can happen when the user times out.
+					send('disconnected', null);
+				}
+			} 
 
 			var sendNewTrack = function() {
 				send('newTrack', currentTrack);
@@ -166,102 +201,113 @@ module.exports.start = function (config, rebus) {
 			events.addListener('skippersChange', sendSkippers);
 			sendSkippers();
 
-			conn.on('data', function(dataAsString) {
-				var payload = JSON.parse(dataAsString);
-				var type = payload.type;
-				var data = payload.data;
-				if (type == 'chatMessage' && username) {
-					eventEmitter.emit('broadcast', 'chat', data);
-					return;	
-				}
-				if (type == 'skip' && username) {
-					
-					var skippers = rebus.value.skippers;
-					var alreadySkipped = false;
-					for(var i=0, len=skippers.length; i < len; i++){
-						var user = skippers[i];
-						if (user == username) {
-							alreadySkipped = true;
-						}
-					}
-					if (alreadySkipped) {
-						eventEmitter.emit('broadcast', 'chat', {
-							system: 'alreadySkipped',
-							user: username
-						});
-					} else {
-						skippers.push(username);
-						rebus.publish('skippers', skippers );
-						eventEmitter.emit('broadcast', 'chat', {
-							system: 'skip',
-							text: data.text,
-							user: username
-						});
-					}
-					
-					return;	
-				}
-				if (type == 'love' && username) {
 
-					var request = lastfm.request("track.love", {
-						track: currentTrack.title,
-						artist: currentTrack.creator,
-						sk: userData.sk,
-						handlers: {
-							success: function(lfm) {
-								console.log("loving for:", username);
-							},
-							error: function(error) {
-								console.log("Error: " + error.message);
+			if (username) {
+				console.log('connected to %s', username);
+				conn.on('data', function(dataAsString) {
+					var payload = JSON.parse(dataAsString);
+					var type = payload.type;
+					var data = payload.data;
+					if (type == 'chatMessage' && username) {
+						eventEmitter.emit('broadcast', 'chat', data);
+						return;	
+					}
+					if (type == 'skip' && username) {
+						
+						var skippers = rebus.value.skippers;
+						var alreadySkipped = false;
+						for(var i=0, len=skippers.length; i < len; i++){
+							var user = skippers[i];
+							if (user == username) {
+								alreadySkipped = true;
 							}
 						}
-					});
-
-					eventEmitter.emit('broadcast', 'chat', {
-						system: 'love',
-						user: username
-					});
-					return;
-				}
-				if (type == 'unlove' && username) {
-					
-					var request = lastfm.request("track.unlove", {
-						track: currentTrack.title,
-						artist: currentTrack.creator,
-						sk: userData.sk,
-						handlers: {
-							success: function(lfm) {
-								console.log("unloving for:", username);
-							},
-							error: function(error) {
-								console.log("Error: " + error.message);
-							}
+						if (alreadySkipped) {
+							eventEmitter.emit('broadcast', 'chat', {
+								system: 'alreadySkipped',
+								user: username
+							});
+						} else {
+							skippers.push(username);
+							rebus.publish('skippers', skippers );
+							eventEmitter.emit('broadcast', 'chat', {
+								system: 'skip',
+								text: data.text,
+								user: username
+							});
 						}
-					});
+						
+						return;	
+					}
+					if (type == 'love' && username) {
 
-					eventEmitter.emit('broadcast', 'chat', {
-						system: 'unlove',
-						user: username
-					});
+						var request = lastfm.request("track.love", {
+							track: currentTrack.title,
+							artist: currentTrack.creator,
+							sk: userData.sk,
+							handlers: {
+								success: function(lfm) {
+									console.log("loving for:", username);
+								},
+								error: function(error) {
+									console.log("Error: " + error.message);
+								}
+							}
+						});
 
-					return;
-				}
-				if (type == 'scrobbleStatus' && username) {
+						eventEmitter.emit('broadcast', 'chat', {
+							system: 'love',
+							user: username
+						});
+						return;
+					}
+					if (type == 'unlove' && username) {
+						
+						var request = lastfm.request("track.unlove", {
+							track: currentTrack.title,
+							artist: currentTrack.creator,
+							sk: userData.sk,
+							handlers: {
+								success: function(lfm) {
+									console.log("unloving for:", username);
+								},
+								error: function(error) {
+									console.log("Error: " + error.message);
+								}
+							}
+						});
 
-					var users = rebus.value.users || {};
-					users[username].scrobbling = data?true:false;
-					rebus.publish('users', users);
+						eventEmitter.emit('broadcast', 'chat', {
+							system: 'unlove',
+							user: username
+						});
 
-					eventEmitter.emit('broadcast', 'chat', {
-						system: data?'scrobbleOn':'scrobbleOff',
-						user: username
-					});
+						return;
+					}
+					if (type == 'scrobbleStatus' && username) {
 
-					return;
-				}
+						var users = rebus.value.users || {};
+						users[username].scrobbling = data?true:false;
+						rebus.publish('users', users);
 
-				console.log("received", data);
-			});
+						eventEmitter.emit('broadcast', 'chat', {
+							system: data?'scrobbleOn':'scrobbleOff',
+							user: username
+						});
+
+						return;
+					}
+
+					if (type == 'heartbeat' && username) {
+						lastHeartbeat[username] = new Date().getTime();
+						return;
+					}
+
+					console.log("received", data);
+				});
+			} else {
+				console.log('Anonymus user connected');
+			}
 
 			eventEmitter.on('broadcast', send);
 

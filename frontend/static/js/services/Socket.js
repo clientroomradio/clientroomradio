@@ -45,10 +45,13 @@ var Socket = function(SOCKJS_URL) {
 		
 		sockjs.onmessage = function(payload) {
 			payload = $.parseJSON(payload.data);
-			//console.log(payload);
-			//ar payload = jQuery.parseJSON(payloadAsString);
 			var type = payload.type;
 			var data = payload.data;
+
+			if (type == 'disconnected') {
+				location.href = '/logout';
+				return;
+			}
 
 			if (type == 'newTrack') {
 				that.newTrackCallback.fire(data);
@@ -83,19 +86,29 @@ var Socket = function(SOCKJS_URL) {
 			console.log('Unhandled Message: ', type, data);
 		};
 
+		var heartbeat = null;
 
 		sockjs.onopen = function() {
-			sockjs.send($.cookie('session'));
+			var session = $.cookie('session');
+			if (session == undefined) {
+				session = '';
+			}
+			sockjs.send(session);
 
 			if (reconnectTimeout != null) {
 				reconnectTimeout = null;
 				clearTimeout(reconnectTimeout);
 			}
 			that.openCallback.fire();
+
+			heartbeat = setInterval(function() {
+				send('heartbeat', null);
+			}, 2000);
 		};
 		sockjs.onclose = function() {
 			that.closeCallback.fire();
 			reconnectTimeout = setTimeout(connect, 1000);
+			clearInterval(heartbeat);
 		};
 	};
 
