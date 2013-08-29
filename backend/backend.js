@@ -144,7 +144,7 @@ function playTrack() {
 	bus.publish('currentTrack', track, onComplete );
 	bus.publish('skippers', [], onComplete );
 
-	doSend('/newtrack', track);
+	//doSend('/newtrack', track);
 
 	getmp3(track.location);
 }
