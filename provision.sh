@@ -50,5 +50,5 @@ cd ../frontend
 sudo npm install #--no-bin-link
 cd $cwd
 
-#sudo screen -dmS nodeForeverInALoop "frontend/startForever.sh"
-#sudo screen -dmS nodeForeverInALoop "backend/startForever.sh"
+#sudo screen -dmS frontend "frontend/startForever.sh"
+#sudo screen -dmS backend "backend/startForever.sh"

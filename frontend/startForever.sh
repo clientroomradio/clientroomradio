@@ -6,7 +6,7 @@ echo
 while :
 do
 	echo "#### RESTARTING `date` ####" >> app.log
-	node app.js | tee -a app.log
+	nodejs app.js | tee -a app.log
 	echo "Sleeping one second. Press [CTRL+C] to stop.."
 	sleep 1
 done
