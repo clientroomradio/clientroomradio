@@ -2,7 +2,7 @@
 var users = {};
 var tracks = [];
 var skippers = [];
-var player;
+var vlcPlayer;
 var currentStation = '';
 var _ = require("underscore");
 var config = require("../config.js");
@@ -266,7 +266,7 @@ function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
 	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
 		console.log( "SKIP!" );
-		player.pause();
+		vlcPlayer.pause();
 		sendChatMessage("SKIP!");
 	}
 }
@@ -281,7 +281,7 @@ var bus = rebus('../rebus-storage', function(err) {
 });
 
 function checkPlayingState() {
-	if (player.is_playing) {
+	if (vlcPlayer.is_playing) {
 		setTimeout(checkPlayingState, 500);
 	} else {
 		onEndTrack();
@@ -289,19 +289,21 @@ function checkPlayingState() {
 }
 
 function getmp3(mp3) {
+	console.log(mp3);
+
 	var media = vlc.mediaFromUrl(mp3);
 	media.parseSync();
-	player = vlc.mediaplayer;
-	player.media = media;
+	vlcPlayer = vlc.mediaplayer;
+	vlcPlayer.media = media;
 	console.log('Media duration:', media.duration);
-	player.play();
+	vlcPlayer.play();
 
 	setTimeout(checkPlayingState, 10000);
 }
 
 function updateProgress() {
-	if (player) {
-		doSend('/progress', '{"progress":' + player.position + '}');
+	if (vlcPlayer) {
+		doSend('/progress', '{"progress":' + vlcPlayer.position + '}');
 	}
 }
 
