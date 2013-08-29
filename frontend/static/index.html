@@ -69,7 +69,7 @@
                   <i class="icon-group"></i>
 
                   <span ng-repeat="contextUser in currentTrack.context">
-                   {{contextUser.username}} ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
+                   <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.creator}}/_/{{currentTrack.title}}" target="_blank">{{contextUser.username}}</a> ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
                   </span>
                 </div>
               </div>
