@@ -140,6 +140,7 @@ function playTrack() {
 	track.timestamp = new Date().getTime();
 
 	updateNowPlaying(track);
+	doSend('/newtrack', track);
 
 	bus.publish('currentTrack', track, onComplete );
 	bus.publish('skippers', [], onComplete );
