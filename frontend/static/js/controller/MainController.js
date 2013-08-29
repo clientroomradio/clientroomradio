@@ -53,7 +53,7 @@ function MainController($scope, socket) {
 		$("#audio-player").jPlayer({
 	 		ready: function () {
 	    		var $player = $(this).jPlayer("setMedia", {
-	    			mp3: "http://localhost:8080/stream.mp3"
+	    			mp3: config.stream
 	    		});
 
 	    		$player.jPlayer("play");
