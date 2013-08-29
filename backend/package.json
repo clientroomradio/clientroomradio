@@ -8,7 +8,6 @@
     "underscore": "1.5.1",
     "rebus": "0.4.7",
     "vlc": "0.0.4",
-    "lame":"1.0.2",
-    "libspotify":"0.2.1"
+    "lame":"1.0.2"
   }
 }

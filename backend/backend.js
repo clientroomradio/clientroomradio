@@ -339,9 +339,9 @@ setInterval(updateProgress, 500);
 var lame = require('lame');
 var sp = require('libspotify');
 
-var spDetails = require('./spDetails.js');
-
 var spSession = new sp.Session({
+	cache_location: __dirname + "/spCache/",
+    settings_location: __dirname + "/spSettings/",
     applicationKey: __dirname + '/spotify_appkey.key'
 });
 
@@ -349,7 +349,7 @@ var spSession = new sp.Session({
 //playSpotifyTrack('artist:"R. Kelly" track:"Ignition Remix"');
 
 function playSpotifyTrack(searchTerm) {
-	spSession.login(spDetails.username, spDetails.password);
+	spSession.relogin();
 
 	spSession.once('login', function(err) {
 	    if (err) {
@@ -396,7 +396,7 @@ function playSpotifyTrack(searchTerm) {
 
 	        spPlayer.once('track-end', function() {
 	            console.log('track ended');
-	            sptPlayer.stop();
+	            spPlayer.stop();
 	            spSession.logout();
 	        });
 	    });
