@@ -177,7 +177,7 @@ function onRadioGotPlaylist(data) {
 
 	_.each(tracks, function(track) {
 
-		_.each(users, function(data,user) {
+		_.each(active(users), function(data,user) {
 			var request = lastfm.request("track.getInfo", {
 				track: track.title,
 				artist: track.creator,
