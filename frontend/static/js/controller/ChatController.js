@@ -56,7 +56,7 @@ function ChatController($scope, $element, socket) {
 		} else if (data.system == 'scrobbleOn') {
 			$('.chat-inner-text', $el).text('turned scrobbling on');
 		} else if (data.system == 'timedOut') {
-			$('.chat-inner-text', $el).text('has lost his connection and has therefore been removed from the radio');
+			$('.chat-inner-text', $el).text('has lost their connection and has been removed from the radio');
 		} else if (data.system == 'left') {
 			$('.chat-inner-text', $el).text('left');
 		} else {
