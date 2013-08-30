@@ -4,4 +4,6 @@ config.js
 spotify_appkey.key
 spDetails.js
 spTrack.mp3
+*/spSettings/
+*/spCache/
 .DS_Store
