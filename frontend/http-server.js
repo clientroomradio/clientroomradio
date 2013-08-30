@@ -239,6 +239,15 @@ module.exports.start = function (config, rebus) {
 						
 						return;	
 					}
+					if (type == 'request' && username) {
+						doSend('/request', '{"username":"' + username +'","request":' + JSON.stringify(data) + '}');
+						eventEmitter.emit('broadcast', 'chat', {
+							system: 'request',
+							text: data,
+							user: username
+						});
+						return;
+					}
 					if (type == 'love' && username) {
 
 						var request = lastfm.request("track.love", {
@@ -317,4 +326,29 @@ module.exports.start = function (config, rebus) {
 		    });
 		});
 	});
+}
+
+function doSend(path, data) {
+	var options = {
+		hostname: 'localhost',
+		port: 3002,
+		path: path,
+		method: 'POST',
+		headers: {"content-type":"application/json"}
+	};
+
+	var req = require('http').request(options, function(res) {
+		res.setEncoding('utf8');
+		res.on('data', function (chunk) {
+			console.log( path + ' BODY: ' + chunk);
+		});
+	});
+
+	req.on('error', function(e) {
+	  console.log('problem with ' + path + ' request: ' + e.message);
+	});
+
+	// write data to request body
+	req.write(data);
+	req.end();
 }
