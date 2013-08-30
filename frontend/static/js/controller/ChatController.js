@@ -43,7 +43,9 @@ function ChatController($scope, $element, socket) {
 			} else {
 				$('.chat-inner-text', $el).text('skipped.');
 			}
-		} else if (data.system == 'alreadySkipped') {
+		} else if (data.system == 'request') {
+			$('.chat-inner-text', $el).text('requested "' + data.text + '"');
+		}else if (data.system == 'alreadySkipped') {
 			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');
 		} else if (data.system == 'love') {
 			$('.chat-inner-text', $el).text('just loved this track');
@@ -54,7 +56,7 @@ function ChatController($scope, $element, socket) {
 		} else if (data.system == 'scrobbleOn') {
 			$('.chat-inner-text', $el).text('turned scrobbling on');
 		} else if (data.system == 'timedOut') {
-			$('.chat-inner-text', $el).text('has lost his connection and has therefore been removed from the radio');
+			$('.chat-inner-text', $el).text('has lost their connection and has been removed from the radio');
 		} else if (data.system == 'left') {
 			$('.chat-inner-text', $el).text('left');
 		} else {
@@ -76,6 +78,9 @@ function ChatController($scope, $element, socket) {
 			if (inputText.indexOf('?skip') == 0) {
 				inputText = inputText.substring(6);
 				socket.sendSkip(inputText);
+			} else if (inputText.indexOf('?request') == 0) {
+				inputText = inputText.substring(9);
+				socket.sendRequest(inputText);
 			} else {
 				socket.sendChatMessage({'user': loggedInAs, 'text': inputText});
 			}

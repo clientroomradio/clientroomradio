@@ -28,6 +28,10 @@ var Socket = function(SOCKJS_URL) {
 		send('skip', {text: message});
 	}
 
+	that.sendRequest = function(request) {
+		send('request', request);
+	}
+
 	that.sendScrobbleStatus = function(status) {
 		send('scrobbleStatus', status);
 	}

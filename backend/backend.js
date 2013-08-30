@@ -2,6 +2,7 @@
 var users = {};
 var tracks = [];
 var skippers = [];
+var requests = [];
 var vlcPlayer;
 var currentStation = '';
 var _ = require("underscore");
@@ -91,7 +92,7 @@ function scrobble(track) {
 
 		_.each(users, function(data, user) {
 			if (  !(!data.scrobbling || !data.active) 
-					&& !_.contains(_.keys(skippers), user) ) {
+					&& !_.contains(skippers, user) ) {
 				// the user hasn't voted to skip this track
 				doScrobble(user, data.sk, track);
 			}
@@ -133,20 +134,26 @@ function onComplete(err) {
 }
 
 function playTrack() {
-	var track = tracks.shift();
-	console.log("PLAYING TRACK:", track.title, '-', track.creator);
+	if ( requests.length > 0 ) {
+		var request = JSON.parse(requests.shift());
+		playSpotifyTrack(request.request);
+	}
+	else {
+		var track = tracks.shift();
+		console.log("PLAYING TRACK:", track.title, '-', track.creator);
 
-	// add a timestamp to the track as we start it
-	track.timestamp = new Date().getTime();
+		// add a timestamp to the track as we start it
+		track.timestamp = new Date().getTime();
 
-	updateNowPlaying(track);
+		updateNowPlaying(track);
 
-	bus.publish('currentTrack', track, onComplete );
-	bus.publish('skippers', [], onComplete );
+		bus.publish('currentTrack', track, onComplete );
+		bus.publish('skippers', [], onComplete );
 
-	//doSend('/newtrack', track);
+		//doSend('/newtrack', track);
 
-	getmp3(track.location);
+		getmp3(track.location);
+	}
 }
 
 function onEndTrack() {
@@ -172,37 +179,39 @@ function onEndTrack() {
 	}
 }
 
+function getContext(track) {
+	_.each(active(users), function(data,user) {
+		var request = lastfm.request("track.getInfo", {
+			track: track.title,
+			artist: track.creator,
+			username: user,
+			handlers: {
+				success: function(lfm) {
+					console.log(track.title, user, lfm.track.userplaycount)
+					track.context = track.context || [];
+					if ( lfm.track.userplaycount ) {
+						track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
+
+						if ( bus.value.currentTrack.timestamp == track.timestamp ) {
+							// update the current track with the new context
+							bus.publish('currentTrack', track, onComplete );
+						}
+					}
+				},
+				error: function(error) {
+					console.log("Error: " + error.message);
+				}
+			}
+		});
+	});
+}
+
 function onRadioGotPlaylist(data) {
 	tracks = data.playlist.trackList.track;
 
 	// get all the contexts and insert them into the tracks
-
 	_.each(tracks, function(track) {
-
-		_.each(active(users), function(data,user) {
-			var request = lastfm.request("track.getInfo", {
-				track: track.title,
-				artist: track.creator,
-				username: user,
-				handlers: {
-					success: function(lfm) {
-						console.log(track.title, user, lfm.track.userplaycount)
-						track.context = track.context || [];
-						if ( lfm.track.userplaycount ) {
-							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
-
-							if ( bus.value.currentTrack.timestamp == track.timestamp ) {
-								// update the current track with the new context
-								bus.publish('currentTrack', track, onComplete );
-							}
-						}
-					},
-					error: function(error) {
-						console.log("Error: " + error.message);
-					}
-				}
-			});
-		});
+		getContext(track);
 	});
 
 	playTrack();
@@ -264,7 +273,7 @@ function onUsersChanged(newUsers) {
 
 function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
-	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
+	if ( vlcPlayer && _.keys(users).length > 0 && skippers.length >= Math.ceil(_.keys(users).length / 2) ) {
 		console.log( "SKIP!" );
 		vlcPlayer.pause();
 		sendChatMessage("SKIP!");
@@ -347,10 +356,9 @@ var spSession = new sp.Session({
     applicationKey: __dirname + '/spotify_appkey.key'
 });
 
-// example spotify call
-//playSpotifyTrack('artist:"R. Kelly" track:"Ignition Remix"');
-
 function playSpotifyTrack(searchTerm) {
+	console.log(searchTerm);
+
 	spSession.relogin();
 
 	spSession.once('login', function(err) {
@@ -367,10 +375,25 @@ function playSpotifyTrack(searchTerm) {
 	            spSession.logout();
 	        }
 
-	        var track = spSearch.tracks[0];
+	        var spTrack = spSearch.tracks[0];
 	        var spPlayer = spSession.getPlayer();
-	        spPlayer.load(track);
+	        spPlayer.load(spTrack);
 	        spPlayer.play();
+
+	        console.log(spTrack);
+
+	        var currentTrack = {};
+	        currentTrack.creator = spTrack.artists[0].name;
+	        currentTrack.album = spTrack.album.name;
+	        currentTrack.title = spTrack.title;
+	        currentTrack.duration = String(spTrack.duration);
+	        currentTrack.timestmp = new Date().getTime();
+	        getContext( currentTrack );
+
+	        updateNowPlaying(currentTrack);
+
+			bus.publish('currentTrack', currentTrack, onComplete );
+			bus.publish('skippers', [], onComplete );
 
 			// VLC needs a file to play (and didn't seem to like being
 			// given PCM data) so use lame to convert Spotify's PCM data
@@ -388,6 +411,7 @@ function playSpotifyTrack(searchTerm) {
 			// KLUDGE: wait one sec before playing
 			// so there's some data in the buffer
 			setInterval( function() { vlcPlayer.play(); }, 1000 );
+			setTimeout(checkPlayingState, 10000);
 
 	        spPlayer.on('data', function(buffer) {
 	            // buffer.length
@@ -405,5 +429,25 @@ function playSpotifyTrack(searchTerm) {
 	});
 }
 
+http.createServer(function (request, res) {
 
+
+  console.log("got request");
+
+  if (request.url == '/request') {
+  	console.log("it's /request!")
+	var body = '';
+	request.on('data', function (data) {
+		console.log(".");
+		body += data;
+	});
+	request.on('end', function () {
+		console.log(body);
+		requests.push(body);
+		res.writeHead(200, {'Content-Type': 'text/plain'});
+  		res.end('');
+	});
+  }
+
+}).listen(3002);
 
