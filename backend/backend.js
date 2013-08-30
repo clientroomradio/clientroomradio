@@ -91,7 +91,7 @@ function scrobble(track) {
 
 		_.each(users, function(data, user) {
 			if (  !(!data.scrobbling || !data.active) 
-					&& !_.contains(_.keys(skippers), user) ) {
+					&& !_.contains(skippers, user) ) {
 				// the user hasn't voted to skip this track
 				doScrobble(user, data.sk, track);
 			}
@@ -264,7 +264,7 @@ function onUsersChanged(newUsers) {
 
 function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
-	if ( _.keys(users).length > 0 && _.keys(skippers).length >= Math.ceil(_.keys(users).length / 2) ) {
+	if ( vlcPlayer && _.keys(users).length > 0 && skippers.length >= Math.ceil(_.keys(users).length / 2) ) {
 		console.log( "SKIP!" );
 		player.pause();
 		sendChatMessage("SKIP!");
