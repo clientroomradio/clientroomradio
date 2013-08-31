@@ -1,196 +1,169 @@
 <!DOCTYPE html>
-<html ng-app="crrAngular">
-  <head>
-    <title>Clientroomradio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
-    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+<html ng-app="crrAngular" id="clientroomradio-com">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Client Room Radio</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+        <link href="css/main.css" rel="stylesheet">
+    </head>
+    <body ng-controller="MainController">
 
-    <link rel="stylesheet" href="css/main.css">
-  </head>
-  <body ng-controller="MainController">
-       
-
-    <!-- Header -->
-    <nav class="navbar navbar-default" role="navigation">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-hide="username==null">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">{{radioname}}</a>
-      </div>
-
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse navbar-ex1-collapse" >      
-        <ul class="nav navbar-nav navbar-right">
-          <li><a class="" href="/logout" ng-show="username">Log out</a></li>
-        </ul>
-      </div>
-    </nav>
-
-    <!-- Login -->
-    <div class="jumbotron" ng-show="username==null" ng-cloak>
-      <div class="container">
-        <h1>It's Friday, Friday...</h1>
-        <button class="btn btn-primary" ng-click="login()">Login via Last.fm</button>
-      </div>
-    </div>
-
-    <!-- Main area -->
-    <div class="container" ng-cloak>
-      <div class="row">
-        <div class="well">
-          <div class="">
-            <div class="media current-track">
-              <a class="pull-left" href="#">
-                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.creator}} - {{currentTrack.title}}">
-              </a>
-              <div class="media-body">
-
-
-                <h4 class="media-heading" ng-show="isPlaying()">{{currentTrack.creator}} - {{currentTrack.title}} ({{durationInText()}})</h4>
-                <h4 class="media-heading" ng-hide="isPlaying()">Nothing playing at the moment.</h4>
-
-                <p ng-hide="isPlaying()">Join to get the party stared!</p>
-
-
-                
-                <div class="progress progress-white" ng-show="isPlaying()">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"><span class="sr-only"></span></div>
-                </div>
-
-                <div id="audio-player"></div>
-
-                <div class="current-track-libraries" ng-show="isPlaying()">
-                  <i class="icon-group"></i>
-
-                  <span ng-repeat="contextUser in currentTrack.context">
-                   <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.creator}}/_/{{currentTrack.title}}" target="_blank">{{contextUser.username}}</a> ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
-                  </span>
-                </div>
-              </div>
+        <!-- Header -->
+        <nav class="navbar navbar-default" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-hide="username==null">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">{{radioname}}</a>
             </div>
-          </div>
 
-
-          <div class="current-track-buttons"  ng-show="isPlaying()">
-            
-
-            
-
-
-            <div class="pull-left">
-              <div class="btn-group "  >
-                <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="skipped || (username==null)">
-                  <i class="icon-thumbs-down"></i> Skip
-                </button>
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-disabled="skipped || (username==null)">
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu" ng-init="messages=[
-                  'Meh.', 'Not again', 'Not right now', 'I scrobbled this by accident', 'THIS IS HELL!'
-                ]">
-                  <li ng-repeat="message in messages"><a href="javascript:void()" ng-click="skip(message)">{{message}}</a></li>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/logout" ng-show="username">Log out</a>
+                    </li>
                 </ul>
-              </div>
-
-             
-              <p class="skippers">
-                {{skippers.length}} of {{skippersNeeded()}} 
-                <span class="text-muted" ng-hide="skippers.length==0">       
-                  (<span ng-repeat="skipper in skippers">{{skipper}}<span ng-show="$last==false">, </span></span>)
-                </span>
-              </p>
             </div>
+        </nav>
 
-            
-          </div>
-
-          <div class="clearfix visible-xs" style="margin-bottom:20px;"></div>
-
-          <div class="pull-right">
-
-            <button type="button" class="btn pull-right-button pull-right btn-default {{muted?'btn-danger':''}}" ng-click="muted=!muted">
-              <i class="{{muted?'icon-volume-off':'icon-volume-up'}}"></i>
-            </button>
-
-            <button type="button" class="btn btn-default pull-right-button pull-right" ng-hide="loved" ng-click="love()" ng-disabled="username==null">
-              <i class="icon-heart-empty"></i> Love
-            </button>
-            <button type="button" class="btn btn-danger pull-right-button pull-right" ng-show="loved" ng-click="unlove()" ng-disabled="username==null">
-              <i class="icon-heart"></i> 
-              Un-love
-            </button>
-            <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="username==null">
-              <i class="icon-bullhorn"></i> Scrobbling {{scrobbling?'on':'off'}}
-            </button>
-
-          </div>  
-
-          <div class="clearfix"></div>
-
-        </div>
-      </div>  
-
-      <div class="row" ng-hide="username==null">
-        <div class="col-sm-10 col-xs-12 no-left-padding">
-
-          <div class="panel panel-default" ng-controller="ChatController">
-            <div class="panel-body chat-content">
-
+        <!-- Login -->
+        <div class="jumbotron" ng-show="username==null" ng-cloak>
+            <div class="container">
+                <h1>It’s Friday, Friday…</h1>
+                <button class="btn btn-primary" ng-click="login()">Login via Last.fm</button>
             </div>
-            <div class="panel-footer">
-             <div class="input-group input-group-sm">
-              <span class="input-group-addon">{{username}}</span>
-              <input type="text" class="form-control chat-input" ng-keyup="onKeyUp()">
-             </div>
-            </div>
-          </div>
-
         </div>
 
-        <ul class="list-group col-sm-2 col-xs-12 no-right-padding">
-          <li class="list-group-item active listener-count">
-            <ng-pluralize count="getUserCount()"
-               when="{'one': '1 Listener',
-                   'other': '{} Listeners'}">
-            </ng-pluralize>
-          </li>
-          <li ng-repeat="(username, data) in users" class="list-group-item">{{username}} <i ng-show="data.scrobbling" class="icon-bullhorn"></i></li>
-        </ul>
+        <!-- Main area -->
+        <div class="container" ng-cloak>
+            <div class="row">
+                <div class="well">
+                    <div>
+                        <div class="media current-track">
+                            <a class="pull-left" href="#">
+                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.creator}} - {{currentTrack.title}}">
+                            </a>
+                            <div class="media-body">
+                                <h4 class="media-heading" ng-show="isPlaying()">{{currentTrack.creator}} - {{currentTrack.title}} ({{durationInText()}})</h4>
+                                <h4 class="media-heading" ng-hide="isPlaying()">Nothing playing at the moment.</h4>
 
-        
-      
-    </div>
+                                <p ng-hide="isPlaying()">Join to get the party stared!</p>
 
-    <!-- Javascript - Libs -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
-    <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
-    <script src="/js/lib/jquery.cookie.js"></script>
-    <script src="/js/lib/jquery.jplayer.min.js"></script>
+                                <div class="progress progress-white" ng-show="isPlaying()">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"><span class="sr-only"></span></div>
+                                </div>
 
-    <!-- Javascript - Config -->
-    <script src="/config.js"></script>
+                                <div id="audio-player"></div>
 
-    <!-- Javascript - Controllers -->
-    <script src="/js/controller/LoginController.js"></script>
-    <script src="/js/controller/MainController.js"></script>
-    <script src="/js/controller/ChatController.js"></script>
+                                <div class="current-track-libraries" ng-show="isPlaying()">
+                                    <i class="icon-group"></i>
 
-    <!-- Javascript - Services -->
-    <script src="/js/services/Socket.js"></script>
+                                    <span ng-repeat="contextUser in currentTrack.context">
+                                     <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.creator}}/_/{{currentTrack.title}}" target="_blank">{{contextUser.username}}</a> ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span>)<span ng-show="$last==false">,</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Start services -->
-    <script src="/js/services.js"></script>
-    <script>
-      initClientRoomRadio('/sockjs');
-    </script>
-  </body>
+                    <div class="current-track-buttons" ng-show="isPlaying()">
+                        <div class="pull-left">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="skipped || (username==null)">
+                                    <i class="icon-thumbs-down"></i> Skip
+                                </button>
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-disabled="skipped || (username==null)">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu" ng-init="messages=[
+                                    'Meh.', 'Not again', 'Not right now', 'I scrobbled this by accident', 'THIS IS HELL!'
+                                ]">
+                                    <li ng-repeat="message in messages"><a href="javascript:void()" ng-click="skip(message)">{{message}}</a></li>
+                                </ul>
+                            </div>
+                            <p class="skippers">
+                                {{skippers.length}} of {{skippersNeeded()}}
+                                <span class="text-muted" ng-hide="skippers.length==0">
+                                    (<span ng-repeat="skipper in skippers">{{skipper}}<span ng-show="$last==false">, </span></span>)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="clearfix visible-xs" style="margin-bottom:20px;"></div>
+                    <div class="pull-right">
+
+                        <button type="button" class="btn pull-right-button pull-right btn-default {{muted?'btn-danger':''}}" ng-click="muted=!muted">
+                            <i class="{{muted?'icon-volume-off':'icon-volume-up'}}"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-default pull-right-button pull-right" ng-hide="loved" ng-click="love()" ng-disabled="username==null">
+                            <i class="icon-heart-empty"></i> Love
+                        </button>
+                        <button type="button" class="btn btn-danger pull-right-button pull-right" ng-show="loved" ng-click="unlove()" ng-disabled="username==null">
+                            <i class="icon-heart"></i>
+                            Un-love
+                        </button>
+                        <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="username==null">
+                            <i class="icon-bullhorn"></i> Scrobbling {{scrobbling?'on':'off'}}
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <div class="row" ng-hide="username==null">
+                <div class="col-sm-10 col-xs-12 no-left-padding">
+                    <div class="panel panel-default" ng-controller="ChatController">
+                        <div class="panel-body chat-content"></div>
+                        <div class="panel-footer">
+                         <div class="input-group input-group-sm">
+                            <span class="input-group-addon">{{username}}</span>
+                            <input type="text" class="form-control chat-input" ng-keyup="onKeyUp()">
+                         </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="list-group col-sm-2 col-xs-12 no-right-padding">
+                    <li class="list-group-item active listener-count">
+                        <ng-pluralize
+                             count="getUserCount()"
+                             when="{'one': '1 Listener', 'other': '{} Listeners'}">
+                        </ng-pluralize>
+                    </li>
+                    <li ng-repeat="(username, data) in users" class="list-group-item">{{username}} <i ng-show="data.scrobbling" class="icon-bullhorn"></i></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Javascript - Libs -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+        <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+        <script src="/js/lib/jquery.cookie.js"></script>
+        <script src="/js/lib/jquery.jplayer.min.js"></script>
+
+        <!-- Javascript - Config -->
+        <script src="/config.js"></script>
+
+        <!-- Javascript - Controllers -->
+        <script src="/js/controller/LoginController.js"></script>
+        <script src="/js/controller/MainController.js"></script>
+        <script src="/js/controller/ChatController.js"></script>
+
+        <!-- Javascript - Services -->
+        <script src="/js/services/Socket.js"></script>
+
+        <!-- Start services -->
+        <script src="/js/services.js"></script>
+        <script>initClientRoomRadio('/sockjs');</script>
+    </body>
 </html>
