@@ -5,3 +5,4 @@ spotify_appkey.key
 spDetails.js
 spTrack.mp3
 .DS_Store
+*.dat
