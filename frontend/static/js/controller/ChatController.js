@@ -27,6 +27,16 @@ function ChatController($scope, $element, socket) {
 
 	socket.chatCallback.add(function(data) {
 		var $el = $simpleChatLineTemplate.clone();
+		
+		if (data.creator) {
+			data = {
+				system: "newtrack",
+				user: "Client Room Radio",
+				text: data.creator + " — " + data.title
+			};
+		}
+		
+		
 		if (data.text && data.text.indexOf('/me ') == 0) {
 			data.text = data.text.substring(4);
 			$el.addClass('chat-line--me');
@@ -71,7 +81,10 @@ function ChatController($scope, $element, socket) {
 	});
 
 	$input.keyup(function(e){
-		if(e.keyCode == 13)
+		
+		var ENTER = 13;
+		
+		if(e.keyCode == ENTER)
 		{
 			var inputText = $input.val();
 			if (inputText.indexOf('?skip') == 0) {

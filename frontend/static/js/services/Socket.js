@@ -58,7 +58,13 @@ var Socket = function(SOCKJS_URL) {
 			}
 
 			if (type == 'newTrack') {
-				that.newTrackCallback.fire(data);
+				
+				// We're getting empty new track events through occasionally
+				// This shouldn't happen.
+				if (! $.isEmptyObject(data)) {
+					that.newTrackCallback.fire(data);
+					that.chatCallback.fire(data);
+				}
 				return;
 			}
 
