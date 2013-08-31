@@ -79,9 +79,12 @@ function MainController($scope, socket) {
 	};
 
 	$scope.durationInText = function() {
-		var inSec = $scope.currentTrack.duration / 1000;
+		var totalSeconds   = $scope.currentTrack.duration / 1000,
+			minutes        = Math.floor(totalSeconds / 60),
+			remainder      = "" + totalSeconds % 60;
 
-		return Math.floor(inSec / 60) + ':' + (inSec % 60);
+		remainder = "00".substring(0, 2 - remainder.length) + remainder;
+		return minutes + ':' + remainder;
 	}
 
 	socket.newTrackCallback.add(function(data) {
