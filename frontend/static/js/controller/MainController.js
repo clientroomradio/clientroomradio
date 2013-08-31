@@ -44,7 +44,8 @@ function MainController($scope, socket) {
 	} 
 
 	$scope.getUserCount = function() {
-		return _.keys($scope.users).length;
+		// See: http://kangax.github.io/es5-compat-table/#Object.keys
+		return Object.keys($scope.users).length;
 	}
 
 	// Music
