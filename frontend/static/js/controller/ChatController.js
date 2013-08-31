@@ -3,7 +3,6 @@ function ChatController($scope, $element, socket) {
 	var $input= $('.chat-input', $element);
 
 	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
-	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
 
 	function getTimeString() {
 
