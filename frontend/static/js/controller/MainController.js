@@ -48,6 +48,16 @@ function MainController($scope, socket) {
 		return Object.keys($scope.users).length;
 	}
 
+	$scope.askForSkipMessage = function() {
+		$('#skipModal').modal({backdrop: false});
+	}
+
+	$scope.askForSkipMessageSend = function() {
+		var reason = $('#skipReason').val();
+		$scope.skip(reason);
+		$('#skipModal').modal('hide')
+	}
+
 	// Music
 	$(document).ready(function(){
 
