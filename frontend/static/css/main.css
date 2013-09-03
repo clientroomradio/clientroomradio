@@ -30,7 +30,7 @@
 
 .current-track h4 a {
 	color: #333333;
-	
+
 }
 
 .skippers {
@@ -105,4 +105,8 @@
 	background-position: 0 -12px;
 	display: block;
 	margin-top: 3px;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }
