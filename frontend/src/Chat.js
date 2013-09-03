@@ -45,6 +45,10 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('newTrack', null, track.title + ' — ' + track.creator);
 	}
 
+	that.spotifyRequest = function(user, request) {
+		that.sendSystemMessage('spotifyRequest', user, request);
+	}
+
 	that.send = function(data) {
 		data.timestamp = new Date().getTime();
 		backlog.push(data);

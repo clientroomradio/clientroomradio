@@ -14,6 +14,7 @@ var ScrobblingManager = require('./src/ScrobblingManager.js');
 var SkipManager = require('./src/SkipManager.js');
 var SkippersDao = require('./src/SkippersDao.js');
 var Socket = require('./src/Socket.js');
+var SpotifyRequestIssuer = require('./src/SpotifyRequestIssuer.js')
 var UserDao = require('./src/UserDao.js');
 
 // Instances
@@ -40,6 +41,7 @@ rebus.onReady = function() {
 	var loveManager = new LoveManager(socket, currentTrackDao, chat, lastfmClient);
 	var heartbeatManager = new HeartbeatManager(socket, userDao);
 	var currentTrackChatUpdater = new CurrentTrackChatUpdater(currentTrackDao, chat);
+	var spotifyRequestIssuer = new SpotifyRequestIssuer(chat, socket, config);
 
 	// Start
 	expressInternal.start();

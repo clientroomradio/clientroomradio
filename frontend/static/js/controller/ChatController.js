@@ -43,7 +43,7 @@ function ChatController($scope, $element, socket) {
 			} else {
 				$('.chat-inner-text', $el).text('skipped.');
 			}
-		} else if (data.system == 'request') {
+		} else if (data.system == 'spotifyRequest') {
 			$('.chat-inner-text', $el).text('requested "' + data.text + '"');
 		}else if (data.system == 'alreadySkipped') {
 			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');

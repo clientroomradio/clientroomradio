@@ -11,7 +11,7 @@ module.exports = function(socket, currentTrackDao, chat, lastfmClient) {
 		});
 	});
 
-	socket.on('unlove', function(user, data) {
+	socket.on('unlove', function(user) {
 		lastfmClient.setLoveStatus(user, currentTrackDao.getCurrentTrack(), true, function(err) {
 			if (err) {
 				console.log("Error: " + err);

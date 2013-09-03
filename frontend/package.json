@@ -9,6 +9,7 @@
     "lastfm": "0.9.0",
     "sockjs": "0.3.7",
     "underscore": "1.5.1",
-    "node-uuid": "1.4.1"
+    "node-uuid": "1.4.1",
+    "request": "2.27.0"
   }
 }
