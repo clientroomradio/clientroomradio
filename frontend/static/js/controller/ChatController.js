@@ -106,10 +106,8 @@ function ChatController($scope, $element, socket) {
 	    var containerHeight = $(window).height();
 	    if ($(window).width() > 768) {
 	    	$chatContent.css('height', containerHeight - 355);
-	    	$('body').css('overflow', 'hidden');
 		} else {
 			$chatContent.css('height', 200);
-			$('body').css('overflow', 'auto');
 		}
 	    scrollDown();
 	}
