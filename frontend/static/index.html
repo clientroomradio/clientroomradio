@@ -51,7 +51,12 @@
                                 <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.creator}} - {{currentTrack.title}}">
                             </a>
                             <div class="media-body">
-                                <h4 class="media-heading" ng-show="isPlaying()">{{currentTrack.creator}} - {{currentTrack.title}} ({{durationInText()}})</h4>
+                                <h4 class="media-heading" ng-show="isPlaying()">
+                                    <a ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.creator}}</a> 
+                                    - 
+                                    <a ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.title}}</a> 
+                                    ({{durationInText()}})
+                                </h4>
                                 <h4 class="media-heading" ng-hide="isPlaying()">Nothing playing at the moment.</h4>
 
                                 <p ng-hide="isPlaying()">Join to get the party stared!</p>

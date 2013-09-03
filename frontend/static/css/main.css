@@ -28,6 +28,11 @@
 	margin-top: 10px;
 }
 
+.current-track h4 a {
+	color: #333333;
+	
+}
+
 .skippers {
 	display: inline;
 	margin-left: 10px;
