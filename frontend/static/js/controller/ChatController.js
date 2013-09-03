@@ -26,6 +26,7 @@ function ChatController($scope, $element, socket) {
 	}
 
 	socket.chatCallback.add(function(data) {
+		var isScrolledDown = ($chatContent.scrollTop() + $chatContent.innerHeight() == $chatContent[0].scrollHeight);
 		var $el = $simpleChatLineTemplate.clone();	
 		
 		if (data.text && data.text.indexOf('/me ') == 0) {
@@ -71,7 +72,9 @@ function ChatController($scope, $element, socket) {
 		$('.chat-time', $el).text(getTimeString(data.timestamp));
 
 		$chatContent.append($el);
-		scrollDown();
+		if (isScrolledDown) {
+			scrollDown();
+		}
 	});
 
 	$input.keyup(function(e){
@@ -109,7 +112,7 @@ function ChatController($scope, $element, socket) {
 		} else {
 			$chatContent.css('height', 200);
 		}
-	    scrollDown();
+		scrollDown();
 	}
 
 	function scrollDown() {
