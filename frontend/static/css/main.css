@@ -89,3 +89,19 @@ body {
 .listener-count {
 	background-color: #f5f5f5;
 }
+
+/* Last.fm icon */
+.icon-lastfm {
+	display: inline-block;
+	height: 12px;
+	width: 26px;
+	background: url(/img/crr_scrobble_icon.png) no-repeat;
+	position:relative;
+    top:1px;
+}
+
+.list-group-item .icon-lastfm {
+	background-position: 0 -12px;
+	display: block;
+	margin-top: 3px;
+}

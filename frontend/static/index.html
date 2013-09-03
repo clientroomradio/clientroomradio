@@ -111,7 +111,7 @@
                             Un-love
                         </button>
                         <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="username==null">
-                            <i class="icon-bullhorn"></i> Scrobbling {{scrobbling?'on':'off'}}
+                            <i class="icon-lastfm"></i> Scrobbling {{scrobbling?'on':'off'}}
                         </button>
                     </div>
                     <div class="clearfix"></div>
@@ -137,7 +137,10 @@
                              when="{'one': '1 Listener', 'other': '{} Listeners'}">
                         </ng-pluralize>
                     </li>
-                    <li ng-repeat="(username, data) in users" class="list-group-item">{{username}} <i ng-show="data.scrobbling" class="icon-bullhorn"></i></li>
+                    <li ng-repeat="(username, data) in users" class="list-group-item">
+                        {{username}} 
+                        <i ng-show="data.scrobbling" class="icon-lastfm pull-right"></i>
+                    </li>
                 </ul>
             </div>
         </div>
