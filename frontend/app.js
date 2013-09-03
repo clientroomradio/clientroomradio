@@ -1,5 +1,6 @@
 // Classes
 var Chat = require('./src/Chat.js');
+var CurrentTrackChatUpdater = require('./src/CurrentTrackChatUpdater.js');
 var CurrentTrackDao = require('./src/CurrentTrackDao.js');
 var ExpressExternal = require('./src/ExpressExternal.js');
 var ExpressInternal = require('./src/ExpressInternal.js');
@@ -25,7 +26,7 @@ rebus.onReady = function() {
 	var skippersDao  = new SkippersDao(rebus);
 	var currentTrackDao = new CurrentTrackDao(rebus);
 	var socket = new Socket(userDao);
-	var chat = new Chat(socket);
+	var chat = new Chat(socket, config);
 	var lastfmClient = new LastfmClient(config);
 	var progressManager = new ProgressManager(socket);
 	var expressInternal = new ExpressInternal(config, chat, progressManager);
@@ -38,6 +39,7 @@ rebus.onReady = function() {
 	var scrobblingManager = new ScrobblingManager(socket, userDao, chat);
 	var loveManager = new LoveManager(socket, currentTrackDao, chat, lastfmClient);
 	var heartbeatManager = new HeartbeatManager(socket, userDao);
+	var currentTrackChatUpdater = new CurrentTrackChatUpdater(currentTrackDao, chat);
 
 	// Start
 	expressInternal.start();

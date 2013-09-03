@@ -1,5 +1,9 @@
-module.exports = function(socket) {
+module.exports = function(socket, config) {
 	var that = this;
+
+	var _ = require('underscore');
+
+	var backlog = [];
 
 	that.userLeft = function(user) {
 		that.sendSystemMessage('join', user);
@@ -37,23 +41,40 @@ module.exports = function(socket) {
 		that.sendSystemMessage('unlove', user);
 	}
 
+	that.newTrack = function(track) {
+		that.sendSystemMessage('newTrack', null, track.title + ' — ' + track.creator);
+	}
+
 	that.send = function(data) {
+		data.timestamp = new Date().getTime();
+		backlog.push(data);
+		if (backlog.length > config.chatBacklogLength) {
+			backlog.splice(0, backlog.length - config.chatBacklogLength);
+		}
 		socket.broadcast('chat', data, true);
 	}
 
 	that.sendSystemMessage = function(type, user, text) {
 		that.send({
 			system: type,
-			user: user.username,
+			user: user ? user.username : null,
 			text: text
 		});
 	}
 	
 	socket.on('chatMessage', function(user, data) {
 		that.send({
-			user: user.username,
+			user: user ? user.username : null,
 			text: data.text
 		});
+	});
+
+	socket.on('join', function(user, sendToJoiningUser) {
+		if (user) {
+			_.each(backlog, function(message) {
+				sendToJoiningUser('chat', message);
+			});
+		}
 	});
 
 }

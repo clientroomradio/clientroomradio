@@ -4,9 +4,9 @@ function ChatController($scope, $element, socket) {
 
 	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
 
-	function getTimeString() {
+	function getTimeString(timestamp) {
 
-		var currentTime = new Date()
+		var currentTime = new Date(timestamp)
 		var hours = currentTime.getHours()
 		var minutes = currentTime.getMinutes()
 
@@ -26,16 +26,7 @@ function ChatController($scope, $element, socket) {
 	}
 
 	socket.chatCallback.add(function(data) {
-		var $el = $simpleChatLineTemplate.clone();
-		
-		if (data.creator) {
-			data = {
-				system: "newtrack",
-				user: "Client Room Radio",
-				text: data.creator + " — " + data.title
-			};
-		}
-		
+		var $el = $simpleChatLineTemplate.clone();	
 		
 		if (data.text && data.text.indexOf('/me ') == 0) {
 			data.text = data.text.substring(4);
@@ -72,9 +63,12 @@ function ChatController($scope, $element, socket) {
 			$('.chat-inner-text', $el).text(data.text);
 		}
 
-		
-		$('.chat-name', $el).text(data.user);
-		$('.chat-time', $el).text(getTimeString());
+		if (data.user) {
+			$('.chat-name', $el).text(data.user);
+		} else {
+			$('.chat-name', $el).text(config.name);
+		}
+		$('.chat-time', $el).text(getTimeString(data.timestamp));
 
 		$chatContent.append($el);
 		scrollDown();
