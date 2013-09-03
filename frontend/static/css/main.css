@@ -72,6 +72,12 @@
 .chat-line--sys {
 	font-style: italic;
 }
+
+.chat-line--me .chat-time,
+.chat-line--sys .chat-time {
+	font-style: normal;
+}
+
 .chat-line--me .chat-name:before {
 	content:"— ";
 	color: #888;
