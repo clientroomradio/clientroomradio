@@ -1,4 +1,4 @@
-module.exports = function(currentTrackDao, chat) {
+module.exports = function(currentTrackDao, chat, socket) {
 	var that = this;
 
 	var lastIdentifier = null;

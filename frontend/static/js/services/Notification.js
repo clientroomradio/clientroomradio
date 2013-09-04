@@ -8,8 +8,20 @@ var Notification = function(socket) {
 				notify('Mentioned by ' + data.user , text);
 			}
 		}
-		
 	});
+
+	// There's also always one happening on pageload. Avoid that by not enabling this from start
+	setTimeout(function() {
+		// newTrack updates can happen more than once
+		var lastIdentifier = null; 
+		socket.newTrackCallback.add(function(track) {
+			if (track.identifier && track.identifier != lastIdentifier) {
+				notify('New track' , track.creator + ' - ' + track.title);
+				lastIdentifier = track.identifier;
+			}
+		});
+	}, 3000);
+	
 
 	function notify(title, text) {
 		if (window.webkitNotifications.checkPermission() == 0) {
