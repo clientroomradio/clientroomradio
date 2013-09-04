@@ -11,11 +11,11 @@ var config = require("../config.js");
 var fs = require("fs");
 var rebus = require('rebus');
 var http = require('http');
+var fs = require('fs');
 
-var spotifyEnabled = true;
-if (_.contains(process.argv, '--no-spotify')) {
+var spotifyEnabled = fs.existsSync(__dirname + '/spotify_appkey.key');
+if (!spotifyEnabled) {
 	console.log('Spotify disabled');
-	spotifyEnabled = false;
 }
 
 var LastFmNode = require('lastfm').LastFmNode;
@@ -310,9 +310,9 @@ function onUsersChanged(newUsers) {
 function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
 	if ( vlcPlayer && _.keys(users).length > 0 && skippers.length >= Math.ceil(_.keys(users).length / 2) ) {
-		console.log( "SKIP!" );
+		console.log('SKIP');
 		vlcPlayer.pause();
-		sendChatMessage("SKIP!");
+		doSend('/skip', '{}');
 	}
 }
 
@@ -348,10 +348,6 @@ function updateProgress() {
 		var actualPosition = (vlcPlayer.position * vlcPlayer.length) / bus.value.currentTrack.duration;
 		doSend('/progress', '{"progress":' + actualPosition + '}');
 	}
-}
-
-function sendChatMessage(message) {
-	doSend('/chat', '{"message":"' + message + '"}');
 }
 
 function doSend(path, data) {

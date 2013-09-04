@@ -49,6 +49,10 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('spotifyRequest', user, request);
 	}
 
+	that.skipSuccessful = function() {
+		that.sendSystemMessage('skipSuccessful', null);
+	}
+
 	that.send = function(data) {
 		data.timestamp = new Date().getTime();
 		backlog.push(data);

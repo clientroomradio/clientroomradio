@@ -12,10 +12,10 @@ module.exports = function(config, chat, progressManager) {
 		    res.end();
 		});
 
-		/*app.post('/chat', function(req, res){
-			console.log("message:", req.body.message);
+		app.all('/skip', function(req, res){
+			chat.skipSuccessful();
 		    res.end();
-		});*/
+		});
 
 		app.listen(config.internalPort);
 		console.log('Listening internally on port %s', config.internalPort);
