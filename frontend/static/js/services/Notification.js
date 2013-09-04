@@ -4,7 +4,7 @@ var Notification = function(socket) {
 	socket.chatCallback.add(function(data) {
 		var text = data.text;
 		if (text && text.indexOf(loggedInAs) != -1) {
-			if (data.user) {
+			if (data.user && !data.backlog && data.user != loggedInAs) {
 				notify('Mentioned by ' + data.user , text);
 			}
 		}

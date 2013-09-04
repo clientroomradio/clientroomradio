@@ -55,11 +55,12 @@ module.exports = function(socket, config) {
 
 	that.send = function(data) {
 		data.timestamp = new Date().getTime();
-		backlog.push(data);
 		if (backlog.length > config.chatBacklogLength) {
 			backlog.splice(0, backlog.length - config.chatBacklogLength);
 		}
 		socket.broadcast('chat', data, true);
+		data.backlog = true;
+		backlog.push(data);
 	}
 
 	that.sendSystemMessage = function(type, user, text) {
