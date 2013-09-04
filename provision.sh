@@ -32,12 +32,15 @@ else
 fi
 
 # Libspotify
+tempInstallDir=`mktemp -d`
+cd $tempInstallDir
 wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz
 tar zxfv libspotify-12.1.51-Linux-x86_64-release.tar.gz
 cd libspotify-12.1.51-Linux-x86_64-release/
 sudo make install prefix=/usr/local
 sudo ldconfig
 cd $cwd
+rm -rf $tempInstallDir
 
 # Make sure this script works both with and without vagrant
 if [ -d "/vagrant" ]; then

@@ -12,6 +12,12 @@ var fs = require("fs");
 var rebus = require('rebus');
 var http = require('http');
 
+var spotifyEnabled = true;
+if (_.contains(process.argv, '--no-spotify')) {
+	console.log('Spotify disabled');
+	spotifyEnabled = false;
+}
+
 var LastFmNode = require('lastfm').LastFmNode;
 
 if ( !fs.existsSync('../rebus-storage') ) {
@@ -375,32 +381,36 @@ function doSend(path, data) {
 
 setInterval(updateProgress, 500);
 
-var lame = require('lame');
-var sp = require('libspotify');
 
-var spSession = new sp.Session({
-	cache_location: __dirname + "/spCache/",
-    settings_location: __dirname + "/spSettings/",
-    applicationKey: __dirname + '/spotify_appkey.key'
-});
+if (spotifyEnabled) {
+	var lame = require('lame');
+	var sp = require('libspotify');
 
-function playSpotifyTrack(track) {
-	var r = fs.createReadStream( track.location );
-    var vlcMedia = vlc.mediaFromNode(r);
-	vlcMedia.parseSync();
-	vlcPlayer = vlc.mediaplayer;
-	vlcPlayer.media = vlcMedia;
-	setTimeout(function () { vlcPlayer.play(); }, 2000);
+	var spSession = new sp.Session({
+		cache_location: __dirname + "/spCache/",
+	    settings_location: __dirname + "/spSettings/",
+	    applicationKey: __dirname + '/spotify_appkey.key'
+	});
 
-	setTimeout(checkPlayingState, 10000);
+	function playSpotifyTrack(track) {
+		var r = fs.createReadStream( track.location );
+	    var vlcMedia = vlc.mediaFromNode(r);
+		vlcMedia.parseSync();
+		vlcPlayer = vlc.mediaplayer;
+		vlcPlayer.media = vlcMedia;
+		setTimeout(function () { vlcPlayer.play(); }, 2000);
+
+		setTimeout(checkPlayingState, 10000);
+	}
+
+
+	spSession.relogin();
+
+	spSession.once('login', function(err) {
+	    if (err) console.log("Spotify login failed:", err);
+	    else console.log("Spotify login success!");
+	});
 }
-
-spSession.relogin();
-
-spSession.once('login', function(err) {
-    if (err) console.log("Spotify login failed:", err);
-    else console.log("Spotify login success!");
-});
 
 http.createServer(function (request, res) {
   
