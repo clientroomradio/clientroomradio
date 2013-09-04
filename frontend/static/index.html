@@ -25,9 +25,12 @@
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
-                <ul class="nav navbar-nav navbar-right">
+                <ul class="nav navbar-nav navbar-right" ng-show="username" >
+                    <li ng-controller="NotificationsEnablerController" ng-show="permissionNeeded()">
+                        <a href="javascript:void()" ng-click="request()">Enable Notifications</a>
+                    </li>
                     <li>
-                        <a href="/logout" ng-show="username">Log out</a>
+                        <a href="/logout">Log out</a>
                     </li>
                 </ul>
             </div>
@@ -193,9 +196,11 @@
         <script src="/js/controller/LoginController.js"></script>
         <script src="/js/controller/MainController.js"></script>
         <script src="/js/controller/ChatController.js"></script>
+        <script src="/js/controller/NotificationsEnablerController.js"></script>
 
         <!-- Javascript - Services -->
         <script src="/js/services/Socket.js"></script>
+        <script src="/js/services/Notification.js"></script>
 
         <!-- Start services -->
         <script src="/js/services.js"></script>
