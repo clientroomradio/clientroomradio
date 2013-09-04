@@ -10,30 +10,37 @@ var Notification = function(socket) {
 		}
 	});
 
+	var lastImage = null;
+	socket.newTrackCallback.add(function(track) {
+		lastImage = track.image;
+	});
+
 	// There's also always one happening on pageload. Avoid that by not enabling this from start
 	setTimeout(function() {
 		// newTrack updates can happen more than once
 		var lastIdentifier = null; 
 		socket.newTrackCallback.add(function(track) {
 			if (track.identifier && track.identifier != lastIdentifier) {
-				notify('New track' , track.creator + ' - ' + track.title);
+				notify('New track' , track.creator + ' - ' + track.title, track.image);
 				lastIdentifier = track.identifier;
 			}
 		});
 
 		socket.skippersCallback.add(function(skippers) {
 			if (skippers.length > 0) {
-				notify('Skipster!', skippers.join(', '));
+				notify('Skipster!', skippers.join(', '), lastImage);
 			}
 		});
 	}, 3000);
 	
+	
 
 
-	function notify(title, text) {
+	function notify(title, text, image) {
 		if (window.webkitNotifications.checkPermission() == 0) {
+			image = image || '/img/crr_128.png';
 			var notification = window.webkitNotifications.createNotification(
-				'/img/crr_128.png', title, text
+				image, title, text
 			);
 
 			notification.onclick = function () {
