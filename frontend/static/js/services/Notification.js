@@ -20,8 +20,15 @@ var Notification = function(socket) {
 				lastIdentifier = track.identifier;
 			}
 		});
+
+		socket.skippersCallback.add(function(skippers) {
+			if (skippers.length > 0) {
+				notify('Skipster!', skippers.join(', '));
+			}
+		});
 	}, 3000);
 	
+
 
 	function notify(title, text) {
 		if (window.webkitNotifications.checkPermission() == 0) {
