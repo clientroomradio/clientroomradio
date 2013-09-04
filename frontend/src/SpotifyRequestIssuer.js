@@ -9,7 +9,7 @@ module.exports = function(chat, socket, config) {
 			request: query
 		};
 
-		request.post(config.spotifyRequestUrl, payload, function (error, response, body) {
+		request.post(config.spotifyRequestUrl, {json:payload}, function (error, response, body) {
 	    	if (error) {
 	    		console.log("ERR", error)
 	    	} else if (response.statusCode != 200) {
