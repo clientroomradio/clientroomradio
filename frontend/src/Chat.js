@@ -25,14 +25,6 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('alreadySkipped', user, message);
 	}
 
-	that.userScrobbleOn = function(user) {
-		that.sendSystemMessage('scrobbleOn', user);
-	}
-
-	that.userScrobbleOff = function(user) {
-		that.sendSystemMessage('scrobbleOff', user);
-	}
-
 	that.userLoved = function(user) {
 		that.sendSystemMessage('love', user);
 	}
