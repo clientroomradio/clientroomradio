@@ -189,8 +189,6 @@ function playTrack() {
 
 		bus.publish('currentTrack', track, onComplete );
 		bus.publish('skippers', [], onComplete );
-
-		//doSend('/newtrack', track);
 	}
 
 	return didPlayTrack;
@@ -461,10 +459,10 @@ function downloadSpotifyTrack(spTrack) {
     track.title = spTrack.title;
     track.duration = String(spTrack.duration);
 
-	var hash = crypto.createHash("md5");
-	hash.update(track.creator + track.title);
-    var mp3location = '/tmp/' + hash.digest("hex") + '.mp3';
+	var hash = crypto.createHash("md5").update(track.creator + track.title).digest("hex");
+    var mp3location = '/tmp/' + hash + '.mp3';
     track.location = mp3location;
+    track.identifier = hash;
 
     getContext( track );
 
