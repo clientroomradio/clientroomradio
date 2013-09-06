@@ -18,7 +18,7 @@ module.exports = function(rebus) {
 	}
 
 	that.hasAlreadySkipped = function(user) {
-		return (_.find(that.getSkippers(), function(skipper) { return skipper = user.username; }) != undefined);
+		return (_.find(that.getSkippers(), function(skipper) { return skipper == user.username; }) != undefined);
 	}
 
 	that.skip = function(user) {
