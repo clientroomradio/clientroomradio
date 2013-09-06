@@ -44,7 +44,18 @@ function MainController($scope, socket) {
 	} 
 
 	$scope.getUserCount = function() {
-		return _.keys($scope.users).length;
+		// See: http://kangax.github.io/es5-compat-table/#Object.keys
+		return Object.keys($scope.users).length;
+	}
+
+	$scope.askForSkipMessage = function() {
+		$('#skipModal').modal({backdrop: false});
+	}
+
+	$scope.askForSkipMessageSend = function() {
+		var reason = $('#skipReason').val();
+		$scope.skip(reason);
+		$('#skipModal').modal('hide')
 	}
 
 	// Music
@@ -78,9 +89,12 @@ function MainController($scope, socket) {
 	};
 
 	$scope.durationInText = function() {
-		var inSec = $scope.currentTrack.duration / 1000;
+		var totalSeconds   = $scope.currentTrack.duration / 1000,
+			minutes        = Math.floor(totalSeconds / 60),
+			remainder      = "" + totalSeconds % 60;
 
-		return Math.floor(inSec / 60) + ':' + (inSec % 60);
+		remainder = "00".substring(0, 2 - remainder.length) + remainder;
+		return minutes + ':' + remainder;
 	}
 
 	socket.newTrackCallback.add(function(data) {
