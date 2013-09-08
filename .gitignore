@@ -8,3 +8,4 @@ spTrack.mp3
 */spCache/
 .DS_Store
 *.dat
+.vagrant
