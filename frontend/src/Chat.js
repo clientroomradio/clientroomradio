@@ -45,6 +45,14 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('skipSuccessful', null);
 	}
 
+	that.startVote = function(user, type, data, id) {
+		that.sendSystemMessage('startVote', user, {
+			type: type, 
+			data: data, 
+			id: id
+		});
+	}
+
 	that.send = function(data) {
 		data.timestamp = new Date().getTime();
 		if (backlog.length > config.chatBacklogLength) {

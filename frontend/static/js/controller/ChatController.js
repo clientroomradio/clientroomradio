@@ -60,6 +60,8 @@ function ChatController($scope, $element, socket) {
 			$('.chat-inner-text', $el).text('has lost their connection and has been removed from the radio');
 		} else if (data.system == 'left') {
 			$('.chat-inner-text', $el).text('left');
+		} else if (data.system == 'join') {
+			$('.chat-inner-text', $el).text('joined');
 		} else if (data.system == 'skipSuccessful') {
 			$('.chat-inner-text', $el).text('SKIP!');
 		} else {

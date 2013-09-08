@@ -26,7 +26,6 @@ module.exports = function(config, lastfmClient, userDao, chat) {
 				if (err) {
 					console.log('ERR: %s', err);
 				} else {
-					console.log(session);
 					var sessionId = uuid.v4();
 					res.cookie('session', sessionId);
 					var user = userDao.addUser(session.user, sessionId, session.key);

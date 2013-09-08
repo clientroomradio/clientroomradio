@@ -1,4 +1,4 @@
-module.exports = function(socket, userDao) {
+module.exports = function(socket, chat, userDao) {
 	var that = this;
 
 	var _ = require('underscore');

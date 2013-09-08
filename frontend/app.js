@@ -39,7 +39,7 @@ rebus.onReady = function() {
 	var skipManager = new SkipManager(socket, skippersDao, chat);
 	var scrobblingManager = new ScrobblingManager(socket, userDao, chat);
 	var loveManager = new LoveManager(socket, currentTrackDao, chat, lastfmClient);
-	var heartbeatManager = new HeartbeatManager(socket, userDao);
+	var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
 	var currentTrackChatUpdater = new CurrentTrackChatUpdater(currentTrackDao, chat);
 	var spotifyRequestIssuer = new SpotifyRequestIssuer(chat, socket, config);
 
@@ -47,4 +47,5 @@ rebus.onReady = function() {
 	expressInternal.start();
 	expressExternal.start();
 	externalHttpServer.start();
+	heartbeatManager.start();
 }
