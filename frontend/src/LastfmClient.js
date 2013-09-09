@@ -31,4 +31,18 @@ module.exports = function(config) {
 			}
 		});
 	}
- }
+
+	that.userGetInfo = function(user, callback) {
+		lastfm.request('user.getInfo', {
+			user: user,
+			handlers: {
+				success: function(lfm) {
+					callback(null, lfm);
+				},
+				error: function(error) {
+					callback(error.message, '');
+				}
+			}
+		});
+	}
+}

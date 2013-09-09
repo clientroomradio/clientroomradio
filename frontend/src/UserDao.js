@@ -1,4 +1,4 @@
-module.exports = function(rebus) {
+module.exports = function(rebus, lastfmClient) {
 	var that = this;
 	this.setMaxListeners(0);
 
@@ -27,6 +27,17 @@ module.exports = function(rebus) {
 		that.setUsers(users);
 	}
 
+	function getInfoCallback(err, lfm) {
+		if (err) {
+			console.log(err);
+		}
+		else {
+			var users = that.getUsers();
+			users[lfm.user.name].image = lfm.user.image[2]['#text'];
+			that.setUsers(users);
+		}
+	}
+
 	that.addUser = function(username, sessionId, lastfmSessionKey) {
 		var user = {
 			'username': username,
@@ -36,6 +47,10 @@ module.exports = function(rebus) {
 			'active': true
 		};
 		that.setUser(user);
+
+		// get some more info about the user
+		lastfmClient.userGetInfo(username, getInfoCallback);
+
 		return user;
 	}
 

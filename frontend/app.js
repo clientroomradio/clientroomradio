@@ -23,12 +23,12 @@ var config = require('../config.js');
 
 rebus.onReady = function() {
 	// DI
-	var userDao = new UserDao(rebus);
+	var lastfmClient = new LastfmClient(config);
+	var userDao = new UserDao(rebus, lastfmClient);
 	var skippersDao  = new SkippersDao(rebus);
 	var currentTrackDao = new CurrentTrackDao(rebus);
 	var socket = new Socket(userDao);
 	var chat = new Chat(socket, config);
-	var lastfmClient = new LastfmClient(config);
 	var progressManager = new ProgressManager(socket);
 	var expressInternal = new ExpressInternal(config, chat, progressManager);
 	var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat);

@@ -4,8 +4,15 @@ module.exports = function(rebus) {
 
 	var _ = require('underscore');
 
+	var lastSkippers = [];
 	var notification = rebus.subscribe('skippers', function(skippers) {
- 		that.emit('change', skippers);
+		that.emit('change', skippers);
+		var skipper = _.without(skippers, lastSkippers);
+
+		if ( skipper.length == 1 ) {
+	 		that.emit('skip', rebus.value.users[skipper[0]], skippers);
+	 	}
+ 		lastSkippers = skippers;
   	});
 	
 	that.getSkippers = function() {

@@ -10,11 +10,6 @@ var Notification = function(socket) {
 		}
 	});
 
-	var lastImage = null;
-	socket.newTrackCallback.add(function(track) {
-		lastImage = track.image;
-	});
-
 	// There's also always one happening on pageload. Avoid that by not enabling this from start
 	setTimeout(function() {
 		// newTrack updates can happen more than once
@@ -26,10 +21,8 @@ var Notification = function(socket) {
 			}
 		});
 
-		socket.skippersCallback.add(function(skippers) {
-			if (skippers.length > 0) {
-				notify('Skipster!', skippers.join(', '), lastImage);
-			}
+		socket.skipCallback.add(function(skip) {
+			notify(skip.skipper.username + ' skipped!', skip.skippers.join(', '), skip.skipper.image);
 		});
 	}, 3000);
 	

@@ -7,6 +7,7 @@ var Socket = function(SOCKJS_URL) {
 	this.newTrackCallback = $.Callbacks();
 	this.usersCallback = $.Callbacks();
 	this.progressCallback = $.Callbacks();
+	this.skipCallback = $.Callbacks();
 	this.skippersCallback = $.Callbacks();
 
 	var sockjs;
@@ -64,6 +65,11 @@ var Socket = function(SOCKJS_URL) {
 
 			if (type == 'users') {
 				that.usersCallback.fire(data);
+				return;
+			}
+
+			if (type == 'skip') {
+				that.skipCallback.fire(data);
 				return;
 			}
 

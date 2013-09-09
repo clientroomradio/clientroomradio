@@ -14,6 +14,10 @@ module.exports = function(socket, userDao, currentTrackDao, skippersDao) {
 		socket.broadcast('skippers', skippers);
 	});
 
+	skippersDao.on('skip', function(skipper, skippers) {
+		socket.broadcast('skip', {skipper:skipper, skippers:skippers});
+	});
+
 	currentTrackDao.on('change', function(currentTrack) {
 		socket.broadcast('newTrack', currentTrack);
 	});

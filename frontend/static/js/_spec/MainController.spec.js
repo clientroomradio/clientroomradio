@@ -22,6 +22,9 @@ describe('a MainController', function() {
             usersCallback: {
                 add: function() {},
             },
+            skipCallback: {
+                add: function() {},
+            },
             skippersCallback: {
                 add: function() {},
             },
