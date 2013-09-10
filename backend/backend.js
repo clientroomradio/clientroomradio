@@ -465,6 +465,7 @@ function downloadSpotifyTrack(spTrack) {
     var mp3location = '/tmp/' + hash + '.mp3';
     track.location = mp3location;
     track.identifier = hash;
+    track.extension = {};
 
     getContext( track );
 
