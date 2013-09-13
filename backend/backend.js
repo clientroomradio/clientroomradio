@@ -508,4 +508,16 @@ function downloadSpotifyTrack(spTrack) {
 	spPlayer.pipe(lameEncoder).pipe(w);
 }
 
+process.on('SIGINT', function() {
+	console.log( "\nShutting down!" );
+
+	bus.publish('currentTrack', {}, function() {
+		console.log( "currentTrack cleared" );
+		bus.publish('skippers', [], function() {
+			console.log( "skippers cleared.\nExit..." );
+			process.exit();
+		} );
+	} );
+})
+
 
