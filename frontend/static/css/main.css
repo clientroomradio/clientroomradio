@@ -15,6 +15,40 @@
 	background: #B0D1EC;
 }
 
+/* This slider module is a piece of shit */
+.slider .slider-track {
+	background: #428bca;
+}
+
+.slider .slider-selection {
+	background: #B0D1EC;
+}
+
+.slider.slider-horizontal .slider-handle {
+	margin-left: -6px;
+	margin-top: -1px;
+}
+
+.slider-handle {
+	width: 12px;
+	height: 12px;
+	opacity: 1;
+}
+
+.volume-inline-block {
+	display: inline-block;
+}
+
+.volume {
+	padding-left: 4px;
+}
+
+.volume .slider {
+	width: 50px !important;
+}
+/* END Slider */
+
+
 .pull-right-button {
 	margin-right: 5px;
 }

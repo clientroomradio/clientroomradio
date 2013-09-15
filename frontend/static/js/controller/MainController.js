@@ -1,3 +1,4 @@
+
 function MainController($scope, socket) {
 	$scope.username = loggedInAs;
 	$scope.radioname = config.name;
@@ -71,6 +72,10 @@ function MainController($scope, socket) {
 
 	// Music
 	$(document).ready(function(){
+		var volume = $.cookie('volume');
+		if (volume === undefined) {
+			volume = 1;
+		}
 
 		$("#audio-player").jPlayer({
 	 		ready: function () {
@@ -83,14 +88,21 @@ function MainController($scope, socket) {
 	    		$scope.$watch('muted', function() {
 					$player.jPlayer("mute", $scope.muted);
 				});
+
+				$('.volume-slider-init').on('slide', function(ev){
+				    volume = ev.value;
+				    $.cookie('volume', volume);
+					$player.jPlayer("volume", volume);
+				});
+
+				$player.jPlayer("volume", volume);
 	    	},
 	    	swfPath: "/js",
 	    	supplied: "mp3"
 		});
+
+		$('.volume-slider-init').slider().slider('setValue', volume);
 	});
-	  
-
-
 
 
 	// Update progress bar

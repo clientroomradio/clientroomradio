@@ -6,6 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+        
+        <link href="css/slider.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
     </head>
     <body ng-controller="MainController" ng-cloak>
@@ -115,23 +117,31 @@
                     <div class="clearfix visible-xs" style="margin-bottom:20px;"></div>
                     <div class="pull-right">
 
-                        <button type="button" class="btn pull-right-button pull-right btn-default {{muted?'btn-danger':''}}" ng-click="muted=!muted">
-                            <i class="{{muted?'icon-volume-off':'icon-volume-up'}}"></i>
+                        <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}}" ng-click="setActive(!active)" ng-disabled="username==null">
+                            <i class="{{active?'icon-signout':'icon-signin'}}"></i> {{active?'Sit out':'Sit in'}}
                         </button>
 
-                        <button type="button" class="btn btn-default pull-right-button pull-right" ng-hide="loved" ng-click="love()" ng-disabled="username==null">
+                        <button type="button" class="btn btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="!active || username==null">
+                            <i class="icon-lastfm"></i> Scrobbling {{scrobbling?'on':'off'}}
+                        </button>
+
+                        <button type="button" class="btn btn-default" ng-hide="loved" ng-click="love()" ng-disabled="username==null">
                             <i class="icon-heart-empty"></i> Love
                         </button>
-                        <button type="button" class="btn btn-danger pull-right-button pull-right" ng-show="loved" ng-click="unlove()" ng-disabled="username==null">
+                        <button type="button" class="btn btn-danger" ng-show="loved" ng-click="unlove()" ng-disabled="username==null">
                             <i class="icon-heart"></i>
                             Un-love
                         </button>
-                        <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="!active || username==null">
-                            <i class="icon-lastfm"></i> Scrobbling {{scrobbling?'on':'off'}}
+
+                        <button type="button" class="btn btn-default {{muted?'btn-danger':''}}" ng-click="muted=!muted">
+                            <i class="{{muted?'icon-volume-off':'icon-volume-up'}}"></i>
                         </button>
-                        <button type="button" class="btn pull-right-button pull-right btn-default {{active?'btn-success':'btn-danger'}}" ng-click="setActive(!active)" ng-disabled="username==null">
-                            <i class="{{active?'icon-signout':'icon-signin'}}"></i> {{active?'Sit out':'Sit in'}}
-                        </button>
+
+                        <div class="volume-inline-block">
+                            <div class="volume hidden-sm hidden-xs">
+                                <input type="text" class="volume-slider-init" value="" data-slider-min="0" data-slider-max="1" data-slider-step="0.02" data-slider-value="1" data-slider-orientation="horizontal" data-slider-selection="after" data-slider-tooltip="hide">
+                            </div>
+                        </div>
 
                     </div>
                     <div class="clearfix"></div>
@@ -198,6 +208,7 @@
         <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
         <script src="/js/lib/jquery.cookie.js"></script>
         <script src="/js/lib/jquery.jplayer.min.js"></script>
+        <script src="/js/lib/bootstrap-slider.js"></script>
 
         <!-- Javascript - Config -->
         <script src="/config.js"></script>
