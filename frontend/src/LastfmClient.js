@@ -32,9 +32,9 @@ module.exports = function(config) {
 		});
 	}
 
-	that.userGetInfo = function(user, callback) {
+	that.userGetInfo = function(username, callback) {
 		lastfm.request('user.getInfo', {
-			user: user,
+			user: username,
 			handlers: {
 				success: function(lfm) {
 					callback(null, lfm);
