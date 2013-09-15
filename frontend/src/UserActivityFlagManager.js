@@ -13,7 +13,6 @@ module.exports = function(userDao, chat, socket) {
 		_.each(newActivity, function(active, username) {
 			if (lastActivity.hasOwnProperty(username)) {
 				if (lastActivity[username] != active) {
-					console.log(username);
 					if (lastActivity[username]) {
 						chat.userBecomesInactive(users[username]);
 					} else {
@@ -24,5 +23,10 @@ module.exports = function(userDao, chat, socket) {
 		});
 
 		lastActivity = newActivity;
+	});
+
+	socket.on('activeStatus', function(user, newValue) {
+		user.active = newValue ? true : false
+		userDao.setUser(user);
 	});
 }

@@ -129,6 +129,10 @@
                         <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="username==null">
                             <i class="icon-lastfm"></i> Scrobbling {{scrobbling?'on':'off'}}
                         </button>
+                        <button type="button" class="btn pull-right-button pull-right btn-default {{active?'btn-success':'btn-danger'}}" ng-click="setActive(!active)" ng-disabled="username==null">
+                            <i class="{{active?'icon-signout':'icon-signin'}}"></i> {{active?'Sit out':'Sit in'}}
+                        </button>
+
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -149,7 +153,7 @@
                 <ul class="list-group col-sm-2 col-xs-12 no-right-padding">
                     <li class="list-group-item active listener-count">
                         <ng-pluralize
-                             count="getUserCount()"
+                             count="getActiveUserCount()"
                              when="{'one': '1 Listener', 'other': '{} Listeners'}">
                         </ng-pluralize>
                     </li>

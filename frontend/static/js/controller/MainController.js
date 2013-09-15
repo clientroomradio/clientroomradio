@@ -8,6 +8,7 @@ function MainController($scope, socket) {
 	$scope.loved = false;
 	$scope.skipped = false;
 	$scope.scrobbling = true;
+	$scope.active = true;
 	$scope.stream = config.stream;
 	$scope.muted = false;
 
@@ -38,14 +39,24 @@ function MainController($scope, socket) {
 		socket.sendScrobbleStatus(value);
 	}
 
+	$scope.setActive = function(value) {
+		$scope.active = value;
+		socket.sendActiveStatus(value);
+	}
+
 	// Some helper functions
 	$scope.skippersNeeded = function() {
-		return Math.ceil($scope.getUserCount() / 2);
+		return Math.ceil($scope.getActiveUserCount() / 2);
 	} 
 
-	$scope.getUserCount = function() {
-		// See: http://kangax.github.io/es5-compat-table/#Object.keys
-		return Object.keys($scope.users).length;
+	$scope.getActiveUserCount = function() {
+		var count = 0;
+		Object.keys($scope.users).forEach(function(username) {
+		    if ($scope.users[username].active) {
+		    	count++;
+		    }
+		});
+		return count;
 	}
 
 	$scope.askForSkipMessage = function() {
