@@ -60,8 +60,10 @@ function ChatController($scope, $element, $compile, socket) {
 			}
 		} else if (data.system == 'spotifyRequest') {
 			$('.chat-inner-text', $el).text('requested "' + data.text + '"');
-		}else if (data.system == 'alreadySkipped') {
+		} else if (data.system == 'alreadySkipped') {
 			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');
+		} else if (data.system == 'inactiveUserWantsToSkip') {
+			$('.chat-inner-text', $el).text('tried to skip whilst sitting out. Not in here you don\'t!');
 		} else if (data.system == 'love') {
 			$('.chat-inner-text', $el).text('just loved this track');
 		} else if (data.system == 'unlove') {
@@ -86,9 +88,9 @@ function ChatController($scope, $element, $compile, socket) {
 			}
 			$el.attr('ng-init', 'init(\''+ vote.id +'\')');
 		} else if (data.system == 'becomesInactive') {
-			$('.chat-inner-text', $el).text('is now inactive');
+			$('.chat-inner-text', $el).text('sat out');
 		} else if (data.system == 'becomesActive') {
-			$('.chat-inner-text', $el).text('is now active');
+			$('.chat-inner-text', $el).text('sat in');
 		} else {
 			$('.chat-inner-text', $el).html(linkify(data.text));
 		} 

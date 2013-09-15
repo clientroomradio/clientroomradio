@@ -25,6 +25,10 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('alreadySkipped', user, message);
 	}
 
+	that.inactiveUserWantsToSkip = function(user, message) {
+		that.sendSystemMessage('inactiveUserWantsToSkip', user, message);
+	}
+
 	that.userLoved = function(user) {
 		that.sendSystemMessage('love', user);
 	}

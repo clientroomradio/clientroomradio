@@ -129,6 +129,11 @@ function MainController($scope, socket) {
 	});
 
 	socket.usersCallback.add(function(data) {
+		Object.keys(data).forEach(function(username) {
+		    if (username == loggedInAs) {
+		    	$scope.active = data[username].active;
+		    }
+		});
 		$scope.users = data;
 		$scope.$apply();
 	});

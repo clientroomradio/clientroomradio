@@ -90,10 +90,10 @@
                     <div class="current-track-buttons" ng-show="isPlaying()">
                         <div class="pull-left">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="skipped || (username==null)">
+                                <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="!active || skipped || (username==null)">
                                     <i class="icon-thumbs-down"></i> Skip
                                 </button>
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-disabled="skipped || (username==null)">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-disabled="!active || skipped || (username==null)">
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu" ng-init="messages=[
@@ -126,7 +126,7 @@
                             <i class="icon-heart"></i>
                             Un-love
                         </button>
-                        <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="username==null">
+                        <button type="button" class="btn pull-right-button pull-right btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="!active || username==null">
                             <i class="icon-lastfm"></i> Scrobbling {{scrobbling?'on':'off'}}
                         </button>
                         <button type="button" class="btn pull-right-button pull-right btn-default {{active?'btn-success':'btn-danger'}}" ng-click="setActive(!active)" ng-disabled="username==null">
