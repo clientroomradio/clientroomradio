@@ -1,8 +1,22 @@
-function ChatController($scope, $element, socket) {
+function ChatController($scope, $element, $compile, socket) {
 	var $chatContent= $('.chat-content', $element);
 	var $input= $('.chat-input', $element);
 
 	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
+	var $voteChatLineTemplate = $('<div class="chat-line chat-line--sys chat-line--vote" ng-controller="VotingController"><div class="chat-time"></div>'+
+		'<div class="chat-text"><span class="chat-name"></span> '+
+		'<span class="chat-inner-text"></span>'+
+		'<div class="pull-right vote-decision vote-decision--{{decision}}" ng-show="hasBeenDecided()">{{(decision==\'yes\')?\'accepted\':\'crushed\'}}</div>'+
+		'<div class="pull-right vote-action-area" ng-hide="hasBeenDecided()">'+
+		'<div class="vote-remaining-time">{{remainingSeconds}} Sec</div> '+
+		'<div class="btn-group">' + 
+		'<button type="button" ng-sdisabled="userHasVoted()" class="btn {{userHasVoted()==\'yes\'?\'btn-success\':\'btn-default\'}} btn-xs" ng-click="vote(\'yes\')">Yes</button> '+
+		'<button type="button" ng-sdisabled="userHasVoted()" class="btn {{userHasVoted()==\'no\'?\'btn-danger\':\'btn-default\'}} btn-xs" ng-click="vote(\'no\')">No</button>'+
+		'</div>'+
+		'</div>'+
+		'<span class="votes-cast">'+
+		'<span ng-repeat="(username, vote) in votes track by $index"><span class="{{vote==\'yes\'?\'vote-for\':\'vote-against\'}}">{{username}}</span><span ng-hide="$last">, </span></span>'+
+		'</span></div></div>');
 
 	function getTimeString(timestamp) {
 
@@ -64,9 +78,20 @@ function ChatController($scope, $element, socket) {
 			$('.chat-inner-text', $el).text('joined');
 		} else if (data.system == 'skipSuccessful') {
 			$('.chat-inner-text', $el).text('SKIP!');
+		} else if (data.system == 'startVoting') {
+			var vote = data.data;
+			$el = $voteChatLineTemplate.clone();
+			if (vote.type == 'endOfDay') {
+				$('.chat-inner-text', $el).text('proposes to end today\'s Client Room Radio');
+			}
+			$el.attr('ng-init', 'init(\''+ vote.id +'\')');
+		} else if (data.system == 'becomesInactive') {
+			$('.chat-inner-text', $el).text('is now inactive');
+		} else if (data.system == 'becomesActive') {
+			$('.chat-inner-text', $el).text('is now active');
 		} else {
 			$('.chat-inner-text', $el).html(linkify(data.text));
-		}
+		} 
 
 		if (data.user) {
 			$('.chat-name', $el).text(data.user);
@@ -75,7 +100,12 @@ function ChatController($scope, $element, socket) {
 		}
 		$('.chat-time', $el).text(getTimeString(data.timestamp));
 
-		$chatContent.append($el);
+		if (data.system == 'startVoting') {
+			$chatContent.append($compile($el)($scope));
+		} else {
+			$chatContent.append($el);
+		}
+		
 		if (isScrolledDown) {
 			scrollDown();
 		}

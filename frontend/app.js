@@ -2,6 +2,7 @@
 var Chat = require('./src/Chat.js');
 var CurrentTrackChatUpdater = require('./src/CurrentTrackChatUpdater.js');
 var CurrentTrackDao = require('./src/CurrentTrackDao.js');
+var EndOfDayRequestManager = require('./src/EndOfDayRequestManager.js');
 var ExpressExternal = require('./src/ExpressExternal.js');
 var ExpressInternal = require('./src/ExpressInternal.js');
 var ExternalHttpServer = require('./src/ExternalHttpServer.js');
@@ -14,8 +15,10 @@ var ScrobblingManager = require('./src/ScrobblingManager.js');
 var SkipManager = require('./src/SkipManager.js');
 var SkippersDao = require('./src/SkippersDao.js');
 var Socket = require('./src/Socket.js');
-var SpotifyRequestIssuer = require('./src/SpotifyRequestIssuer.js')
+var SpotifyRequestIssuer = require('./src/SpotifyRequestIssuer.js');
+var UserActivityFlagManager = require('./src/UserActivityFlagManager.js');
 var UserDao = require('./src/UserDao.js');
+var VotingManager = require('./src/VotingManager.js');
 
 // Instances
 var rebus = require('./src/rebus.js');
@@ -33,15 +36,18 @@ rebus.onReady = function() {
 	var expressInternal = new ExpressInternal(config, chat, progressManager);
 	var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat);
 	var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config);
+	var votingManager = new VotingManager(chat, socket, rebus);
 
 	// Nothing depends on those:
-	var frontendUpdater = new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao);
-	var skipManager = new SkipManager(socket, skippersDao, chat);
-	var scrobblingManager = new ScrobblingManager(socket, userDao, chat);
-	var loveManager = new LoveManager(socket, currentTrackDao, chat, lastfmClient);
+	new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao);
+	new SkipManager(socket, skippersDao, chat);
+	new ScrobblingManager(socket, userDao, chat);
+	new LoveManager(socket, currentTrackDao, chat, lastfmClient);
 	var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
-	var currentTrackChatUpdater = new CurrentTrackChatUpdater(currentTrackDao, chat);
-	var spotifyRequestIssuer = new SpotifyRequestIssuer(chat, socket, config);
+	new CurrentTrackChatUpdater(currentTrackDao, chat);
+	new SpotifyRequestIssuer(chat, socket, config);
+	new EndOfDayRequestManager(userDao, votingManager, socket);
+	new UserActivityFlagManager(userDao, chat, socket)
 
 	// Start
 	expressInternal.start();

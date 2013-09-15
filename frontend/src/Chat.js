@@ -45,12 +45,20 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('skipSuccessful', null);
 	}
 
-	that.startVote = function(user, type, data, id) {
-		that.sendSystemMessage('startVote', user, {
+	that.startVoting = function(user, type, data, id) {
+		that.sendSystemMessage('startVoting', user, '', {
 			type: type, 
 			data: data, 
 			id: id
 		});
+	}
+
+	that.userBecomesInactive = function(user) {
+		that.sendSystemMessage('becomesInactive', user);
+	}
+
+	that.userBecomesActive = function(user) {
+		that.sendSystemMessage('becomesActive', user);
 	}
 
 	that.send = function(data) {
@@ -63,11 +71,12 @@ module.exports = function(socket, config) {
 		backlog.push(data);
 	}
 
-	that.sendSystemMessage = function(type, user, text) {
+	that.sendSystemMessage = function(type, user, text, data) {
 		that.send({
 			system: type,
 			user: user ? user.username : null,
-			text: text
+			text: text,
+			data: data
 		});
 	}
 	

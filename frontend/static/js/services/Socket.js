@@ -9,6 +9,7 @@ var Socket = function(SOCKJS_URL) {
 	this.progressCallback = $.Callbacks();
 	this.skipCallback = $.Callbacks();
 	this.skippersCallback = $.Callbacks();
+	this.updateVotesCallback = $.Callbacks();
 
 	var sockjs;
 	var reconnectTimeout = null;
@@ -43,6 +44,18 @@ var Socket = function(SOCKJS_URL) {
 
 	that.unlove = function() {
 		send('unlove', {});
+	}
+
+	that.endOfDayRequest = function() {
+		send('endOfDayRequest', {});
+	}
+
+	that.requestVotingUpdate = function(id) {
+		send('requestVotes', {id: id});
+	}
+
+	that.castVote = function(id, vote) {
+		send('castVote', {id: id, vote: vote});
 	}
 
 	function connect () {
@@ -92,6 +105,11 @@ var Socket = function(SOCKJS_URL) {
 				that.sysCallback.fire(data);
 				return;
 			}
+
+			if (type == 'updateVotes') {
+				that.updateVotesCallback.fire(data);
+				return;
+			}			
 
 			console.log('Unhandled Message: ', type, data);
 		};

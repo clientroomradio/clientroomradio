@@ -33,7 +33,7 @@ module.exports = function(userDao) {
 						var payload = JSON.parse(dataAsString);
 						var type = payload.type;
 						var data = payload.data;
-						if (!that.emit(type, user, data)) {
+						if (!that.emit(type, user, data, send)) {
 							console.log('No event handler found for type "%s"', type);
 						}
 					});
