@@ -115,7 +115,7 @@ function active(aUsers) {
 	var activeUsers = {};
 
 	for ( var user in aUsers ) {
-		if ( !_.contains(aUsers[user], "active") || aUsers[user].active ) {
+		if ( aUsers[user].active ) {
 			activeUsers[user] = aUsers[user];
 		}
 	}
