@@ -91,7 +91,7 @@
 
                     <div class="current-track-buttons" ng-show="isPlaying()">
                         <div class="pull-left">
-                            <button type="button" class="btn btn-primary btn-skip" ng-click="skip()" ng-disabled="!active || skipped || (username==null)">
+                            <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!active || skipped || (username==null)" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
                                 <i class="icon-thumbs-down"></i> Skip
                             </button>
                             <p class="skippers">
