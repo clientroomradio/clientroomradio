@@ -37,17 +37,56 @@
 
 .volume-inline-block {
 	display: inline-block;
+	height: 20px;
+	padding-left: 7px;
+	opacity: 0;
+
+	-moz-transition-property: all;
+    -moz-transition-duration: 0.5s;
+    -webkit-transition-property: all;
+    -webkit-transition-duration: 0.5s;
+    -o-transition-property: all;
+    -o-transition-duration: 0.5s;
+    transition-property: all;
+    transition-duration: 0.5s;
+}
+
+.btn-volume {
+	overflow: hidden;
+	width: 38px;
+
+	-moz-transition-property: all;
+    -moz-transition-duration: 0.5s;
+    -webkit-transition-property: all;
+    -webkit-transition-duration: 0.5s;
+    -o-transition-property: all;
+    -o-transition-duration: 0.5s;
+    transition-property: all;
+    transition-duration: 0.5s;
+
+    text-align: left;
+    white-space:nowrap;
+}
+
+.btn-volume:hover .volume-inline-block {
+	opacity: 1;
+}
+
+.btn-volume:hover {
+	width: 105px;
 }
 
 .volume {
-	padding-left: 4px;
+	padding-left: 0px;
+	padding-right: 7px;
 }
 
 .volume .slider {
 	width: 50px !important;
 }
-/* END Slider */
 
+
+/* END Slider */
 
 .pull-right-button {
 	margin-right: 5px;
@@ -64,7 +103,6 @@
 
 .current-track h4 a {
 	color: #333333;
-
 }
 
 .skippers {
@@ -186,7 +224,7 @@
 .icon-lastfm {
 	display: inline-block;
 	height: 12px;
-	width: 26px;
+	width: 22px;
 	background: url(/img/crr_scrobble_icon.png) no-repeat;
 	position:relative;
     top:1px;
@@ -195,7 +233,6 @@
 .list-group-item .icon-lastfm {
 	background-position: 0 -12px;
 	display: block;
-	margin-top: 3px;
 }
 
 .user--inactive {

@@ -105,6 +105,17 @@ function MainController($scope, socket) {
 	});
 
 
+	$('.btn-tooltip').tooltip({
+		container: 'body'
+	});
+
+	$scope.clickOnVolumeBar = function(e) {
+		var event = e || window.event;
+		console.log(event);
+		event.stopPropagation();
+		$scope.muted = false;
+	}
+
 	// Update progress bar
 
 	$scope.progressBarStyle = function() {
@@ -168,4 +179,6 @@ function MainController($scope, socket) {
 			$scope.$apply();
 		}
 	});
+
+
 }

@@ -115,33 +115,36 @@
                         </div>
                     </div>
                     <div class="clearfix visible-xs" style="margin-bottom:20px;"></div>
-                    <div class="pull-right">
+                    <div class="pull-right btn-group">
 
-                        <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}}" ng-click="setActive(!active)" ng-disabled="username==null">
-                            <i class="{{active?'icon-signout':'icon-signin'}}"></i> {{active?'Sit out':'Sit in'}}
+                        <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!active)" ng-disabled="username==null" data-toggle="tooltip" title="Sit out / in">
+                            <i class="{{active?'icon-signout':'icon-signin'}}"></i>
                         </button>
 
-                        <button type="button" class="btn btn-default {{scrobbling?'btn-success':'btn-danger'}}" ng-click="setScrobbling(!scrobbling)" ng-disabled="!active || username==null">
-                            <i class="icon-lastfm"></i> Scrobbling {{scrobbling?'on':'off'}}
+                        <button type="button" ng-show="scrobbling" class="btn btn-default btn-success btn-tooltip" ng-click="setScrobbling(false)" ng-disabled="!active || username==null" data-toggle="tooltip" title="Turn scrobbling off">
+                            <i class="icon-lastfm"></i>
                         </button>
 
-                        <button type="button" class="btn btn-default" ng-hide="loved" ng-click="love()" ng-disabled="username==null">
-                            <i class="icon-heart-empty"></i> Love
+                        <button type="button" ng-hide="scrobbling" class="btn btn-default btn-danger btn-tooltip" ng-click="setScrobbling(true)" ng-disabled="!active || username==null" data-toggle="tooltip" title="Turn scrobbling on">
+                            <i class="icon-lastfm"></i>
                         </button>
-                        <button type="button" class="btn btn-danger" ng-show="loved" ng-click="unlove()" ng-disabled="username==null">
+
+                        <button type="button" class="btn btn-default btn-tooltip" ng-hide="loved" ng-click="love()" ng-disabled="username==null" data-toggle="tooltip" title="Love this track">
+                            <i class="icon-heart-empty"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-tooltip" ng-show="loved" ng-click="unlove()" ng-disabled="username==null" data-toggle="tooltip" title="Un-love this track">
                             <i class="icon-heart"></i>
-                            Un-love
                         </button>
 
-                        <button type="button" class="btn btn-default {{muted?'btn-danger':''}}" ng-click="muted=!muted">
+                        <button type="button" class="btn btn-default btn-tooltip btn-volume" ng-click="muted=!muted">
                             <i class="{{muted?'icon-volume-off':'icon-volume-up'}}"></i>
-                        </button>
-
-                        <div class="volume-inline-block">
-                            <div class="volume hidden-sm hidden-xs">
-                                <input type="text" class="volume-slider-init" value="" data-slider-min="0" data-slider-max="1" data-slider-step="0.02" data-slider-value="1" data-slider-orientation="horizontal" data-slider-selection="after" data-slider-tooltip="hide">
+                        
+                            <div class="volume-inline-block" ng-click="clickOnVolumeBar()">
+                                <div class="volume">
+                                    <input type="text" class="volume-slider-init" value="" data-slider-min="0" data-slider-max="1" data-slider-step="0.02" data-slider-value="1" data-slider-orientation="horizontal" data-slider-selection="after" data-slider-tooltip="hide">
+                                </div>
                             </div>
-                        </div>
+                        </button>
 
                     </div>
                     <div class="clearfix"></div>
