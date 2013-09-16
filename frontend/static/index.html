@@ -159,7 +159,7 @@
                         </ng-pluralize>
                     </li>
                     <li ng-repeat="(username, user) in users" class="list-group-item {{user.active?'user--active':'user--inactive'}}">
-                        {{username}} 
+                        <a href="http://www.last.fm/user/{{username}}">{{username}}</a>
                         <i ng-show="user.active && user.scrobbling" class="icon-lastfm pull-right"></i>
                     </li>
                 </ul>

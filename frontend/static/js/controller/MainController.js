@@ -145,6 +145,7 @@ function MainController($scope, socket) {
 		Object.keys(data).forEach(function(username) {
 		    if (username == loggedInAs) {
 		    	$scope.active = data[username].active;
+		    	$scope.scrobbling = data[username].scrobbling;
 		    }
 		});
 		$scope.users = data;
