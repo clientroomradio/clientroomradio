@@ -60,16 +60,6 @@ function MainController($scope, socket) {
 		return count;
 	}
 
-	$scope.askForSkipMessage = function() {
-		$('#skipModal').modal({backdrop: false});
-	}
-
-	$scope.askForSkipMessageSend = function() {
-		var reason = $('#skipReason').val();
-		$scope.skip(reason);
-		$('#skipModal').modal('hide')
-	}
-
 	// Music
 	$(document).ready(function(){
 		var volume = $.cookie('volume');

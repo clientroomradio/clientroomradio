@@ -91,21 +91,9 @@
 
                     <div class="current-track-buttons" ng-show="isPlaying()">
                         <div class="pull-left">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary" ng-click="skip()" ng-disabled="!active || skipped || (username==null)">
-                                    <i class="icon-thumbs-down"></i> Skip
-                                </button>
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" ng-disabled="!active || skipped || (username==null)">
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu" ng-init="messages=[
-                                    'Meh.', 'Not again', 'Not right now', 'I scrobbled this by accident', 'Bob Dylan'
-                                ]">
-                                    <li ng-repeat="message in messages"><a href="javascript:void()" ng-click="skip(message)">{{message}}</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="#skipModal" ng-click="askForSkipMessage()">Other...</a></li>
-                                </ul>
-                            </div>
+                            <button type="button" class="btn btn-primary btn-skip" ng-click="skip()" ng-disabled="!active || skipped || (username==null)">
+                                <i class="icon-thumbs-down"></i> Skip
+                            </button>
                             <p class="skippers">
                                 {{skippers.length}} of {{skippersNeeded()}}
                                 <span class="text-muted" ng-hide="skippers.length==0">
@@ -175,32 +163,6 @@
                         <i ng-show="user.active && user.scrobbling" class="icon-lastfm pull-right"></i>
                     </li>
                 </ul>
-            </div>
-        </div>
-
-        <!-- Modal for skip-->
-        <div class="modal fade" id="skipModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Reason for skipping</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>(You can also use <code>?skip &lt;reason&gt;</code>)</p>
-                        <form role="form" ng-submit="askForSkipMessageSend()">
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="skipReason" placeholder="Your reason for skipping...">
-                            </div>
-                        </form>
-                        
-                    </div>
-                    <div class="modal-footer">
-
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" ng-click="askForSkipMessageSend()">Save changes</button>
-                    </div>
-                </div>
             </div>
         </div>
 

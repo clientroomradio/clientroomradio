@@ -88,6 +88,10 @@
 
 /* END Slider */
 
+.btn-skip {
+	width: 100px;
+}
+
 .pull-right-button {
 	margin-right: 5px;
 }
