@@ -2,6 +2,7 @@ module.exports = function(config, lastfmClient, userDao, chat) {
 	var that = this;
 	var express = require('express');
 	var uuid = require('node-uuid');
+	var httpProxy = require('http-proxy');
 
 	var app;
 
@@ -45,6 +46,14 @@ module.exports = function(config, lastfmClient, userDao, chat) {
 			}
 		});
 
+		var proxy = new httpProxy.RoutingProxy();
+		app.all('/stream.mp3', function(req, res) {
+		    req.url = '/stream.mp3';
+		    proxy.proxyRequest(req, res, {
+		        host: 'localhost', 
+		        port: 8080
+		    });
+		});
 		
 	}
 
