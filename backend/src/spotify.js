@@ -28,6 +28,7 @@ module.exports = function() {
         else console.log("Spotify login success!");
 
         spPlayer = spSession.getPlayer();
+        spPlayer.pipe(lameEncoder);
     }
 
     function finished() {
@@ -52,19 +53,16 @@ module.exports = function() {
             console.log('There is no track to play :[');
         }
         else {
-            console.log("Found:", this.tracks[0].artist.name, this.tracks[0].title);
-
             // There is a track to play!
-
-            var spTrack = this.tracks[0];
+            console.log("Found:", this.tracks[0].artist.name, this.tracks[0].title);
 
             requests.push({
                 "track": {},
-                "spTrack": spTrack
+                "spTrack": this.tracks[0]
             });
 
             if ( requests.length == 1 ) {
-                // we can't already be downloading one so start now
+                // we're not already downloading, so start now
                 downloadTrack(requests[0]);
             }
         }
@@ -103,7 +101,7 @@ module.exports = function() {
 
             // get the Spotify track, encode as mp3, and save to file
             var fileWS = fs.createWriteStream(mp3location);
-            spPlayer.pipe(lameEncoder).pipe(fileWS);
+            lameEncoder.pipe(fileWS);
             spPlayer.once('track-end', (onDownloadedTrack).bind(fileWS) );
         }
     }
