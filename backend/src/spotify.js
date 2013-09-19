@@ -3,10 +3,12 @@ module.exports = function() {
 
     var requests = [];
     var lame = require('lame');
+    var lameEncoder = new lame.Encoder();
     var crypto = require("crypto");
     var fs = require("fs");
     var sp;
     var spSession;
+    var spPlayer;
 
     if ( fs.existsSync(__dirname + '/../spotify/spotify_appkey.key') ) {
         sp = require('libspotify');
@@ -24,11 +26,15 @@ module.exports = function() {
     function onLogin(err) {
         if (err) console.log("Spotify login failed:", err);
         else console.log("Spotify login success!");
+
+        spPlayer = spSession.getPlayer();
     }
 
     function finished() {
+        var request = requests.shift();
+        console.log("We've finished downloading a Spotify track.");
         // remove the request now that we've finished downloading it
-        that.emit('downloadedTrack', requests.shift().track);
+        that.emit('downloadedTrack', request.track);
 
         if (requests.length > 0) {
             downloadTrack(requests[0]);
@@ -65,6 +71,7 @@ module.exports = function() {
     }
 
     that.request = function(searchTerm) {
+        console.log("Spotify search term:", searchTerm);
         var spSearch = new sp.Search(searchTerm);
         spSearch.trackCount = 1; // we're only interested in the first result;
         spSearch.execute();
@@ -85,25 +92,18 @@ module.exports = function() {
         request.track.identifier = hash;
         request.track.extension = {};
 
-        //__dirname + "/spTracks/"
-
         if (fs.existsSync(mp3location)) {
-            // We already have this file so just use that
+            console.log("We already have this file so just use that");
             finished();
         }
         else {
-            // start downloading the track
-            var spPlayer = spSession.getPlayer();
+            console.log("start downloading the track");
             spPlayer.load(request.spTrack);
             spPlayer.play();
 
-            // VLC needs a file to play (and didn't seem to like being
-            // given PCM data) so use lame to convert Spotify's PCM data
-            // to mp3 and write that to a file that can be read by VLC
-            var fileWS = fs.createWriteStream( mp3location );
-            var lameEncoder = new lame.Encoder();
+            // get the Spotify track, encode as mp3, and save to file
+            var fileWS = fs.createWriteStream(mp3location);
             spPlayer.pipe(lameEncoder).pipe(fileWS);
-
             spPlayer.once('track-end', (onDownloadedTrack).bind(fileWS) );
         }
     }
