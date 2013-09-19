@@ -1,11 +1,7 @@
 */node_modules/
 config.js
 /rebus-storage/
-spotify_appkey.key
-spDetails.js
-spTrack.mp3
-*/spSettings/
-*/spCache/
+*/spotify/
 .DS_Store
 *.dat
 .vagrant

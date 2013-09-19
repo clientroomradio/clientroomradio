@@ -2,23 +2,16 @@
 var users = {};
 var tracks = [];
 var skippers = [];
-var spRequests = [];
-var requests = [];
 var vlcPlayer;
 var currentStation = '';
 var _ = require("underscore");
 var config = require("../config.js");
-var fs = require("fs");
 var rebus = require('rebus');
 var http = require('http');
 var fs = require('fs');
-
-var spotifyEnabled = fs.existsSync(__dirname + '/spotify_appkey.key');
-if (!spotifyEnabled) {
-	console.log('Spotify disabled');
-}
-
 var LastFmNode = require('lastfm').LastFmNode;
+var Spotify = require('./src/spotify.js');
+var spotify = new Spotify();
 
 if ( !fs.existsSync('../rebus-storage') ) {
 	fs.mkdirSync('../rebus-storage');
@@ -38,6 +31,24 @@ var lastfm = new LastFmNode({
 	api_key: config.api_key,
 	secret: config.secret,
 	useragent: 'clientroomradio/v0.1 Client Room Radio'
+});
+
+spotify.on('downloadedTrack', function(track) {
+	console.log("unshift track!");
+	
+	getContext(track);
+
+    var getInfoRequest = lastfm.request("track.getInfo", {
+        track: track.title,
+        artist: track.creator,
+        handlers: {
+            success: function(lfm) {
+                track.image = lfm.track.album.image[1]["#text"];
+            }
+        }
+    });
+
+	tracks.unshift(track);
 });
 
 function doUpdateNowPlaying(username, session_key, track) {
@@ -145,41 +156,11 @@ function onComplete(err) {
 }
 
 function playTrack() {
-	var didPlayTrack = false;
-
-	var track = {};
-
-	console.log(requests.length, spRequests.length);
-
-	if ( requests.length > 0 ) {
-		console.log("A Spotify requests is ready to play.");
-		track = requests.shift() 
-		playSpotifyTrack( track );
-		didPlayTrack = true;
-	} else if ( spRequests.length > 1 ) {
-		// the last track was a spotify request
-		// there are more spotify requests in the queue
-		// AND the last one didn't finish because it hasn't been added to requests
-		console.log("We have to start downloading a new Spotify request.");
-
-		var spPlayer = spSession.getPlayer();
-		spPlayer.stop();
-		spRequests.shift();
-        downloadSpotifyTrack(spRequests[0]); // this will add a track to requests
-        track = requests.shift();
-		playSpotifyTrack( track );
-		didPlayTrack = true;
-	} else if ( spRequests.length == 1 ) {
-		// the track must have been skipped so clear the queue
-		spRequests = [];
-	} else if ( tracks.length > 0 ) {
+	if ( tracks.length > 0 ) {
 		console.log("Play a Last.fm radio track.");
 		track = tracks.shift();
-		getmp3(track.location);
-		didPlayTrack = true;
-	}
+		play_mp3(track.location);
 
-	if ( didPlayTrack ) {
 		console.log("PLAYING TRACK:", track.title, '-', track.creator);
 
 		// add a timestamp to the track as we start it
@@ -189,9 +170,11 @@ function playTrack() {
 
 		bus.publish('currentTrack', track, onComplete );
 		bus.publish('skippers', [], onComplete );
+
+		return true;
 	}
 
-	return didPlayTrack;
+	return false;
 }
 
 function onEndTrack() {
@@ -331,10 +314,12 @@ function checkPlayingState() {
 	}
 }
 
-function getmp3(mp3) {
+function play_mp3(mp3) {
 	console.log(mp3);
 
-	var media = vlc.mediaFromUrl(mp3);
+	var media;
+	if (fs.existsSync(mp3)) media = vlc.mediaFromFile(mp3);
+	else media = vlc.mediaFromUrl(mp3);
 	media.parseSync();
 	vlcPlayer = vlc.mediaplayer;
 	vlcPlayer.media = media;
@@ -349,6 +334,8 @@ function updateProgress() {
 		doSend('/progress', '{"progress":' + actualPosition + '}');
 	}
 }
+
+setInterval(updateProgress, 500);
 
 function doSend(path, data) {
 	var options = {
@@ -375,39 +362,6 @@ function doSend(path, data) {
 	req.end();
 }
 
-setInterval(updateProgress, 500);
-
-
-if (spotifyEnabled) {
-	var lame = require('lame');
-	var sp = require('libspotify');
-
-	var spSession = new sp.Session({
-		cache_location: __dirname + "/spCache/",
-	    settings_location: __dirname + "/spSettings/",
-	    applicationKey: __dirname + '/spotify_appkey.key'
-	});
-
-	function playSpotifyTrack(track) {
-		var r = fs.createReadStream( track.location );
-	    var vlcMedia = vlc.mediaFromNode(r);
-		vlcMedia.parseSync();
-		vlcPlayer = vlc.mediaplayer;
-		vlcPlayer.media = vlcMedia;
-		setTimeout(function () { vlcPlayer.play(); }, 2000);
-
-		setTimeout(checkPlayingState, 10000);
-	}
-
-
-	spSession.relogin();
-
-	spSession.once('login', function(err) {
-	    if (err) console.log("Spotify login failed:", err);
-	    else console.log("Spotify login success!");
-	});
-}
-
 http.createServer(function (request, res) {
   
   if (request.url == '/request') {
@@ -424,89 +378,12 @@ http.createServer(function (request, res) {
 		res.writeHead(200, {'Content-Type': 'text/plain'});
   		res.end('');
 
-	    var request = JSON.parse( body );
-		var spSearch = new sp.Search( request.request );
-	    spSearch.trackCount = 1; // we're only interested in the first result;
-	    spSearch.execute();
-	    spSearch.once('ready', function() {
-
-	    	if(!spSearch.tracks.length) {
-	            console.log('there is no track to play :[');
-	        }
-	        else {
-				console.log("Found:", spSearch.tracks[0].artist.name, spSearch.tracks[0].title);
-
-	        	// There is a track to play!
-		        var spTrack = spSearch.tracks[0];
-		        spRequests.push(spTrack);
-
-		        if ( spRequests.length == 1 ) {
-					downloadSpotifyTrack(spTrack);
-				}
-			}
-	    });
+  		var request = JSON.parse( body );
+  		spotify.request(request.request);
   	});
   }
 
 }).listen(3002);
-
-var crypto = require("crypto");
-
-function downloadSpotifyTrack(spTrack) {
-	console.log("Download Spotify track!");
-    // setup the track to put it in the queue
-    var track = {};
-    track.creator = spTrack.artist.name;
-    track.album = spTrack.album.name;
-    track.title = spTrack.title;
-    track.duration = String(spTrack.duration);
-
-	var hash = crypto.createHash("md5").update(track.creator + track.title).digest("hex");
-    var mp3location = '/tmp/' + hash + '.mp3';
-    track.location = mp3location;
-    track.identifier = hash;
-    track.extension = {};
-
-    getContext( track );
-
-    // get album art for Spotify tracks
-    var request = lastfm.request("track.getInfo", {
-		track: track.title,
-		artist: track.creator,
-		handlers: {
-			success: function(lfm) {
-				track.image = lfm.track.album.image[1]["#text"];
-			}
-		}
-	});
-
-    requests.push(track);
-
-    // start downloading the track
-	var spPlayer = spSession.getPlayer();
-    spPlayer.load(spTrack);
-    spPlayer.play();
-
-    spPlayer.once('track-end', function() {
-        console.log('Spotify track finished downloading.');
-        w.close();
-
-        // remove the request now that we've finished downloading it
-        spRequests.shift();
-
-        if ( spRequests.length > 0 ) {
-        	// there is another track!
-        	downloadSpotifyTrack(spRequests[0]);
-        }
-    });
-
-    // VLC needs a file to play (and didn't seem to like being
-	// given PCM data) so use lame to convert Spotify's PCM data
-	// to mp3 and write that to a file that can be read by VLC
-	var w = fs.createWriteStream( mp3location );
-	var lameEncoder = new lame.Encoder();
-	spPlayer.pipe(lameEncoder).pipe(w);
-}
 
 process.on('SIGINT', function() {
 	console.log( "\nShutting down!" );
