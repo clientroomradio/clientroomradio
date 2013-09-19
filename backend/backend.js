@@ -156,32 +156,29 @@ function onComplete(err) {
 }
 
 function playTrack() {
-	if ( tracks.length > 0 ) {
-		console.log("Play a Last.fm radio track.");
-		track = tracks.shift();
-		play_mp3(track.location);
+	console.log("Play a Last.fm radio track.");
+	track = tracks.shift();
+	play_mp3(track.location);
 
-		console.log("PLAYING TRACK:", track.title, '-', track.creator);
+	console.log("PLAYING TRACK:", track.title, '-', track.creator);
 
-		// add a timestamp to the track as we start it
-		track.timestamp = new Date().getTime();
+	// add a timestamp to the track as we start it
+	track.timestamp = new Date().getTime();
 
-		updateNowPlaying(track);
+	updateNowPlaying(track);
 
-		bus.publish('currentTrack', track, onComplete );
-		bus.publish('skippers', [], onComplete );
-
-		return true;
-	}
-
-	return false;
+	bus.publish('currentTrack', track, onComplete );
+	bus.publish('skippers', [], onComplete );
 }
 
 function onEndTrack() {
 	scrobble(bus.value.currentTrack);
 
 	// check if there are more songs to play
-	if ( !playTrack() ) {
+	if (tracks.length > 0) {
+		playTrack();
+	}
+	else {
 		// we were unable to play another track so clear the current one
 		bus.publish('currentTrack', {}, onComplete );
 
