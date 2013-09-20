@@ -287,7 +287,7 @@ function onUsersChanged(newUsers) {
 
 function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
-	if ( vlcPlayer && _.keys(users).length > 0 && skippers.length >= Math.ceil(_.keys(users).length / 2) ) {
+	if ( vlcPlayer && _.keys(active(users)).length > 0 && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
 		console.log('SKIP');
 		vlcPlayer.pause();
 		doSend('/skip', '{}');
