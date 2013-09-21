@@ -110,7 +110,7 @@ function onEndTrack() {
 		}
 		else {
 			// just get another playlist
-			getPlaylist();
+			lastfm.getPlaylist(onRadioGotPlaylist);
 		}
 	}
 }
