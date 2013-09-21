@@ -1,17 +1,20 @@
-
-var users = {};
-var tracks = [];
-var skippers = [];
-var vlcPlayer;
-var currentStation = '';
 var _ = require("underscore");
 var config = require("../config.js");
 var rebus = require('rebus');
 var http = require('http');
 var fs = require('fs');
-var LastFmNode = require('lastfm').LastFmNode;
+
 var Spotify = require('./src/spotify.js');
+var Lastfm = require('./src/lastfm.js');
+
 var spotify = new Spotify();
+var lastfm = new Lastfm();
+
+var users = {};
+var tracks = [];
+var requests = [];
+var skippers = [];
+var currentStationUrl = '';
 
 if ( !fs.existsSync('../rebus-storage') ) {
 	fs.mkdirSync('../rebus-storage');
@@ -20,6 +23,14 @@ if ( !fs.existsSync('../rebus-storage') ) {
 	fs.writeFileSync('../rebus-storage/currentTrack.json', "{}");
 }
 
+var bus = rebus('../rebus-storage', function(err) {
+	var usersNotification = bus.subscribe('users', onUsersChanged);
+	var skippersNotification = bus.subscribe('skippers', onSkippersChanged);
+
+	users = bus.value.users;
+	currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
+});
+
 var vlc = require('vlc')([
   '-I', 'dummy',
   '-V', 'dummy',
@@ -27,100 +38,13 @@ var vlc = require('vlc')([
   '--sout=#http{dst=:8080/stream.mp3}'
 ]);
 
-var lastfm = new LastFmNode({
-	api_key: config.api_key,
-	secret: config.secret,
-	useragent: 'clientroomradio/v0.1 Client Room Radio'
-});
-
 spotify.on('downloadedTrack', function(track) {
-	console.log("unshift track!");
-	
-	getContext(track);
-
-    var getInfoRequest = lastfm.request("track.getInfo", {
-        track: track.title,
-        artist: track.creator,
-        handlers: {
-            success: function(lfm) {
-                track.image = lfm.track.album.image[1]["#text"];
-            }
-        }
-    });
-
-	tracks.unshift(track);
+	// get some extra info about the track and
+	// push it to the end of the requests queue
+	lastfm.getContext(track, active(users), onGotContext);
+	lastfm.trackGetInfo(track);
+	requests.push(track);
 });
-
-function doUpdateNowPlaying(username, session_key, track) {
-	var request = lastfm.request("track.updateNowPlaying", {
-		album: track.album,
-		track: track.title,
-		artist: track.creator,
-		duration: (track.duration / 1000),
-		sk: session_key,
-		handlers: {
-			success: function(lfm) {
-				console.log("Updated now playing for:", username);
-			},
-			error: function(error) {
-				console.log("Now playing error:" + error.message);
-			}
-		}
-	});
-}
-
-function updateNowPlaying(track) {
-	if ( !_.isEmpty(track) ) {
-		// always scrobble to clientroom
-		doUpdateNowPlaying("clientroom", config.sk, track);
-
-		_.each(users, function(data, user) {
-			if ( !(!data.scrobbling || !data.active) ) {
-				doUpdateNowPlaying(user, data.sk, track);
-			}
-		});
-	}
-}
-
-function doScrobble(username, session_key, track) {
-	var options = {
-		"album[0]": track.album,
-		"track[0]": track.title,
-		"artist[0]": track.creator,
-		"timestamp[0]": Math.round(track.timestamp / 1000),
-		"duration[0]": Math.round(track.duration / 1000),
-		sk: session_key,
-		"chosenByUser[0]": "0",
-		handlers: {
-			success: function(lfm) {
-				console.log("Scrobbled track for:", username);
-			},
-			error: function(error) {
-				console.log("Scrobble error:" + error.message);
-			}
-		}
-	}
-
-	if ( _.has( track.extension, 'streamid') )
-		options["streamid[0]"] = track.extension.streamid;
-
-	var request = lastfm.request("track.scrobble", options );
-}
-
-function scrobble(track) {
-	if ( !_.isEmpty(track) && new Date().getTime() - track.timestamp > Math.round( track.duration / 2 ) ) {
-		// we've listened to more than half the song
-		doScrobble("clientroom", config.sk, track);
-
-		_.each(users, function(data, user) {
-			if (  !(!data.scrobbling || !data.active) 
-					&& !_.contains(skippers, user) ) {
-				// the user hasn't voted to skip this track
-				doScrobble(user, data.sk, track);
-			}
-		});
-	}
-}
 
 function active(aUsers) {
 	var activeUsers = {};
@@ -134,29 +58,20 @@ function active(aUsers) {
 	return activeUsers;
 }
 
-function getStation(aUsers) {
-	aUsers = typeof aUsers !== 'undefined' ? aUsers : users;
-
-	var stationUsers = '';
-
-	for ( var user in active(aUsers) ) {
-		if ( stationUsers.length > 0 )
-			stationUsers += ',' + user;
-		else
-			stationUsers += user;
-	}
-
-	return 'lastfm://users/' + stationUsers + '/personal';
-}
-
 function onComplete(err) {
 	if ( err ) {
 		console.log('There was a rebus updating error:', err);
 	}
 }
 
+function onGotContext(track) {
+	if ( bus.value.currentTrack.timestamp == track.timestamp ) {
+		// update the current track with the new context
+		bus.publish('currentTrack', track, onComplete );
+	}
+}
+
 function playTrack() {
-	console.log("Play a Last.fm radio track.");
 	track = tracks.shift();
 	play_mp3(track.location);
 
@@ -165,14 +80,21 @@ function playTrack() {
 	// add a timestamp to the track as we start it
 	track.timestamp = new Date().getTime();
 
-	updateNowPlaying(track);
+	lastfm.updateNowPlaying(track, users);
 
 	bus.publish('currentTrack', track, onComplete );
 	bus.publish('skippers', [], onComplete );
 }
 
 function onEndTrack() {
-	scrobble(bus.value.currentTrack);
+	console.log("onEndTrack");
+
+	lastfm.scrobble(bus.value.currentTrack, users, skippers);
+
+	// If there's a request, add it to the front of the queue now
+	if (requests.length > 0) {
+		tracks.unshift(requests.shift());
+	}
 
 	// check if there are more songs to play
 	if (tracks.length > 0) {
@@ -183,8 +105,8 @@ function onEndTrack() {
 		bus.publish('currentTrack', {}, onComplete );
 
 		// there are no more tracks in the current playlist
-		if ( getStation() != currentStation ) {
-			radioTune();
+		if ( lastfm.getStationUrl(active(users)) != currentStationUrl ) {
+			lastfm.radioTune(active(users), onRadioTuned);
 		}
 		else {
 			// just get another playlist
@@ -193,83 +115,28 @@ function onEndTrack() {
 	}
 }
 
-function getContext(track) {
-	_.each(active(users), function(data,user) {
-		var request = lastfm.request("track.getInfo", {
-			track: track.title,
-			artist: track.creator,
-			username: user,
-			handlers: {
-				success: function(lfm) {
-					console.log(track.title, user, lfm.track.userplaycount)
-					track.context = track.context || [];
-					if ( lfm.track.userplaycount ) {
-						track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
-
-						if ( bus.value.currentTrack.timestamp == track.timestamp ) {
-							// update the current track with the new context
-							bus.publish('currentTrack', track, onComplete );
-						}
-					}
-				},
-				error: function(error) {
-					console.log("Error: " + error.message);
-				}
-			}
-		});
-	});
-}
+// we can't start another track from within a vlc callback (not reentrant) so do it 8 milliseconds later
+vlc.mediaplayer.on('EndReached', function() {setTimeout(onEndTrack, 0);});
 
 function onRadioGotPlaylist(data) {
+	console.log(data);
+
 	tracks = data.playlist.trackList.track;
 
 	// get all the contexts and insert them into the tracks
 	_.each(tracks, function(track) {
-		getContext(track);
+		lastfm.getContext(track, active(users), onGotContext);
 	});
 
 	playTrack();
 };
 
-function getPlaylist() {
-	var request = lastfm.request("radio.getplaylist", {
-		sk: config.sk,
-		handlers: {
-			success: onRadioGotPlaylist,
-			error: function(error) {
-				console.log("Error: " + error.message);
-			}
-		}
-	});
-}
-
 function onRadioTuned(data) {
-	getPlaylist();
+	lastfm.getPlaylist(onRadioGotPlaylist);
 };
 
-function radioTune() {
-	currentStation = '';
-
-	if ( !_.isEmpty(active(users)) ) {
-		currentStation = getStation();
-
-		console.log( currentStation );
-
-		var request = lastfm.request("radio.tune", {
-			station: currentStation,
-			sk: config.sk,
-			handlers: {
-				success: onRadioTuned,
-				error: function(error) {
-					console.log("Error: " + error.message);
-				}
-			}
-		});
-	}
-}
-
 function onUsersChanged(newUsers) {
-	if ( currentStation != getStation(newUsers) ) {
+	if ( currentStationUrl != lastfm.getStationUrl(active(newUsers)) ) {
 		// the users have changed so we'll need to retune
 		// clearing the tracks will make this happen
 		tracks = [];
@@ -280,34 +147,16 @@ function onUsersChanged(newUsers) {
 
   	if ( start ) {
   		// we've gone from no users to some users so start
-  		radioTune(); 
+  		currentStationUrl = lastfm.radioTune(active(users)); 
   	}
-
 }
 
 function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
-	if ( vlcPlayer && _.keys(active(users)).length > 0 && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
+	if ( _.keys(active(users)).length > 0 && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
 		console.log('SKIP');
-		vlcPlayer.pause();
-		doSend('/skip', '{}');
-	}
-}
-
-
-var bus = rebus('../rebus-storage', function(err) {
-	var usersNotification = bus.subscribe('users', onUsersChanged);
-	var skippersNotification = bus.subscribe('skippers', onSkippersChanged);
-
-	users = bus.value.users;
-	radioTune();
-});
-
-function checkPlayingState() {
-	if (vlcPlayer.is_playing) {
-		setTimeout(checkPlayingState, 500);
-	} else {
 		onEndTrack();
+		doSend('/skip', '{}');
 	}
 }
 
@@ -317,22 +166,21 @@ function play_mp3(mp3) {
 	var media;
 	if (fs.existsSync(mp3)) media = vlc.mediaFromFile(mp3);
 	else media = vlc.mediaFromUrl(mp3);
-	media.parseSync();
-	vlcPlayer = vlc.mediaplayer;
-	vlcPlayer.media = media;
-	vlcPlayer.play();
-
-	setTimeout(checkPlayingState, 10000);
+	console.log("parseSync pre");
+	console.log("parseSync post");
+	
+	vlc.mediaplayer.media = media;
+	console.log("yeah");
+	vlc.mediaplayer.play();
+	console.log("blah");
 }
 
-function updateProgress() {
-	if (vlcPlayer) {
-		var actualPosition = (vlcPlayer.position * vlcPlayer.length) / bus.value.currentTrack.duration;
-		doSend('/progress', '{"progress":' + actualPosition + '}');
-	}
+function updateProgress(position) {
+	var actualPosition = (position * vlc.mediaplayer.length) / bus.value.currentTrack.duration;
+	doSend('/progress', '{"progress":' + actualPosition + '}');
 }
 
-setInterval(updateProgress, 500);
+vlc.mediaplayer.on('PositionChanged', updateProgress);
 
 function doSend(path, data) {
 	var options = {
