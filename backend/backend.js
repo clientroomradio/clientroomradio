@@ -139,16 +139,18 @@ function onUsersChanged(newUsers) {
 	if ( currentStationUrl != lastfm.getStationUrl(active(newUsers)) ) {
 		// the users have changed so we'll need to retune
 		// clearing the tracks will make this happen
+		console.log("Station change!");
 		tracks = [];
-	 }
+	}
 
-  	var start = (_.isEmpty(active(users)) && !_.isEmpty(active(newUsers)));
+	var start = !_.isEmpty(active(newUsers)) && _.isEmpty(active(users));
+
 	users = newUsers;
 
-  	if ( start ) {
-  		// we've gone from no users to some users so start
-  		currentStationUrl = lastfm.radioTune(active(users)); 
-  	}
+	if ( start ) {
+		// we've gone from no users to some users so start
+		currentStationUrl = lastfm.radioTune(active(users), onRadioTuned); 
+	}
 }
 
 function onSkippersChanged(newSkippers) {
