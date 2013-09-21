@@ -1,4 +1,4 @@
-module.exports = function(config, lastfmClient, userDao, chat) {
+module.exports = function(config, lastfmClient, userDao, chat, permissionChecker) {
 	var that = this;
 	var express = require('express');
 	var uuid = require('node-uuid');
@@ -28,10 +28,15 @@ module.exports = function(config, lastfmClient, userDao, chat) {
 					console.log('ERR: %s', err);
 				} else {
 					var sessionId = uuid.v4();
-					res.cookie('session', sessionId);
-					var user = userDao.addUser(session.user, sessionId, session.key);
-					chat.userJoined(user);
-					res.redirect('/');
+					if (permissionChecker.isAllowedToJoin(session.user)) {
+						var user = userDao.addUser(session.user, sessionId, session.key);
+						res.cookie('session', sessionId);
+						chat.userJoined(user);
+						res.redirect('/');
+					} else {
+						res.redirect(config.notAllowedInUrl);
+					}
+					
 				}
 			});
 		});

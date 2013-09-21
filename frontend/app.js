@@ -11,6 +11,7 @@ var HeartbeatManager = require('./src/HeartbeatManager.js');
 var LastfmClient = require('./src/LastfmClient.js');
 var LoveManager = require('./src/LoveManager.js');
 var ProgressManager = require('./src/ProgressManager.js');
+var PermissionChecker = require('./src/PermissionChecker.js');
 var ScrobblingManager = require('./src/ScrobblingManager.js');
 var SkipManager = require('./src/SkipManager.js');
 var SkippersDao = require('./src/SkippersDao.js');
@@ -27,6 +28,7 @@ var config = require('../config.js');
 rebus.onReady = function() {
 	// DI
 	var lastfmClient = new LastfmClient(config);
+	var permissionChecker = new PermissionChecker(config, lastfmClient)
 	var userDao = new UserDao(rebus, lastfmClient);
 	var skippersDao  = new SkippersDao(rebus);
 	var currentTrackDao = new CurrentTrackDao(rebus);
@@ -34,7 +36,7 @@ rebus.onReady = function() {
 	var chat = new Chat(socket, config);
 	var progressManager = new ProgressManager(socket);
 	var expressInternal = new ExpressInternal(config, chat, progressManager);
-	var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat);
+	var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionChecker);
 	var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config);
 	var votingManager = new VotingManager(chat, socket, rebus);
 
