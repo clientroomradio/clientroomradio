@@ -118,9 +118,6 @@ module.exports = function() {
 	}
 
 	that.getStationUrl = function(users) {
-		return 'lastfm://tag/under one minute'
-
-
 		var usersString = '';
 
 		for ( var user in users ) {
