@@ -244,7 +244,9 @@
 	color: #bbb;
 }
 
-
+.inactive {
+	background-color: #FF908C;
+}
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;

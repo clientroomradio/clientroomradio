@@ -77,9 +77,12 @@ function MainController($scope, socket) {
 
 		    		$player.jPlayer("play");
 
-		    		$scope.$watch('muted', function() {
-						$player.jPlayer("mute", $scope.muted);
-					});
+
+		    		function updateMute() {
+		    			$player.jPlayer("mute", $scope.muted || (!$scope.active));
+		    		}
+		    		$scope.$watch('muted', updateMute);
+		    		$scope.$watch('active', updateMute);
 
 					$('.volume-slider-init').on('slide', function(ev){
 					    volume = ev.value;
