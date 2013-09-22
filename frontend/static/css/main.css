@@ -232,6 +232,7 @@
 	background: url(/img/crr_scrobble_icon.png) no-repeat;
 	position:relative;
     top:1px;
+    margin-top: 2px;
 }
 
 .list-group-item .icon-lastfm {
