@@ -63,9 +63,9 @@
                             </a>
                             <div class="media-body">
                                 <h4 class="media-heading" ng-show="isPlaying()">
-                                    <a ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.creator}}</a> 
+                                    <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.creator}}</a> 
                                     - 
-                                    <a ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.title}}</a> 
+                                    <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.title}}</a> 
                                     ({{durationInText()}})
                                 </h4>
                                 <h4 class="media-heading" ng-hide="isPlaying()">Nothing playing at the moment.</h4>
@@ -159,7 +159,7 @@
                         </ng-pluralize>
                     </li>
                     <li ng-repeat="(username, user) in users" class="list-group-item {{user.active?'user--active':'user--inactive'}}">
-                        <a href="http://www.last.fm/user/{{username}}">{{username}}</a>
+                        <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
                         <i ng-show="user.active && user.scrobbling" class="icon-lastfm pull-right"></i>
                     </li>
                 </ul>
