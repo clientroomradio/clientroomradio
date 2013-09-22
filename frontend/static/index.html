@@ -103,24 +103,24 @@
                         </div>
                     </div>
                     <div class="clearfix visible-xs" style="margin-bottom:20px;"></div>
-                    <div class="pull-right btn-group">
+                    <div class="pull-right btn-group" ng-hide="username==null">
 
-                        <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!active)" ng-disabled="username==null" data-toggle="tooltip" title="Sit out / in">
+                        <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!active)" data-toggle="tooltip" title="Sit out / in">
                             <i class="{{active?'icon-signout':'icon-signin'}}"></i>
                         </button>
 
-                        <button type="button" ng-show="scrobbling" class="btn btn-default btn-success btn-tooltip" ng-click="setScrobbling(false)" ng-disabled="!active || username==null" data-toggle="tooltip" title="Turn scrobbling off">
+                        <button type="button" ng-show="scrobbling" class="btn btn-default btn-success btn-tooltip" ng-click="setScrobbling(false)" ng-disabled="!active" data-toggle="tooltip" title="Turn scrobbling off">
                             <i class="icon-lastfm"></i>
                         </button>
 
-                        <button type="button" ng-hide="scrobbling" class="btn btn-default btn-danger btn-tooltip" ng-click="setScrobbling(true)" ng-disabled="!active || username==null" data-toggle="tooltip" title="Turn scrobbling on">
+                        <button type="button" ng-hide="scrobbling" class="btn btn-default btn-danger btn-tooltip" ng-click="setScrobbling(true)" ng-disabled="!active" data-toggle="tooltip" title="Turn scrobbling on">
                             <i class="icon-lastfm"></i>
                         </button>
 
-                        <button type="button" class="btn btn-default btn-tooltip" ng-hide="loved" ng-click="love()" ng-disabled="username==null" data-toggle="tooltip" title="Love this track">
+                        <button type="button" class="btn btn-default btn-tooltip" ng-hide="loved" ng-click="love()" data-toggle="tooltip" title="Love this track">
                             <i class="icon-heart-empty"></i>
                         </button>
-                        <button type="button" class="btn btn-danger btn-tooltip" ng-show="loved" ng-click="unlove()" ng-disabled="username==null" data-toggle="tooltip" title="Un-love this track">
+                        <button type="button" class="btn btn-danger btn-tooltip" ng-show="loved" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
                             <i class="icon-heart"></i>
                         </button>
 

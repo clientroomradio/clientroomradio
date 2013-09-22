@@ -61,38 +61,40 @@ function MainController($scope, socket) {
 	}
 
 	// Music
-	$(document).ready(function(){
-		var volume = $.cookie('volume');
-		if (volume === undefined) {
-			volume = 1;
-		}
+	if (loggedInAs) {
+		$(document).ready(function(){
+			var volume = $.cookie('volume');
+			if (volume === undefined) {
+				volume = 1;
+			}
 
-		$("#audio-player").jPlayer({
-	 		ready: function () {
-	    		var $player = $(this).jPlayer("setMedia", {
-	    			mp3: config.stream
-	    		});
+			$("#audio-player").jPlayer({
+		 		ready: function () {
+		    		var $player = $(this).jPlayer("setMedia", {
+		    			mp3: config.stream
+		    		});
 
-	    		$player.jPlayer("play");
+		    		$player.jPlayer("play");
 
-	    		$scope.$watch('muted', function() {
-					$player.jPlayer("mute", $scope.muted);
-				});
+		    		$scope.$watch('muted', function() {
+						$player.jPlayer("mute", $scope.muted);
+					});
 
-				$('.volume-slider-init').on('slide', function(ev){
-				    volume = ev.value;
-				    $.cookie('volume', volume);
+					$('.volume-slider-init').on('slide', function(ev){
+					    volume = ev.value;
+					    $.cookie('volume', volume);
+						$player.jPlayer("volume", volume);
+					});
+
 					$player.jPlayer("volume", volume);
-				});
+		    	},
+		    	swfPath: "/js",
+		    	supplied: "mp3"
+			});
 
-				$player.jPlayer("volume", volume);
-	    	},
-	    	swfPath: "/js",
-	    	supplied: "mp3"
+			$('.volume-slider-init').slider().slider('setValue', volume);
 		});
-
-		$('.volume-slider-init').slider().slider('setValue', volume);
-	});
+	}
 
 
 	$('.btn-tooltip').tooltip({
