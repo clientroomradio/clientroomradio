@@ -85,7 +85,8 @@ function MainController($scope, socket) {
 		    		$scope.$watch('active', updateMute);
 
 					$('.volume-slider-init').on('slide', function(ev){
-					    volume = ev.value;
+					    volume = 1-ev.value;
+					    console.log(volume);
 					    $.cookie('volume', volume);
 						$player.jPlayer("volume", volume);
 					});
@@ -96,7 +97,7 @@ function MainController($scope, socket) {
 		    	supplied: "mp3"
 			});
 
-			$('.volume-slider-init').slider().slider('setValue', volume);
+			$('.volume-slider-init').slider().slider('setValue', 1-volume);
 		});
 	}
 

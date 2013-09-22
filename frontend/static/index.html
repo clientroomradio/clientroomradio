@@ -103,7 +103,7 @@
                         </div>
                     </div>
                     <div class="clearfix visible-xs" style="margin-bottom:20px;"></div>
-                    <div class="pull-right btn-group" ng-hide="username==null">
+                    <div class="pull-right" ng-hide="username==null">
 
                         <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!active)" data-toggle="tooltip" title="Sit out / in">
                             <i class="{{active?'icon-signout':'icon-signin'}}"></i>
@@ -129,7 +129,7 @@
                         
                             <div class="volume-inline-block" ng-click="clickOnVolumeBar()">
                                 <div class="volume">
-                                    <input type="text" class="volume-slider-init" value="" data-slider-min="0" data-slider-max="1" data-slider-step="0.02" data-slider-value="1" data-slider-orientation="horizontal" data-slider-selection="after" data-slider-tooltip="hide">
+                                    <input type="text" class="volume-slider-init" value="" data-slider-min="0" data-slider-max="1" data-slider-step="0.02" data-slider-value="1" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide">
                                 </div>
                             </div>
                         </button>
