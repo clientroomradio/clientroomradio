@@ -240,7 +240,7 @@
 	display: block;
 }
 
-.user--inactive {
+.user--inactive a {
 	color: #bbb;
 }
 
