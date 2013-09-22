@@ -35,7 +35,8 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Propose <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR for today</a></li>                      
+                            <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR for today</a></li>   
+                            <li><a data-toggle="modal" href="#spotifySearch">Play Spotify track</a></li>                  
                         </ul>
                     </li>
                     <li ng-show="NotificationPermissionNeeded()">
@@ -170,10 +171,44 @@
             </div>
         </div>
 
+        <!-- Modal for spotify search -->
+
+        <div class="modal fade" id="spotifySearch" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" ng-controller="SpotifySearchController">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Search for spotify track</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" class="form-control spotify-search-input" ng-model="searchTerm" ng-change="update()" placeholder="Search term">
+                       
+                        <div class="list-group">
+                            <a  ng-href="#" 
+                                class="list-group-item {{choosenTrack.href == track.href?'active':''}}" 
+                                ng-repeat="track in tracks" 
+                                ng-click="clickTrack(track)">
+                                {{track.artists[0].name}} - {{track.name}}
+                            </a>
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" ng-disabled="!choosenTrack" class="btn btn-primary" data-dismiss="modal" ng-click="request()">Request</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+   
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
+
         <!-- Javascript - Libs -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
         <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
         <script src="/js/lib/jquery.cookie.js"></script>
         <script src="/js/lib/jquery.jplayer.min.js"></script>
@@ -187,6 +222,7 @@
         <script src="/js/controller/ChatController.js"></script>
         <script src="/js/controller/NavController.js"></script>
         <script src="/js/controller/VotingController.js"></script>
+        <script src="/js/controller/SpotifySearchController.js"></script>
 
         <!-- Javascript - Services -->
         <script src="/js/services/Socket.js"></script>

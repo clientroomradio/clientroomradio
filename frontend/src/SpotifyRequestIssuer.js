@@ -3,10 +3,10 @@ module.exports = function(chat, socket, config) {
 
 	var request = require('request');
 
-	socket.on('request', function(user, query){
+	socket.on('request', function(user, track){
 		var payload = {
 			username: user.username,
-			request: query
+			request: track.href
 		};
 
 		request.post(config.spotifyRequestUrl, {json:payload}, function (error, response, body) {
@@ -17,6 +17,6 @@ module.exports = function(chat, socket, config) {
 	    	} 
 	    });
 
-		chat.spotifyRequest(user, query);
+		chat.spotifyRequest(user, track);
 	});
 }

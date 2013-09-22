@@ -59,7 +59,8 @@ function ChatController($scope, $element, $compile, socket) {
 				$('.chat-inner-text', $el).text('skipped');
 			}
 		} else if (data.system == 'spotifyRequest') {
-			$('.chat-inner-text', $el).text('requested "' + data.text + '"');
+			var track = data.data;
+			$('.chat-inner-text', $el).html('requested <a href="'+track.href+'">' +track.artists[0].name+" — "+ track.name + '</a>');
 		} else if (data.system == 'alreadySkipped') {
 			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');
 		} else if (data.system == 'inactiveUserWantsToSkip') {
