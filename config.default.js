@@ -10,7 +10,8 @@ var config = {
   "external": {
   	"api_key": "<API_KEY>",
   	"name": "The Client Room Radio",
-  	"stream": "http://www.clientroomradio.com:8080/stream.mp3"
+  	"stream": "http://www.clientroomradio.com:8080/stream.mp3",
+    "listeningHistory": "http://www.last.fm/user/clientroom"
   }
 }
 

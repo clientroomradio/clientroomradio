@@ -46,6 +46,10 @@ function MainController($scope, socket) {
 		socket.sendActiveStatus(value);
 	}
 
+	$scope.getListeningHistoryLink = function() {
+		return config.listeningHistory;
+	}
+
 	// Some helper functions
 	$scope.skippersNeeded = function() {
 		return Math.ceil($scope.getActiveUserCount() / 2);
