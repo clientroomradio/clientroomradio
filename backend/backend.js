@@ -160,10 +160,8 @@ function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
 
 	if ( _.keys(active(users)).length > 0 && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
-		console.log('SKIP');
-		doSend('/skip', '{}');
-		
-		_.defer(onEndTrack);
+		console.log('SKIP!');
+		onEndTrack();
 	}
 }
 
@@ -173,17 +171,17 @@ function play_mp3(mp3) {
 	var media;
 	if (fs.existsSync(mp3)) media = vlc.mediaFromFile(mp3);
 	else media = vlc.mediaFromUrl(mp3);
-	
+	media.parseSync();
 	vlc.mediaplayer.media = media;
 	vlc.mediaplayer.play();
 }
 
-function updateProgress(position) {
-	var actualPosition = (position * vlc.mediaplayer.length) / bus.value.currentTrack.duration;
+function updateProgress() {
+	var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / bus.value.currentTrack.duration;
 	doSend('/progress', '{"progress":' + actualPosition + '}');
 }
 
-vlc.mediaplayer.on('PositionChanged', updateProgress);
+setInterval(updateProgress, 500);
 
 function doSend(path, data) {
 	var options = {
