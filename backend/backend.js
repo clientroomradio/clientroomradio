@@ -173,13 +173,9 @@ function play_mp3(mp3) {
 	var media;
 	if (fs.existsSync(mp3)) media = vlc.mediaFromFile(mp3);
 	else media = vlc.mediaFromUrl(mp3);
-	console.log("parseSync pre");
-	console.log("parseSync post");
 	
 	vlc.mediaplayer.media = media;
-	console.log("yeah");
 	vlc.mediaplayer.play();
-	console.log("blah");
 }
 
 function updateProgress(position) {
