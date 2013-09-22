@@ -42,7 +42,7 @@ spotify.on('downloadedTrack', function(track) {
 	// get some extra info about the track and
 	// push it to the end of the requests queue
 	lastfm.getContext(track, active(users), onGotContext);
-	lastfm.trackGetInfo(track);
+	lastfm.trackGetAlbumArt(track);
 	requests.push(track);
 });
 

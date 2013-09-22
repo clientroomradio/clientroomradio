@@ -48,32 +48,27 @@ module.exports = function() {
         finished();
     }
 
-    function onSearchReady() {
-        if(!this.tracks.length) {
-            console.log('There is no track to play :[');
-        }
-        else {
-            // There is a track to play!
-            console.log("Found:", this.tracks[0].artist.name, this.tracks[0].title);
+    function onObjectReady() {
+        var spTrack = this;
 
-            requests.push({
-                "track": {},
-                "spTrack": this.tracks[0]
-            });
+        console.log("Found:", spTrack.artist.name, spTrack.title);
 
-            if ( requests.length == 1 ) {
-                // we're not already downloading, so start now
-                downloadTrack(requests[0]);
-            }
+        requests.push({
+            "track": {},
+            "spTrack": spTrack
+        });
+
+        if ( requests.length == 1 ) {
+            // we're not already downloading, so start now
+            downloadTrack(requests[0]);
         }
     }
 
-    that.request = function(searchTerm) {
-        console.log("Spotify search term:", searchTerm);
-        var spSearch = new sp.Search(searchTerm);
-        spSearch.trackCount = 1; // we're only interested in the first result;
-        spSearch.execute();
-        spSearch.once('ready', (onSearchReady).bind(spSearch) );
+    that.request = function(spotifyUrl) {
+        console.log("Spotify url:", spotifyUrl);
+
+        var spTrack = sp.Track.getFromUrl(spotifyUrl);
+        spTrack.once('ready', (onObjectReady).bind(spTrack) );
     }
 
     function downloadTrack(request) {
