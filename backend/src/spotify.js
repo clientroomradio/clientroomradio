@@ -49,14 +49,11 @@ module.exports = function() {
     }
 
     function onObjectReady() {
-        var spTrack = this;
+        var request = this;
 
-        console.log("Found:", spTrack.artist.name, spTrack.title);
+        console.log("Found:", request.spTrack.artist.name, request.spTrack.title);
 
-        requests.push({
-            "track": {},
-            "spTrack": spTrack
-        });
+        requests.push(request);
 
         if ( requests.length == 1 ) {
             // we're not already downloading, so start now
@@ -64,11 +61,18 @@ module.exports = function() {
         }
     }
 
-    that.request = function(spotifyUrl) {
-        console.log("Spotify url:", spotifyUrl);
+    that.request = function(crrRequest) {
+        console.log("crrRequest:", crrRequest);
 
-        var spTrack = sp.Track.getFromUrl(spotifyUrl);
-        spTrack.once('ready', (onObjectReady).bind(spTrack) );
+        var spTrack = sp.Track.getFromUrl(crrRequest.request);
+        var request = {
+            "track": {
+                "identifier": crrRequest.request,
+                "requester": crrRequest.username
+            },
+            "spTrack": spTrack
+        }
+        spTrack.once('ready', (onObjectReady).bind(request) );
     }
 
     function downloadTrack(request) {
@@ -82,7 +86,6 @@ module.exports = function() {
     	var hash = crypto.createHash("md5").update(request.track.creator + request.track.title).digest("hex");
         var mp3location = __dirname + '/../spotify/tracks/' + hash + '.mp3';
         request.track.location = mp3location;
-        request.track.identifier = hash;
         request.track.extension = {};
 
         if (fs.existsSync(mp3location)) {

@@ -44,6 +44,13 @@ spotify.on('downloadedTrack', function(track) {
 	lastfm.getContext(track, active(users), onGotContext);
 	lastfm.trackGetAlbumArt(track);
 	requests.push(track);
+
+	var payload = {
+		"username": track.requester,
+		"request": track.identifier
+	};
+
+	doSend('/requestcomplete', JSON.stringify(payload));
 });
 
 function active(aUsers) {
@@ -225,7 +232,7 @@ http.createServer(function (request, res) {
   		res.end('');
 
   		var request = JSON.parse( body );
-  		spotify.request(request.request);
+  		spotify.request(request);
   	});
   }
 
