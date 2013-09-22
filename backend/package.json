@@ -7,8 +7,8 @@
     "lastfm": "0.9.0",
     "underscore": "1.5.1",
     "rebus": "0.4.7",
-    "vlc": "0.0.4",
+    "vlc": "https://github.com/eartle/node-vlc/tarball/master",
     "lame":"1.0.2",
-    "libspotify": "0.2.1"
+    "libspotify": "https://github.com/eartle/node-libspotify/tarball/master"
   }
 }
