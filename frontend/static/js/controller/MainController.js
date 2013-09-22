@@ -32,6 +32,7 @@ function MainController($scope, socket) {
 	}
 
 	$scope.skip = function(message) {
+		$('.btn-skip').tooltip('hide');
 		socket.sendSkip(message);
 	}
 
