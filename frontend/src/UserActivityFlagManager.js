@@ -25,8 +25,18 @@ module.exports = function(userDao, chat, socket) {
 		lastActivity = newActivity;
 	});
 
-	socket.on('activeStatus', function(user, newValue) {
-		user.active = newValue ? true : false
-		userDao.setUser(user);
+	socket.on('activeStatus', function(user, data) {
+		var newValue = data.status ? true : false;
+		var message = data.message;
+		if (user.active != newValue) {
+			user.active = newValue ;
+			if (newValue) {
+				chat.userBecomesActive(user, message);
+			} else {
+				chat.userBecomesInactive(user, message);
+			}
+			lastActivity[user.username] = newValue;
+			userDao.setUser(user);
+		}
 	});
 }

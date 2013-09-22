@@ -57,12 +57,12 @@ module.exports = function(socket, config) {
 		});
 	}
 
-	that.userBecomesInactive = function(user) {
-		that.sendSystemMessage('becomesInactive', user);
+	that.userBecomesInactive = function(user, message) {
+		that.sendSystemMessage('becomesInactive', user, message);
 	}
 
-	that.userBecomesActive = function(user) {
-		that.sendSystemMessage('becomesActive', user);
+	that.userBecomesActive = function(user, message) {
+		that.sendSystemMessage('becomesActive', user, message);
 	}
 
 	that.send = function(data) {

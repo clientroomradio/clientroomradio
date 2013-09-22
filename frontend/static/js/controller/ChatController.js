@@ -56,7 +56,7 @@ function ChatController($scope, $element, $compile, socket) {
 			if (data.text) {
 				$('.chat-inner-text', $el).text('skipped: "'+data.text+'"');
 			} else {
-				$('.chat-inner-text', $el).text('skipped.');
+				$('.chat-inner-text', $el).text('skipped');
 			}
 		} else if (data.system == 'spotifyRequest') {
 			$('.chat-inner-text', $el).text('requested "' + data.text + '"');
@@ -88,9 +88,17 @@ function ChatController($scope, $element, $compile, socket) {
 			}
 			$el.attr('ng-init', 'init(\''+ vote.id +'\')');
 		} else if (data.system == 'becomesInactive') {
-			$('.chat-inner-text', $el).text('sat out');
+			if (data.text) {
+				$('.chat-inner-text', $el).text('left: "'+data.text+'"');
+			} else {
+				$('.chat-inner-text', $el).text('left');
+			}
 		} else if (data.system == 'becomesActive') {
-			$('.chat-inner-text', $el).text('sat in');
+			if (data.text) {
+				$('.chat-inner-text', $el).text('rejoined: "'+data.text+'"');
+			} else {
+				$('.chat-inner-text', $el).text('rejoined');
+			}
 		} else {
 			$('.chat-inner-text', $el).html(linkify(data.text));
 		} 
@@ -126,6 +134,18 @@ function ChatController($scope, $element, $compile, socket) {
 			} else if (inputText.indexOf('?request') == 0) {
 				inputText = inputText.substring(9);
 				socket.sendRequest(inputText);
+			} else if (inputText.indexOf('?away') == 0) {
+				inputText = inputText.substring(6);
+				socket.sendActiveStatus(false, inputText);
+			} else if (inputText.indexOf('?leave') == 0) {
+				inputText = inputText.substring(7);
+				socket.sendActiveStatus(false, inputText);
+			} else if (inputText.indexOf('?back') == 0) {
+				inputText = inputText.substring(6);
+				socket.sendActiveStatus(true, inputText);
+			} else if (inputText.indexOf('?rejoin') == 0) {
+				inputText = inputText.substring(8);
+				socket.sendActiveStatus(true, inputText);
 			} else {
 				socket.sendChatMessage({'user': loggedInAs, 'text': inputText});
 			}

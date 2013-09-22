@@ -38,8 +38,8 @@ var Socket = function(SOCKJS_URL) {
 		send('scrobbleStatus', status);
 	}
 
-	that.sendActiveStatus = function(status) {
-		send('activeStatus', status);
+	that.sendActiveStatus = function(status, message) {
+		send('activeStatus', {"status": status, "message": message});
 	}
 
 	that.love = function() {
