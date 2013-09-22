@@ -115,8 +115,11 @@ function onEndTrack() {
 	}
 }
 
-// we can't start another track from within a vlc callback (not reentrant) so do it 8 milliseconds later
-vlc.mediaplayer.on('EndReached', function() {setTimeout(onEndTrack, 0);});
+vlc.mediaplayer.on('EndReached', function() {
+	// we can't start another track from within a
+	// vlc callback (not reentrant) so we _.defer it
+	_.defer(onEndTrack);
+});
 
 function onRadioGotPlaylist(data) {
 	console.log(data);
@@ -155,10 +158,12 @@ function onUsersChanged(newUsers) {
 
 function onSkippersChanged(newSkippers) {
 	skippers = newSkippers;
+
 	if ( _.keys(active(users)).length > 0 && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
 		console.log('SKIP');
-		onEndTrack();
 		doSend('/skip', '{}');
+		
+		_.defer(onEndTrack);
 	}
 }
 
