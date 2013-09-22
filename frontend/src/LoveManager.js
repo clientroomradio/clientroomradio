@@ -1,23 +1,22 @@
 module.exports = function(socket, currentTrackDao, chat, lastfmClient) {
 	var that = this;
 	
-	socket.on('love', function(user) {
-		lastfmClient.setLoveStatus(user, currentTrackDao.getCurrentTrack(), true, function(err) {
+	function update(user, unloveFlag) {
+		lastfmClient.setLoveStatus(user, currentTrackDao.getCurrentTrack(), unloveFlag, function(err) {
 			if (err) {
 				console.log("Error: " + err);
 			} else {
 				chat.userLoved(user);
 			}
 		});
+		currentTrackDao.updateLoveFlag(user.username, !unloveFlag);
+	}
+
+	socket.on('love', function(user) {
+		update(user, false);
 	});
 
 	socket.on('unlove', function(user) {
-		lastfmClient.setLoveStatus(user, currentTrackDao.getCurrentTrack(), true, function(err) {
-			if (err) {
-				console.log("Error: " + err);
-			} else {
-				chat.userUnloved(user);
-			}
-		});
+		update(user, true);
 	});
 }
