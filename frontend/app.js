@@ -3,6 +3,7 @@ var Chat = require('./src/Chat.js');
 var CurrentTrackChatUpdater = require('./src/CurrentTrackChatUpdater.js');
 var CurrentTrackDao = require('./src/CurrentTrackDao.js');
 var EndOfDayRequestManager = require('./src/EndOfDayRequestManager.js');
+var DiscoveryHourRequestManager = require('./src/DiscoveryHourRequestManager.js');
 var ExpressExternal = require('./src/ExpressExternal.js');
 var ExpressInternal = require('./src/ExpressInternal.js');
 var ExternalHttpServer = require('./src/ExternalHttpServer.js');
@@ -49,6 +50,7 @@ rebus.onReady = function() {
 	new CurrentTrackChatUpdater(currentTrackDao, chat);
 	new SpotifyRequestIssuer(chat, socket, config);
 	new EndOfDayRequestManager(userDao, votingManager, socket);
+	new DiscoveryHourRequestManager(userDao, votingManager, socket, config);
 	new UserActivityFlagManager(userDao, chat, socket)
 
 	// Start

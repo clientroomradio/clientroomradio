@@ -12,4 +12,8 @@ function NavController($scope, socket, notification) {
 	$scope.endOfDayRequest = function() {
 		socket.endOfDayRequest();
 	}
+
+	$scope.discoveryHourRequest = function() {
+		socket.discoveryHourRequest();
+	}
 }

@@ -7,6 +7,8 @@ var config = {
   "internalPort": 3001,
   "lastFmGroup": "Client Room Radio",
   "notAllowedInUrl": "http://cyberbrethren.com/wp-content/uploads/2012/10/sad_kitten.jpg",
+  "spotifyRequestUrl": "http://localhost:3002/request",
+  "dicoveryHourRequestUrl": "http://localhost:3002/discovery",
   "external": {
   	"api_key": "<API_KEY>",
   	"name": "The Client Room Radio",

@@ -54,6 +54,10 @@ var Socket = function(SOCKJS_URL) {
 		send('endOfDayRequest', {});
 	}
 
+	that.discoveryHourRequest = function() {
+		send('discoveryHourRequest', {});
+	}
+
 	that.requestVotingUpdate = function(id) {
 		send('requestVotes', {id: id});
 	}

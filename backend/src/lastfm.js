@@ -1,8 +1,12 @@
 module.exports = function() {
 	var that = this;
+
 	var config = require("../../config.js");
 	var _ = require("underscore");
 	var LastFmNode = require('lastfm').LastFmNode;
+	var util = require('util');
+
+	var mDiscoveryHourStart = new Date(0);
 
 	var lastfm = new LastFmNode({
 		api_key: config.api_key,
@@ -117,17 +121,31 @@ module.exports = function() {
 		});
 	}
 
-	that.getStationUrl = function(users) {
-		var usersString = '';
+	that.startDiscoveryHour = function() {
+		mDiscoveryHourStart = new Date().getTime();
+	}
 
-		for ( var user in users ) {
-			if ( usersString.length > 0 )
-				usersString += ',' + user;
-			else
-				usersString += user;
+	that.getStationUrl = function(users) {
+		var rqlString = '';
+
+		var sortedUsers = _.keys(users).sort();
+
+		for ( var user in sortedUsers ) {
+			if (rqlString.length == 0) {
+				rqlString = util.format('%s', 'user:' + sortedUsers[user]);
+			} else {
+				rqlString = util.format('%s or %s', rqlString, 'user:' + sortedUsers[user]);
+			}
 		}
 
-		return 'lastfm://users/' + usersString + '/personal';
+		if (new Date().getTime() - mDiscoveryHourStart < 3600000) {
+			// it's discovery hour!
+			rqlString = util.format('%s %s', rqlString, 'opt:discovery|true');
+		}
+
+		console.log(rqlString);
+
+		return 'lastfm://rql/' + Buffer(rqlString).toString('base64');
 	}
 
 	that.radioTune = function(users, callback) {

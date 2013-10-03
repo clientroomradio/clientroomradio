@@ -1,8 +1,8 @@
 var _ = require("underscore");
 var config = require("../config.js");
 var rebus = require('rebus');
-var http = require('http');
 var fs = require('fs');
+var request = require('request');
 
 var Spotify = require('./src/spotify.js');
 var Lastfm = require('./src/lastfm.js');
@@ -50,7 +50,7 @@ spotify.on('downloadedTrack', function(track) {
 		"request": track.identifier
 	};
 
-	doSend('/requestcomplete', JSON.stringify(payload));
+	doSend('/requestcomplete', payload);
 });
 
 function active(aUsers) {
@@ -185,58 +185,50 @@ function play_mp3(mp3) {
 
 function updateProgress() {
 	var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / bus.value.currentTrack.duration;
-	doSend('/progress', '{"progress":' + actualPosition + '}');
+
+	payload = {
+		"progress": actualPosition
+	}
+
+	doSend('/progress', payload);
 }
 
 setInterval(updateProgress, 500);
 
-function doSend(path, data) {
-	var options = {
-		hostname: 'localhost',
-		port: 3001,
-		path: path,
-		method: 'POST',
-		headers: {"content-type":"application/json"}
-	};
-
-	var req = http.request(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			console.log( path + ' BODY: ' + chunk);
-		});
+function doSend(path, payload) {
+	request.post('http://localhost:3001' + path, {json:payload}, function (error, response, body) {
+		if (error) {
+			console.log("ERR", error)
+		} else if (response.statusCode != 200) {
+			console.log("STATUS CODE != 200: ", response.body);
+		}
 	});
-
-	req.on('error', function(e) {
-	  console.log('problem with ' + path + ' request: ' + e.message);
-	});
-
-	// write data to request body
-	req.write(data);
-	req.end();
 }
 
-http.createServer(function (request, res) {
-  
-  if (request.url == '/request') {
-  	console.log("Got a request!");
-	var body = '';
-	request.on('data', function (data) {
-		body += data;
-	});
+var express = require('express');
+var app = express();
 
-	request.on('end', function () {
-		console.log(body);
+app.use(express.bodyParser());
 
-		// we got all the data so reply and say everything was okay
-		res.writeHead(200, {'Content-Type': 'text/plain'});
-  		res.end('');
+app.post('/request', function(req, res){
+	console.log("Got a Spotify request!", req.body);
+	spotify.request(req.body.request);
+    res.end();
+});
 
-  		var request = JSON.parse( body );
-  		spotify.request(request);
-  	});
-  }
+app.post('/discovery', function(req, res){
+	console.log("Start discovery hour!", req.body);
+	lastfm.startDiscoveryHour();
+	tracks = []; // clear the track queue so that we start a new station
+    res.end();
+});
 
-}).listen(3002);
+app.use(function(req, res){
+	res.send(404);
+});
+
+app.listen(3002);
+console.log('Listening internally on port %s', 3002);
 
 process.on('SIGINT', function() {
 	console.log( "\nShutting down!" );
