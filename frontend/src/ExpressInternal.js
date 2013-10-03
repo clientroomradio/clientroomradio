@@ -17,6 +17,10 @@ module.exports = function(config, chat, progressManager) {
 		    res.end();
 		});
 
+		app.use(function(req, res){
+			res.send(404);
+		});
+
 		app.listen(config.internalPort);
 		console.log('Listening internally on port %s', config.internalPort);
 	}
