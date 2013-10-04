@@ -91,7 +91,9 @@ module.exports = function() {
 	        artist: track.creator,
 	        handlers: {
 	            success: function(lfm) {
-	                track.image = lfm.track.album.image[1]["#text"];
+	            	if (typeof lfm.track.album != 'undefined') {
+						track.image = lfm.track.album.image[1]["#text"];
+					}
 	            }
 	        }
 	    });
