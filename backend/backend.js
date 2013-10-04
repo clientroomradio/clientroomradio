@@ -212,7 +212,7 @@ app.use(express.bodyParser());
 
 app.post('/request', function(req, res){
 	console.log("Got a Spotify request!", req.body);
-	spotify.request(req.body.request);
+	spotify.request(req.body);
     res.end();
 });
 
