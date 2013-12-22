@@ -157,7 +157,7 @@ function onUsersChanged(newUsers) {
 
 	users = newUsers;
 
-	if ( start ) {
+	if ( start && !vlc.mediaplayer.is_playing ) {
 		// we've gone from no users to some users so start
 		currentStationUrl = lastfm.radioTune(active(users), onRadioTuned); 
 	}
