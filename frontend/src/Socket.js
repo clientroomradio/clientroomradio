@@ -72,6 +72,20 @@ module.exports = function(userDao, permissionChecker) {
 		var broadcastType = loggedInOnly ? 'loggedInBroadcast': 'broadcast';
 		broadcastEventHandler.emit(broadcastType, type, data);
 	}
+
+	var https = require('https');
+	var fs = require('fs');
+
+	var options = {
+		key: fs.readFileSync(__dirname + '/../key.pem'),
+		cert: fs.readFileSync(__dirname + '/../cert.pem')
+	};
+
+	var server = https.createServer(options);
+	sockjs.installHandlers(server, {prefix:'/echo'});
+
+	console.log(' [*] Listening on 0.0.0.0:443' );
+	server.listen(443, '0.0.0.0');
 }
 
 require('util').inherits(module.exports, require("events").EventEmitter);
