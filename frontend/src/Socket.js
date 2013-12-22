@@ -1,4 +1,4 @@
-module.exports = function(userDao) {
+module.exports = function(userDao, permissionChecker) {
 	var that = this;
 	this.setMaxListeners(0);
 
@@ -18,7 +18,20 @@ module.exports = function(userDao) {
 			var user = null;
 
 			if (session != '') {
-				user = userDao.getUserBySession(session);
+				try {
+					console.log('session: ', session);
+					var sessionJSON = JSON.parse(session);
+					console.log('session: ', sessionJSON);
+					var username = sessionJSON.session.name;
+					var key = sessionJSON.session.key;
+
+					if (permissionChecker.isAllowedToJoin(username)) {
+						user = userDao.addUser(username, key, key);
+					}
+					
+				} catch (err) {
+					user = userDao.getUserBySession(session);
+				}
 
 				if (user == null) {
 					// This can happen when the user times out.
