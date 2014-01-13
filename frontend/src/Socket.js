@@ -73,19 +73,27 @@ module.exports = function(userDao, permissionChecker) {
 		broadcastEventHandler.emit(broadcastType, type, data);
 	}
 
-	var https = require('https');
+	var key = __dirname + '/../key.pem';
+	var cert = __dirname + '/../cert.pem';
+
 	var fs = require('fs');
+	if (fs.existsSync(key) && fs.existsSync(cert)) {
+		var https = require('https');
 
-	var options = {
-		key: fs.readFileSync(__dirname + '/../key.pem'),
-		cert: fs.readFileSync(__dirname + '/../cert.pem')
-	};
+		var options = {
+			key: fs.readFileSync(key),
+			cert: fs.readFileSync(cert)
+		};
 
-	var server = https.createServer(options);
-	sockjs.installHandlers(server, {prefix:'/echo'});
+		var server = https.createServer(options);
+		sockjs.installHandlers(server, {prefix:'/echo'});
 
-	console.log(' [*] Listening on 0.0.0.0:443' );
-	server.listen(443, '0.0.0.0');
+		console.log(' [*] Listening on 0.0.0.0:443' );
+		server.listen(443, '0.0.0.0');
+	}
+	else {
+		console.log('No ssl');
+	}
 }
 
 require('util').inherits(module.exports, require("events").EventEmitter);
