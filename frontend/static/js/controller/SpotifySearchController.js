@@ -9,7 +9,12 @@ function SpotifySearchController($scope, socket) {
 			'http://ws.spotify.com/search/1/track.json',
 			{"q": $scope.searchTerm},
 			function(data) {
-				$scope.tracks = data.tracks;
+				$scope.tracks = [];
+				for (track in data.tracks) {
+					if (data.tracks[track].album.availability.territories.indexOf('GB') != -1) {
+						$scope.tracks.push(data.tracks[track]);
+					}
+				}
 				$scope.$apply();
 			}
 		);
