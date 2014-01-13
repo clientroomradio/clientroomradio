@@ -51,11 +51,13 @@ module.exports = function() {
     function onObjectReady() {
         var request = this;
 
-        console.log("Found:", request.spTrack.artist.name, request.spTrack.title);
+        console.log("Found:", request.spTrack.artist.name, request.spTrack.title, request.spTrack.availability);
+
+        var available = request.spTrack.availability != 'UNAVAILABLE';
 
         requests.push(request);
 
-        if ( requests.length == 1 ) {
+        if ( requests.length == 1 && available) {
             // we're not already downloading, so start now
             downloadTrack(requests[0]);
         }
