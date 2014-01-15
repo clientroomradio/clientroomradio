@@ -45,8 +45,7 @@ spotify.on('downloadedTrack', function(track) {
 	requests.push(track);
 
 	var payload = {
-		"username": track.requester,
-		"request": track.identifier
+		"track": track
 	};
 
 	doSend('/requestcomplete', payload);

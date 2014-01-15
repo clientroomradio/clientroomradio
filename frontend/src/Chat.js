@@ -49,6 +49,10 @@ module.exports = function(socket, config) {
 		that.sendSystemMessage('skipSuccessful', null);
 	}
 
+	that.spotifyRequestComplete = function(track) {
+		that.sendSystemMessage('spotifyRequestComplete', '', '', track);
+	}
+
 	that.startVoting = function(user, type, data, id) {
 		that.sendSystemMessage('startVoting', user, '', {
 			type: type, 

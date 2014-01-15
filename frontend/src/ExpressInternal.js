@@ -17,6 +17,11 @@ module.exports = function(config, chat, progressManager) {
 		    res.end();
 		});
 
+		app.all('/requestcomplete', function(req, res){
+			chat.spotifyRequestComplete(req.body.track);
+		    res.end();
+		});
+
 		app.use(function(req, res){
 			res.send(404);
 		});
