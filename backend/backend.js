@@ -41,7 +41,6 @@ var vlc = require('vlc')([
 spotify.on('downloadedTrack', function(track) {
 	// get some extra info about the track and
 	// push it to the end of the requests queue
-	lastfm.getContext(track, active(users), onGotContext);
 	lastfm.trackGetAlbumArt(track);
 	requests.push(track);
 
@@ -81,6 +80,10 @@ function onGotContext(track) {
 function playTrack() {
 	track = tracks.shift();
 	play_mp3(track.location);
+
+	// if it's a Spotify track, get the context now
+	if (!fs.existsSync(mp3))
+		lastfm.getContext(track, active(users), onGotContext);
 
 	console.log("PLAYING TRACK:", track.title, '-', track.creator);
 
