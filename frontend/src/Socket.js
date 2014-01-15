@@ -1,4 +1,4 @@
-module.exports = function(userDao, permissionChecker) {
+module.exports = function(userDao, permissionChecker, config) {
 	var that = this;
 	this.setMaxListeners(0);
 
@@ -82,7 +82,8 @@ module.exports = function(userDao, permissionChecker) {
 
 		var options = {
 			key: fs.readFileSync(key),
-			cert: fs.readFileSync(cert)
+			cert: fs.readFileSync(cert),
+			passphrase: config.passphrase
 		};
 
 		var server = https.createServer(options);

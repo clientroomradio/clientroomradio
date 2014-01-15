@@ -9,6 +9,7 @@ var config = {
   "notAllowedInUrl": "http://cyberbrethren.com/wp-content/uploads/2012/10/sad_kitten.jpg",
   "spotifyRequestUrl": "http://localhost:3002/request",
   "dicoveryHourRequestUrl": "http://localhost:3002/discovery",
+  "passphrase": "<SSL_PASSPHRASE>",
   "external": {
   	"api_key": "<API_KEY>",
   	"name": "The Client Room Radio",
