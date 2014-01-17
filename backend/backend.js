@@ -137,30 +137,9 @@ function onRadioGotPlaylist(data) {
 
 	tracks = data.playlist.trackList.track;
 
-	var onGotAllContext = _.after(tracks.length, function() {
-		// we now have the context for every track in the playlist
-
-		// go through the tracks and remove any that don't have context
-		for(var i = tracks.length - 1 ; i >= 0 ; --i) {
-			if (_.isEmpty(tracks[i].context)) {
-				console.log('REMOVING A TRACK!');
-				tracks.splice(i, 1);
-			}
-		}
-
-		// if the current track has no context, skip it
-		if (_.isEmpty(bus.value.currentTrack.context)) {
-			console.log('CURRENT TRACK HAS NO SCROBBLES: SKIP!');
-			onEndTrack();
-		}
-	});
-
 	// get all the contexts and insert them into the tracks
 	_.each(tracks, function(track) {
-		lastfm.getContext(track, active(users), function (track) {
-			onGotContext(track);
-			onGotAllContext();
-		});
+		lastfm.getContext(track, active(users), onGotContext);
 	});
 
 	playTrack();

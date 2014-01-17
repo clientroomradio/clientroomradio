@@ -111,12 +111,12 @@ module.exports = function() {
 						track.context = track.context || [];
 						if ( lfm.track.userplaycount ) {
 							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
+
+							callback(track);
 						}
-						callback(track);
 					},
 					error: function(error) {
 						console.log("Error: " + error.message);
-						callback(track);
 					}
 				}
 			});
