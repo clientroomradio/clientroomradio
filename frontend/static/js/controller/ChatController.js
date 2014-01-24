@@ -83,7 +83,7 @@ function ChatController($scope, $element, $compile, socket) {
 			$('.chat-inner-text', $el).text('SKIP!');
 		} else if (data.system == 'spotifyRequestComplete') {
 			var track = data.data;
-			$('.chat-inner-text', $el).html('request complete <a href="'+track.identifier+'">' +track.creator+" — "+ track.title + '</a>');
+			$('.chat-inner-text', $el).html('request ready <a href="'+track.identifier+'">' +track.creator+" — "+ track.title + '</a>');
 		} else if (data.system == 'startVoting') {
 			var vote = data.data;
 			$el = $voteChatLineTemplate.clone();
