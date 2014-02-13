@@ -20,12 +20,14 @@ if ( !fs.existsSync('../rebus-storage') ) {
 	fs.mkdirSync('../rebus-storage');
 	fs.writeFileSync('../rebus-storage/users.json', "{}");
 	fs.writeFileSync('../rebus-storage/skippers.json', "[]");
+	fs.writeFileSync('../rebus-storage/tags.json', "[]");
 	fs.writeFileSync('../rebus-storage/currentTrack.json', "{}");
 }
 
 var bus = rebus('../rebus-storage', function(err) {
 	var usersNotification = bus.subscribe('users', onUsersChanged);
 	var skippersNotification = bus.subscribe('skippers', onSkippersChanged);
+	var tagsNotification = bus.subscribe('tags', onTagsChanged);
 
 	users = bus.value.users;
 	currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
@@ -174,6 +176,13 @@ function onSkippersChanged(newSkippers) {
 		console.log('SKIP!');
 		onEndTrack();
 	}
+}
+
+function onTagsChanged(newTags) {
+	console.log("TAGS CHANGED!", newTags);
+	// clear the track list so that the tag change is in effect from the next track
+	tracks = [];
+	lastfm.setTags(newTags);
 }
 
 function play_mp3(mp3) {

@@ -7,6 +7,7 @@ module.exports = function() {
 	var util = require('util');
 
 	var mDiscoveryHourStart = new Date(0);
+	var tags = []; 
 
 	var lastfm = new LastFmNode({
 		api_key: config.api_key,
@@ -68,6 +69,10 @@ module.exports = function() {
 			options["streamid[0]"] = track.extension.streamid;
 
 		var request = lastfm.request("track.scrobble", options );
+	}
+
+	that.setTags = function(newTags) {
+		tags = newTags;
 	}
 
 	that.scrobble = function(track, users, skippers) {
@@ -138,6 +143,22 @@ module.exports = function() {
 			} else {
 				rqlString = util.format('%s or %s', rqlString, 'user:' + sortedUsers[user]);
 			}
+		}
+
+		// and some tags?
+		if (tags.length > 0) {
+			// We have some tags so use them!
+			tagString = "";
+
+			for (var tag in tags) {
+				if (tagString.length == 0) {
+					tagString = util.format('tag:"%s"', tags[tag]);
+				} else {
+					tagString = util.format('%s or tag:"%s"', tagString, tags[tag]);
+				}
+			}
+
+			rqlString = util.format('(%s) and (%s)', rqlString, tagString);
 		}
 
 		if (new Date().getTime() - mDiscoveryHourStart < 3600000) {
