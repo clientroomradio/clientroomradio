@@ -23,23 +23,24 @@ var UserDao = require('./src/UserDao.js');
 var VotingManager = require('./src/VotingManager.js');
 
 // Instances
-var rebus = require('./src/rebus.js');
+var Redis = require('../shared/src/redis.js');
+var redis = new Redis('frontend', 'backend');
 var config = require('../config.js');
 
-rebus.onReady = function() {
+redis.on('ready', function() {
 	// DI
 	var lastfmClient = new LastfmClient(config);
 	var permissionChecker = new PermissionChecker(config, lastfmClient)
-	var userDao = new UserDao(rebus, lastfmClient);
-	var skippersDao  = new SkippersDao(rebus);
-	var currentTrackDao = new CurrentTrackDao(rebus);
+	var userDao = new UserDao(redis, lastfmClient);
+	var skippersDao  = new SkippersDao(redis);
+	var currentTrackDao = new CurrentTrackDao(redis);
 	var socket = new Socket(userDao, permissionChecker, config);
 	var chat = new Chat(socket, config);
 	var progressManager = new ProgressManager(socket);
 	var expressInternal = new ExpressInternal(config, chat, progressManager);
 	var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionChecker);
 	var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config);
-	var votingManager = new VotingManager(chat, socket, rebus);
+	var votingManager = new VotingManager(chat, socket, redis);
 
 	// Nothing depends on those:
 	new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao);
@@ -58,4 +59,4 @@ rebus.onReady = function() {
 	expressExternal.start();
 	externalHttpServer.start();
 	heartbeatManager.start();
-}
+});

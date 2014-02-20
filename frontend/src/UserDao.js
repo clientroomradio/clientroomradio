@@ -1,28 +1,29 @@
-module.exports = function(rebus, lastfmClient) {
+module.exports = function(redis, lastfmClient) {
 	var that = this;
 	this.setMaxListeners(0);
 
 	var _ = require('underscore');
 
-	var usersNotification = rebus.subscribe('users', function(users) {
- 		that.emit('change', users);
-  	});
+	var users = {};
+
+	redis.get('users', function (err, initialUsers) {
+		users = initialUsers;
+	});
+
+	redis.on('users', function (err, newUsers) {
+		users = newUsers;
+		that.emit('change', users);
+	});
 
 	that.getUsers = function() {
-		var users = rebus.value.users;
-		if (users == null) {
-			users = {}
-			that.setUsers(users);
-		}
 		return users;
 	}
 
 	that.setUsers = function(users) {
-		rebus.publish('users', users);
+		redis.set('users', users);
 	}
 
 	that.setUser = function(user) {
-		var users = that.getUsers();
 		users[user.username] = user;
 		that.setUsers(users);
 	}
@@ -32,7 +33,6 @@ module.exports = function(rebus, lastfmClient) {
 			console.log(err);
 		}
 		else {
-			var users = that.getUsers();
 			users[lfm.user.name].image = lfm.user.image[2]['#text'];
 			that.setUsers(users);
 		}
@@ -55,7 +55,6 @@ module.exports = function(rebus, lastfmClient) {
 	}
 
 	that.removeUser = function(user) {
-		var users = that.getUsers();
 		delete users[user.username];
 		that.setUsers(users);
 	} 
@@ -66,12 +65,12 @@ module.exports = function(rebus, lastfmClient) {
 
 	that.getFilteredUsers = function() {
 		// shitty deep clone to filter session keys out
-		var users = JSON.parse(JSON.stringify(that.getUsers()));
-		_.each(users, function(user, name){ 
+		var filteredUsers = JSON.parse(JSON.stringify(users));
+		_.each(filteredUsers, function (user, name) { 
 			delete(user.sk);
 			delete(user.session);
 		});
-		return users;
+		return filteredUsers;
 	}
 }
 

@@ -2,7 +2,7 @@
  * This module doesn't really need rebus, it just makes it easier to debug.
  * Feel free to ditch it
  */
-module.exports = function(chat, socket, rebus) {
+module.exports = function(chat, socket, redis) {
 	var that = this;
 
 	var defaultPeriod = 30000;
@@ -11,8 +11,11 @@ module.exports = function(chat, socket, rebus) {
 	var _ = require('underscore');
 
 	var callbacks = {};
+	var votings = {};
 
-	rebus.publish('votings', {});
+	redis.get('votings', function (err, initialVotings) {
+		votings = initialVotings;
+	});
 
 	// callback(successful, messageFunction)
 	that.propose = function(type, user, data, callback) {
@@ -33,9 +36,10 @@ module.exports = function(chat, socket, rebus) {
 
 		callbacks[id] = callback;
 
-		var notification = rebus.subscribe('votings.'+id, function(voting) {
-	 		socket.broadcast('updateVotes', voting);
-	  	});
+		redis.on('votings', function (err, newVotings) {
+			votings = newVotings;
+			socket.broadcast('updateVotes', votings[id]);
+		});
 	};
 
 	socket.on('requestVotes', function(user, data, reply) {
@@ -62,25 +66,23 @@ module.exports = function(chat, socket, rebus) {
 	}
 
 	function setVoting(voting) {
-		var votings = getVotings();
 		votings[voting.id] = voting;
 		setVotings(votings);
 	}
 
 	function getVoting(id) {
-		return getVotings()[id] || null;
+		return votings[id] || null;
 	}
 
 	function getVotings() {
-		return rebus.value.votings || {}
+		return votings;
 	}
 
 	function setVotings(votings) {
-		rebus.publish('votings', votings);
+		redis.set('votings', votings);
 	}
 
 	setInterval(function() {
-		var votings = getVotings();
 		_.each(votings, function(voting) {
 			if (voting.remainingTime > 0) {
 				voting.remainingTime -= 1000;

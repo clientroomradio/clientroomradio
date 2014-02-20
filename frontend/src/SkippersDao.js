@@ -1,26 +1,30 @@
-module.exports = function(rebus) {
+module.exports = function(redis) {
 	var that = this;
 	this.setMaxListeners(0);
 
 	var _ = require('underscore');
 
-	var lastSkippers = [];
-	var notification = rebus.subscribe('skippers', function(skippers) {
-		that.emit('change', skippers);
-		var skipper = _.without(skippers, lastSkippers);
+	var skippers = [];
+
+	redis.get('skippers', function (err, initialSkippers) {
+		skippers = initialSkippers;
+	});
+
+	redis.on('skippers', function (err, newSkippers) {
+		that.emit('change', newSkippers);
+		
+		var skipper = _.without(newSkippers, skippers);
 
 		if ( skipper.length == 1 ) {
-	 		that.emit('skip', rebus.value.users[skipper[0]], skippers);
-	 	}
- 		lastSkippers = skippers;
-  	});
+			redis.get('users', function (err, users) {
+				that.emit('skip', users[skipper[0]], newSkippers);
+			});
+		}
+		
+		skippers = newSkippers;
+	});
 	
 	that.getSkippers = function() {
-		var skippers = rebus.value.skippers;
-		if (skippers == null || JSON.stringify(skippers) == '{}') {
-			skippers = [];
-			that.setSkippers(skippers);
-		}
 		return skippers;
 	}
 
@@ -29,13 +33,12 @@ module.exports = function(rebus) {
 	}
 
 	that.skip = function(user) {
-		var skippers = that.getSkippers();
 		skippers.push(user.username);
 		that.setSkippers(skippers);
 	}
 
 	that.setSkippers = function(skippers) {
-		rebus.publish('skippers', skippers);
+		redis.set('skippers', skippers);
 	}
 }
 

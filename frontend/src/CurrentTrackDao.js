@@ -1,26 +1,32 @@
-module.exports = function(rebus) {
+module.exports = function(redis) {
 	var that = this;
 
 	var _ = require('underscore');
 
+	var currentTrack = {};
+	redis.get('currentTrack', function (err, initialCurrentTrack) {
+		currentTrack = initialCurrentTrack;
+	});
+
 	this.setMaxListeners(0);
 
-	var notification = rebus.subscribe('currentTrack', function(currentTrack) {
- 		that.emit('change', currentTrack);
-  	});
+	redis.on('currentTrack', function (err, newCurrentTrack) {
+		currentTrack = newCurrentTrack;
+		that.emit('change', currentTrack);
+	});
 	
 	that.getCurrentTrack = function() {
-		return rebus.value.currentTrack || {};
+		return currentTrack;
 	}
 
 	that.updateLoveFlag = function(username, loveFlag) {
-		var currentTrack = that.getCurrentTrack();
 		_.each(currentTrack.context, function(userContext) {
 			if (userContext.username == username) {
 				userContext.userloved = loveFlag;
 			}
 		});
-		rebus.publish('currentTrack', currentTrack);
+
+		redis.set('currentTrack', currentTrack);	
 	}
 }
 
