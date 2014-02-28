@@ -170,6 +170,7 @@ function onUsersChanged(err, newUsers) {
 
 function onSkippersChanged(err, newSkippers) {
 	console.log('onSkippersChanged:', util.inspect(newSkippers, false, null));
+	skippers = newSkippers; 
 
 	if ( _.keys(active(users)).length > 0 && newSkippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
 		console.log('SKIP!');
