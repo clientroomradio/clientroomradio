@@ -115,7 +115,7 @@ function onEndTrack() {
 
 			// there are no more tracks in the current playlist
 			if ( lastfm.getStationUrl(active(users)) != currentStationUrl ) {
-				lastfm.radioTune(active(users), onRadioTuned);
+				currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
 			}
 			else {
 				// just get another playlist
