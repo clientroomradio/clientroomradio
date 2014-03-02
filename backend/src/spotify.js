@@ -89,6 +89,10 @@ module.exports = function() {
         var mp3location = __dirname + '/../spotify/tracks/' + hash + '.mp3';
         request.track.location = mp3location;
         request.track.extension = {};
+        
+        // Make up the Last.fm links
+        request.track.extension.artistpage = "http://www.last.fm/music/" + encodeURIComponent(request.spTrack.artist.name);
+        request.track.extension.trackpage = "http://www.last.fm/music/" + encodeURIComponent(request.spTrack.artist.name) + "/_/" + encodeURIComponent(request.spTrack.title);
 
         if (fs.existsSync(mp3location)) {
             console.log("We already have this file so just use that");
