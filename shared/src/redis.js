@@ -1,4 +1,4 @@
-module.exports = function (internal, external) {
+module.exports = function (internal, external, winston) {
     var that = this;
 
     var redis = require('redis');
@@ -6,10 +6,10 @@ module.exports = function (internal, external) {
     var client = redis.createClient();
 
     client.on('ready', function () {
-        console.log("client ready");
+        winston.info("Redis client ready");
 
         client.on("error", function (err) {
-            console.log("client error " + err);
+            winston.info("Redis client error " + err);
         });
 
         var sclient = redis.createClient();
@@ -18,11 +18,11 @@ module.exports = function (internal, external) {
             that.emit('ready');
 
             sclient.on("error", function (err) {
-                console.log("sclient error " + err);
+                winston.info("Redis sclient error " + err);
             });
             
             sclient.on('subscribe', function (channel, count) {
-                console.log('redis_sclient subscribed to ' + channel);
+                winston.info('Redis sclient subscribed to ' + channel);
             });
 
             // emit events when we get messages

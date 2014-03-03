@@ -24,7 +24,7 @@ var VotingManager = require('./src/VotingManager.js');
 
 // Instances
 var Redis = require('../shared/src/redis.js');
-var redis = new Redis('frontend', 'backend');
+var redis = new Redis('frontend', 'backend', console);
 var config = require('../config.js');
 
 redis.on('ready', function() {

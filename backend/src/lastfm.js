@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports = function(winston) {
 	var that = this;
 
 	var config = require("../../config.js");
@@ -24,10 +24,10 @@ module.exports = function() {
 			sk: session_key,
 			handlers: {
 				success: function(lfm) {
-					console.log("Updated now playing for:", username);
+					winston.info("Updated now playing for:", username);
 				},
 				error: function(error) {
-					console.log("Now playing error:" + error.message);
+					winston.info("Now playing error:" + error.message);
 				}
 			}
 		});
@@ -57,10 +57,10 @@ module.exports = function() {
 			"chosenByUser[0]": "0",
 			handlers: {
 				success: function(lfm) {
-					console.log("Scrobbled track for:", username);
+					winston.info("Scrobbled track for:", username);
 				},
 				error: function(error) {
-					console.log("Scrobble error:" + error.message);
+					winston.info("Scrobble error:" + error.message);
 				}
 			}
 		}
@@ -112,7 +112,7 @@ module.exports = function() {
 				username: user,
 				handlers: {
 					success: function(lfm) {
-						console.log(track.title, user, lfm.track.userplaycount)
+						winston.info(track.title, user, lfm.track.userplaycount)
 						track.context = track.context || [];
 						if ( lfm.track.userplaycount ) {
 							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
@@ -121,7 +121,7 @@ module.exports = function() {
 						}
 					},
 					error: function(error) {
-						console.log("Error: " + error.message);
+						winston.info("Error: " + error.message);
 					}
 				}
 			});
@@ -166,7 +166,7 @@ module.exports = function() {
 			rqlString = util.format('%s %s', rqlString, 'opt:discovery|true');
 		}
 
-		console.log(rqlString);
+		winston.info(rqlString);
 
 		return 'lastfm://rql/' + Buffer(rqlString).toString('base64');
 	}
@@ -181,7 +181,7 @@ module.exports = function() {
 				handlers: {
 					success: callback,
 					error: function(error) {
-						console.log("Error: " + error.message);
+						winston.info("Error: " + error.message);
 					}
 				}
 			});
@@ -196,7 +196,7 @@ module.exports = function() {
 			handlers: {
 				success: callback,
 				error: function(error) {
-					console.log("Error: " + error.message);
+					winston.info("Error: " + error.message);
 				}
 			}
 		});

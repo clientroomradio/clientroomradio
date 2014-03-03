@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports = function(winston) {
     var that = this;
 
     var requests = [];
@@ -24,8 +24,8 @@ module.exports = function() {
     }
 
     function onLogin(err) {
-        if (err) console.log("Spotify login failed:", err);
-        else console.log("Spotify login success!");
+        if (err) winston.info("Spotify login failed:", err);
+        else winston.info("Spotify login success!");
 
         spPlayer = spSession.getPlayer();
         spPlayer.pipe(lameEncoder);
@@ -33,7 +33,7 @@ module.exports = function() {
 
     function finished() {
         var request = requests.shift();
-        console.log("We've finished downloading a Spotify track.");
+        winston.info("We've finished downloading a Spotify track.");
         // remove the request now that we've finished downloading it
         that.emit('downloadedTrack', request.track);
 
@@ -43,7 +43,7 @@ module.exports = function() {
     }
 
     function onDownloadedTrack() {
-        console.log('Spotify track finished downloading.');
+        winston.info('Spotify track finished downloading.');
         this.close();
         finished();
     }
@@ -51,7 +51,7 @@ module.exports = function() {
     function onObjectReady() {
         var request = this;
 
-        console.log("Found:", request.spTrack.artist.name, request.spTrack.title, request.spTrack.availability);
+        winston.info("Found:", request.spTrack.artist.name, request.spTrack.title, request.spTrack.availability);
 
         var available = request.spTrack.availability != 'UNAVAILABLE';
 
@@ -64,7 +64,7 @@ module.exports = function() {
     }
 
     that.request = function(crrRequest) {
-        console.log("crrRequest:", crrRequest);
+        winston.info("crrRequest:", crrRequest);
 
         var spTrack = sp.Track.getFromUrl(crrRequest.request);
         var request = {
@@ -78,7 +78,7 @@ module.exports = function() {
     }
 
     function downloadTrack(request) {
-    	console.log("Download Spotify track!");
+    	winston.info("Download Spotify track!");
 
         request.track.creator = request.spTrack.artist.name;
         request.track.album = request.spTrack.album.name;
@@ -95,11 +95,11 @@ module.exports = function() {
         request.track.extension.trackpage = "http://www.last.fm/music/" + encodeURIComponent(request.spTrack.artist.name) + "/_/" + encodeURIComponent(request.spTrack.title);
 
         if (fs.existsSync(mp3location)) {
-            console.log("We already have this file so just use that");
+            winston.info("We already have this file so just use that");
             finished();
         }
         else {
-            console.log("start downloading the track");
+            winston.info("start downloading the track");
             spPlayer.load(request.spTrack);
             spPlayer.play();
 
