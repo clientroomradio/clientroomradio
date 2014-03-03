@@ -1,4 +1,5 @@
 var config = {
+  "scrobbleToHost": false,
   "api_key": "<API_KEY>",
   "secret": "<SECRET>",
   "sk": "<SK>",

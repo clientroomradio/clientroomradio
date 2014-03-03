@@ -1,4 +1,4 @@
-module.exports = function(winston) {
+module.exports = function(config, winston) {
 	var that = this;
 
 	var config = require("../../config.js");
@@ -36,7 +36,9 @@ module.exports = function(winston) {
 	that.updateNowPlaying = function(track, users) {
 		if ( !_.isEmpty(track) ) {
 			// always scrobble to clientroom
-			doUpdateNowPlaying("clientroom", config.sk, track);
+			if (typeof config.scrobbleToHost == 'undefined' || config.scrobbleToHost) {
+				doUpdateNowPlaying("clientroom", config.sk, track);
+			}
 
 			_.each(users, function(data, user) {
 				if ( !(!data.scrobbling || !data.active) ) {
@@ -78,7 +80,9 @@ module.exports = function(winston) {
 	that.scrobble = function(track, users, skippers) {
 		if ( !_.isEmpty(track) && new Date().getTime() - track.timestamp > Math.round( track.duration / 2 ) ) {
 			// we've listened to more than half the song
-			doScrobble("clientroom", config.sk, track);
+			if (typeof config.scrobbleToHost == 'undefined' || config.scrobbleToHost) {
+				doScrobble("clientroom", config.sk, track);
+			}
 
 			_.each(users, function(data, user) {
 				if (  !(!data.scrobbling || !data.active) 

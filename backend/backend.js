@@ -14,7 +14,7 @@ winston.remove(winston.transports.Console);
 winston.add(winston.transports.Console, { timestamp: true });
 
 var spotify = new Spotify(winston);
-var lastfm = new Lastfm(winston);
+var lastfm = new Lastfm(config, winston);
 var redis = new Redis('backend', 'frontend', winston);
 
 var users = {};
