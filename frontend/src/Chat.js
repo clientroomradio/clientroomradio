@@ -38,7 +38,7 @@ module.exports = function(socket, config) {
 	}
 
 	that.newTrack = function(track) {
-		that.sendSystemMessage('newTrack', null, track.creator + ' — ' + track.title);
+		that.sendSystemMessage('newTrack', null, '', track);
 	}
 
 	that.spotifyRequest = function(user, track) {

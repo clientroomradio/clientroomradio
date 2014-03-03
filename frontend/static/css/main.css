@@ -117,8 +117,15 @@
 	margin-top: 10px;
 }
 
-.current-track h4 a {
+.current-track h4 a,
+.chat-line h4 a  {
 	color: #333333;
+	vertical-align: top;
+}
+
+.chat-line h4  {
+	display: inline;
+	vertical-align: top;
 }
 
 .skippers {
@@ -139,10 +146,11 @@
 .chat-content .chat-time {
 	color: #888;
 	float: left;
-	font-size: 0.7em;
-	padding-top: 0.47em;
+	font-size: 10px;
+	padding: 4px 0px 0px 5px;
 	height: 100;
 }
+
 .chat-content .chat-name {
 	font-weight: bold;
 	
@@ -198,12 +206,14 @@
 	color: #4cae4c;
 }
 
-.chat-line--vote {
-	border-top: 1px solid #e3e3e3;
-	border-bottom: 1px solid #e3e3e3;
+.chat-line--vote,
+.chat-line--new-track {
+	border: 1px solid #e3e3e3;
+	border-radius: 5px;
 	background: #f5f5f5;
 	margin: 1px 0px;
 	font-style: normal;
+	padding: 5px 0px;
 }
 
 .vote-remaining-time {
@@ -229,6 +239,14 @@
 
 .vote-against {
 	color: #d43f3a;
+}
+
+/* New Track */
+.chat-line .chat-img .album-art {
+	height: 64px;
+	width: 64px;
+	display: inline;
+	margin-right: 6px;
 }
 
 /* Listeners */

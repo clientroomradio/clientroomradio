@@ -2,6 +2,7 @@ function ChatController($scope, $element, $compile, socket) {
 	var $chatContent= $('.chat-content', $element);
 	var $input= $('.chat-input', $element);
 
+	var $newTrackChatLineTemplate = $('<div class="chat-line chat-line--new-track"><div class="chat-time"></div><div class="chat-text"><span class="chat-img"></span> <span class="chat-inner-text"></span></div></div>');
 	var $simpleChatLineTemplate = $('<div class="chat-line"><div class="chat-time"></div><div class="chat-text"><span class="chat-name"></span> <span class="chat-inner-text"></span></div></div>');
 	var $voteChatLineTemplate = $('<div class="chat-line chat-line--sys chat-line--vote" ng-controller="VotingController"><div class="chat-time"></div>'+
 		'<div class="chat-text"><span class="chat-name"></span> '+
@@ -105,6 +106,11 @@ function ChatController($scope, $element, $compile, socket) {
 			} else {
 				$('.chat-inner-text', $el).text('rejoined');
 			}
+		} else if (data.system == 'newTrack') {
+			$el = $newTrackChatLineTemplate.clone();
+			$el.id = data.data.timestamp;
+			$('.chat-img', $el).html('<a target="_blank" href="' + data.data.extension.trackpage + '"><img class="album-art media-object img-rounded" src="' + (data.data.image?data.data.image:'/img/crr_128.png') + '"/></a>');
+			$('.chat-inner-text', $el).html('<h4><a target="_blank" href="' + data.data.extension.artistpage + '">'+data.data.creator+'</a>' + ' – ' + '<a target="_blank" href="' + data.data.extension.trackpage + '">'+data.data.title+'</a></h4>');
 		} else {
 			$('.chat-inner-text', $el).html(linkify(data.text));
 		} 
