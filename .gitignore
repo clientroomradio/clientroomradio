@@ -6,3 +6,5 @@ config.js
 *.dat
 .vagrant
 /frontend/static/img/gen/
+*.log
+*.pem
