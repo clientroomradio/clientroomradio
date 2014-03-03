@@ -83,7 +83,7 @@ function playTrack() {
 		lastfm.getContext(track, active(users), onGotContext);
 	}
 
-	console.log("PLAYING TRACK:", track.title, '-', track.creator);
+	console.log("PLAYING TRACK:", track.title, '–', track.creator);
 
 	// add a timestamp to the track as we start it
 	track.timestamp = new Date().getTime();
@@ -99,27 +99,28 @@ function onEndTrack() {
 
 	redis.get('currentTrack', function (err, currentTrack) {
 		lastfm.scrobble(currentTrack, users, skippers);
-
-		// If there's a request, add it to the front of the queue now
+		
 		if (requests.length > 0) {
+			// there's a request, so cue it and play now
 			tracks.unshift(requests.shift());
-		}
-
-		// check if there are more songs to play
-		if (tracks.length > 0) {
 			playTrack();
-		}
-		else {
-			// we were unable to play another track so clear the current one
-			redis.set('currentTrack', {});
-
-			// there are no more tracks in the current playlist
-			if ( lastfm.getStationUrl(active(users)) != currentStationUrl ) {
+		} else {
+			// there are no requests so continue playing the radio
+			if (currentStationUrl != lastfm.getStationUrl(active(users))) {
+				// The station is different so clear tracks and retune
+				tracks = [];
+				redis.set('currentTrack', {});
 				currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
-			}
-			else {
-				// just get another playlist
-				lastfm.getPlaylist(onRadioGotPlaylist);
+			} else {
+				// the station is the same
+				if (tracks.length > 0) {
+					// there are more tracks to play so continue playing them
+					playTrack();
+				} else {
+					// clear the current track while we fetch the new playlist
+					redis.set('currentTrack', {});
+					lastfm.getPlaylist(onRadioGotPlaylist);
+				}
 			}
 		}
 	});
@@ -151,21 +152,15 @@ function onRadioTuned(data) {
 function onUsersChanged(err, newUsers) {
 	console.log('onUsersChanged: ', util.inspect(newUsers, false, null));
 
-	if ( currentStationUrl != lastfm.getStationUrl(active(newUsers)) ) {
-		// the users have changed so we'll need to retune
-		// clearing the tracks will make this happen
-		console.log("Station change!");
-		tracks = [];
+	if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(users))
+			&& !vlc.mediaplayer.is_playing ) {
+		// we've gone from no users to some users
+		// and we're not already playing so start
+		console.log('START!');
+		currentStationUrl = lastfm.radioTune(active(newUsers), onRadioTuned); 
 	}
-
-	var start = !_.isEmpty(active(newUsers)) && _.isEmpty(active(users));
 
 	users = newUsers;
-
-	if ( start && !vlc.mediaplayer.is_playing ) {
-		// we've gone from no users to some users so start
-		currentStationUrl = lastfm.radioTune(active(users), onRadioTuned); 
-	}
 }
 
 function onSkippersChanged(err, newSkippers) {
@@ -182,7 +177,6 @@ function onTagsChanged(err, newTags) {
 	console.log('onTagsChanged: ', util.inspect(newTags, false, null));
 
 	// clear the track list so that the tag change is in effect from the next track
-	tracks = [];
 	lastfm.setTags(newTags);
 }
 
@@ -235,7 +229,6 @@ app.post('/request', function (req, res){
 app.post('/discovery', function (req, res){
 	console.log("Start discovery hour!", req.body);
 	lastfm.startDiscoveryHour();
-	tracks = []; // clear the track queue so that we start a new station
     res.end();
 });
 
