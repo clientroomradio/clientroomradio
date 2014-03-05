@@ -26,16 +26,13 @@ var currentStationUrl = '';
 redis.on("ready", function () {
     winston.info("Redis ready");
 
+    // Get initial values
     redis.get('tags', onTagsChanged);
+    redis.get('discoveryHour', onDiscoveryHourChanged);
+    redis.get('skippers', onSkippersChanged);
+    redis.get('users', onUsersChanged);	
 
-    redis.get('discoveryHour', function (err, discoveryHour) {
-        onDiscoveryHourChanged(err, discoveryHour);
-    });	
-    
-    redis.get('users', function (err, newUsers) {
-		onUsersChanged(err, newUsers);
-    });	
-
+    // listen for changes
     redis.on('users', onUsersChanged);
     redis.on('skippers', onSkippersChanged);
     redis.on('tags', onTagsChanged);
