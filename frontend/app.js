@@ -51,7 +51,7 @@ redis.on('ready', function() {
 	new CurrentTrackChatUpdater(currentTrackDao, chat);
 	new SpotifyRequestIssuer(chat, socket, config);
 	new EndOfDayRequestManager(userDao, votingManager, socket);
-	new DiscoveryHourRequestManager(userDao, votingManager, socket, config);
+	new DiscoveryHourRequestManager(votingManager, socket, redis);
 	new UserActivityFlagManager(userDao, chat, socket)
 
 	// Start

@@ -132,8 +132,8 @@ module.exports = function(config, winston) {
 		});
 	}
 
-	that.startDiscoveryHour = function() {
-		mDiscoveryHourStart = new Date().getTime();
+	that.setDiscoveryHourStart = function(discoveryHourStart) {
+		mDiscoveryHourStart = discoveryHourStart;
 	}
 
 	that.getStationUrl = function(users) {

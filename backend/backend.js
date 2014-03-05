@@ -29,6 +29,10 @@ redis.on("ready", function () {
     winston.info("Redis ready");
 
     redis.get('tags', onTagsChanged);
+
+    redis.get('discoveryHour', function (err, discoveryHour) {
+        onDiscoveryHourChanged(err, discoveryHour);
+    });	
     
 	redis.get('users', function (err, users) {
         currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
@@ -37,6 +41,7 @@ redis.on("ready", function () {
     redis.on('users', onUsersChanged);
     redis.on('skippers', onSkippersChanged);
     redis.on('tags', onTagsChanged);
+    redis.on('discoveryHour', onDiscoveryHourChanged);
 });
 
 var vlc = require('vlc')([
@@ -187,6 +192,11 @@ function onTagsChanged(err, newTags) {
 	lastfm.setTags(newTags);
 }
 
+function onDiscoveryHourChanged(err, discoveryHour) {
+	winston.info('Start discovery hour!');
+	lastfm.setDiscoveryHourStart(discoveryHour.start);
+}
+
 function play_mp3(mp3) {
 	winston.info(mp3);
 
@@ -230,12 +240,6 @@ app.use(express.bodyParser());
 app.post('/request', function (req, res){
 	winston.info("Got a Spotify request!", req.body);
 	spotify.request(req.body);
-    res.end();
-});
-
-app.post('/discovery', function (req, res){
-	winston.info("Start discovery hour!", req.body);
-	lastfm.startDiscoveryHour();
     res.end();
 });
 
