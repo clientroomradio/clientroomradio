@@ -1,4 +1,4 @@
-module.exports = function (internal, external, winston) {
+module.exports = function (winston) {
     var that = this;
 
     var redis = require('redis');
@@ -33,14 +33,13 @@ module.exports = function (internal, external, winston) {
                 
             });
 
-            sclient.subscribe('backend');
+            sclient.subscribe('crr');
         });
     });
 
     that.set = function (key, value, callback) {
         client.set(key, JSON.stringify(value), function (err, reply) {
-            client.publish('frontend', key);
-            client.publish('backend', key);
+            client.publish('crr', key);
 
             if (typeof callback === 'undefined') {
                 redis.print(err, reply)
