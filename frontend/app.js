@@ -33,8 +33,8 @@ redis.on('ready', function() {
 	var permissionChecker = new PermissionChecker(config, lastfmClient)
 	var userDao = new UserDao(redis, lastfmClient);
 	var skippersDao  = new SkippersDao(redis);
-	var currentTrackDao = new CurrentTrackDao(redis);
 	var socket = new Socket(userDao, permissionChecker, config);
+	var currentTrackDao = new CurrentTrackDao(redis, socket);
 	var chat = new Chat(socket, config);
 	var progressManager = new ProgressManager(socket);
 	var expressInternal = new ExpressInternal(config, chat, progressManager);

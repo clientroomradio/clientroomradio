@@ -10,6 +10,7 @@ var Socket = function(SOCKJS_URL) {
 	this.skipCallback = $.Callbacks();
 	this.skippersCallback = $.Callbacks();
 	this.updateVotesCallback = $.Callbacks();
+	this.discoveryHourCallback = $.Callbacks();
 
 	var sockjs;
 	var reconnectTimeout = null;
@@ -116,6 +117,11 @@ var Socket = function(SOCKJS_URL) {
 
 			if (type == 'updateVotes') {
 				that.updateVotesCallback.fire(data);
+				return;
+			}	
+
+			if (type == 'discoveryHour') {
+				that.discoveryHourCallback.fire(data);
 				return;
 			}			
 
