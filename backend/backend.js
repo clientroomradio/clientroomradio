@@ -23,8 +23,6 @@ var requests = [];
 var skippers = [];
 var currentStationUrl = '';
 
-
-
 redis.on("ready", function () {
     winston.info("Redis ready");
 
@@ -34,8 +32,8 @@ redis.on("ready", function () {
         onDiscoveryHourChanged(err, discoveryHour);
     });	
     
-	redis.get('users', function (err, users) {
-        currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
+    redis.get('users', function (err, newUsers) {
+		onUsersChanged(err, newUsers);
     });	
 
     redis.on('users', onUsersChanged);
@@ -121,8 +119,9 @@ function onEndTrack() {
 			if (currentStationUrl != lastfm.getStationUrl(active(users))) {
 				// The station is different so clear tracks and retune
 				tracks = [];
-				redis.set('currentTrack', {});
-				currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
+				redis.set('currentTrack', {}, function (err, reply) {
+					currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
+				});
 			} else {
 				// the station is the same
 				if (tracks.length > 0) {
@@ -130,8 +129,9 @@ function onEndTrack() {
 					playTrack();
 				} else {
 					// clear the current track while we fetch the new playlist
-					redis.set('currentTrack', {});
-					lastfm.getPlaylist(onRadioGotPlaylist);
+					redis.set('currentTrack', {}, function (err, reply) {
+						lastfm.getPlaylist(onRadioGotPlaylist);
+					});
 				}
 			}
 		}
