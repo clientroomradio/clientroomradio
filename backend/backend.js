@@ -75,7 +75,9 @@ function onGotContext(track) {
 	redis.get('currentTrack', function (err, currentTrack) {
 		if ( currentTrack.timestamp == track.timestamp ) {
 			// update the current track with the new context
-			redis.set('currentTrack', track);
+			redis.set('currentTrack', track, function (err, reply) {
+				winston.info('currentTrack set', err, reply);
+			});
 		}
 	});
 }
@@ -97,8 +99,8 @@ function playTrack() {
 
 	lastfm.updateNowPlaying(track, users);
 
-	redis.set('currentTrack', track);
-	redis.set('skippers', []);
+	redis.set('currentTrack', track, function (err, reply) { winston.info('currentTrack set', err, reply); });
+	redis.set('skippers', [], function (err, reply) { winston.info('skippers set', err, reply); });
 }
 
 function onEndTrack() {
