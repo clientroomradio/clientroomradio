@@ -23,3 +23,7 @@ Now ssh in:
 
 * `vagrant ssh`
 * `cd /vagrant/`
+
+Set up redis defaults:
+
+* `redis-cli < backend/redis.defaults`
