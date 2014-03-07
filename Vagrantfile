@@ -46,6 +46,8 @@ Vagrant.configure("2") do |config|
     config.vm.network :public_network #, ip: "10.0.0.10"
     config.ssh.forward_agent = true
 
+    config.vm.synced_folder "~/Dropbox/clientroomradio/", "/home/vagrant/dropbox"
+
     recipes = ["basebox", "clientroomradio"]
     config.vm.provision "chef_solo" do |chef|
         recipes.each { |r| chef.add_recipe r }

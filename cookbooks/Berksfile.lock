@@ -25,6 +25,11 @@
       "git": "git://github.com/opscode-cookbooks/ssh_known_hosts.git",
       "ref": "dbf65051a881d766eaeef44408778eda486bece3"
     },
+    "haproxy": {
+      "locked_version": "1.6.3",
+      "git": "git://github.com/opscode-cookbooks/haproxy.git",
+      "ref": "cf10889232c9c3ecb7a923f23e6a2487d4cdcafa"
+    },
     "redisio": {
       "locked_version": "1.7.1",
       "git": "git://github.com/brianbianco/redisio.git",
@@ -62,6 +67,9 @@
     },
     "partial_search": {
       "locked_version": "1.0.8"
+    },
+    "cpu": {
+      "locked_version": "0.2.0"
     },
     "ulimit": {
       "locked_version": "0.3.2"

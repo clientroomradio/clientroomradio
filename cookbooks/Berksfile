@@ -4,6 +4,7 @@ cookbook 'fail2ban',        github: 'opscode-cookbooks/fail2ban',   tag: 'master
 cookbook 'ntp',             github: 'opscode-cookbooks/ntp',        tag: 'master'
 cookbook 'python',          github: 'opscode-cookbooks/python',     tag: 'master'
 cookbook 'ssh_known_hosts', github: 'opscode-cookbooks/ssh_known_hosts', tag: 'master'
+cookbook 'haproxy',         github: 'opscode-cookbooks/haproxy',    tag: 'master'
 
 cookbook 'redisio',         github: 'brianbianco/redisio', tag: 'master'
 
