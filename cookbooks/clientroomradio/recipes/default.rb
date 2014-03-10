@@ -5,13 +5,14 @@ directory "/etc/clientroomradio" do
     action :create
 end
 
-file "/etc/clientroomradio/crr.pem" do
-    not_if "test -f /etc/clientroomradio/crr.pem"
-    owner "root"
-    group "root"
-    mode 0644
-    action :create
-    content ::File.open(node['clientroomradio']['pem_path']).read
+if not File.exist?("/etc/clientroomradio/crr.pem")
+    file "/etc/clientroomradio/crr.pem" do
+        owner "root"
+        group "root"
+        mode 0644
+        action :create
+        content ::File.open(node['clientroomradio']['pem_path']).read
+    end
 end
 
 include_recipe "clientroomradio::node"
