@@ -15,6 +15,16 @@ if not File.exist?("/etc/clientroomradio/crr.pem")
     end
 end
 
+if not File.exist?("/etc/clientroomradio/backend/spotify/spotify_appkey.key")
+    file "/etc/clientroomradio/backend/spotify/spotify_appkey.key" do
+        owner "root"
+        group "root"
+        mode 0644
+        action :create
+        content ::File.open(node['clientroomradio']['spotify_appkey_path']).read
+    end
+end
+
 include_recipe "clientroomradio::node"
 include_recipe "clientroomradio::libspotify"
 include_recipe "clientroomradio::redis"
