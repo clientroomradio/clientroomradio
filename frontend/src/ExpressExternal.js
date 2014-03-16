@@ -3,7 +3,6 @@ module.exports = function(config, lastfmClient, userDao, chat, permissionChecker
 	var express = require('express');
 	var uuid = require('node-uuid');
 	var httpProxy = require('http-proxy');
-	var request = require('request');
 
 	var app;
 
@@ -40,11 +39,6 @@ module.exports = function(config, lastfmClient, userDao, chat, permissionChecker
 					
 				}
 			});
-		});
-
-		app.get('/image', function(req, res) {
-			var x = request(req.param('url'));
-            req.pipe(x).pipe(res);
 		});
 
 		app.get('/config.js', function(req, res) {
