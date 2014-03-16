@@ -1,0 +1,84 @@
+{
+  "sources": {
+    "apt": {
+      "locked_version": "2.3.9",
+      "git": "git://github.com/opscode-cookbooks/apt.git",
+      "ref": "8ef28bceaa6a9eded47e640d26df4a6f3a80320c"
+    },
+    "fail2ban": {
+      "locked_version": "2.1.3",
+      "git": "git://github.com/opscode-cookbooks/fail2ban.git",
+      "ref": "937e98c283c99ae48b2c3871f75161ddbe5e6650"
+    },
+    "ntp": {
+      "locked_version": "1.6.1",
+      "git": "git://github.com/opscode-cookbooks/ntp.git",
+      "ref": "295ac93651eaadb71c2087dcdc6764199f050de5"
+    },
+    "python": {
+      "locked_version": "1.4.7",
+      "git": "git://github.com/opscode-cookbooks/python.git",
+      "ref": "574ad93c308f77cf6a3d40237be806033cfabde9"
+    },
+    "ssh_known_hosts": {
+      "locked_version": "1.2.1",
+      "git": "git://github.com/opscode-cookbooks/ssh_known_hosts.git",
+      "ref": "dbf65051a881d766eaeef44408778eda486bece3"
+    },
+    "haproxy": {
+      "locked_version": "1.6.3",
+      "git": "git://github.com/opscode-cookbooks/haproxy.git",
+      "ref": "cf10889232c9c3ecb7a923f23e6a2487d4cdcafa"
+    },
+    "redisio": {
+      "locked_version": "1.7.1",
+      "git": "git://github.com/brianbianco/redisio.git",
+      "ref": "2b7fc068417fb95758b07bc4f6e3c4a450419812"
+    },
+    "afw": {
+      "locked_version": "0.0.6",
+      "git": "git://github.com/irccloud/afw.git",
+      "ref": "8c7e343d9b3ddcded77bfe207f8655298ba57bee"
+    },
+    "timezone-ii": {
+      "locked_version": "0.2.0",
+      "git": "git://github.com/irccloud/timezone-ii.git",
+      "ref": "d685abcc3c7f48394b0ac811119dfe797920d1cf"
+    },
+    "sysctl": {
+      "locked_version": "0.2.0",
+      "git": "git://github.com/irccloud/sysctl-cookbook.git",
+      "ref": "00cbc8868f0544cd3dcd34217f7f14b0c3957d13"
+    },
+    "basebox": {
+      "path": "./basebox"
+    },
+    "clientroomradio": {
+      "path": "./clientroomradio"
+    },
+    "yum": {
+      "locked_version": "3.1.2"
+    },
+    "yum-epel": {
+      "locked_version": "0.3.4"
+    },
+    "build-essential": {
+      "locked_version": "1.4.4"
+    },
+    "partial_search": {
+      "locked_version": "1.0.8"
+    },
+    "cpu": {
+      "locked_version": "0.2.0"
+    },
+    "ulimit": {
+      "locked_version": "0.3.2"
+    },
+    "sudo": {
+      "locked_version": "2.5.2"
+    },
+    "users": {
+      "locked_version": "1.7.0"
+    }
+  }
+}
