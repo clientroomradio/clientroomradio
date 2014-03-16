@@ -9,27 +9,34 @@ module.exports = function(winston) {
     var sp = require('libspotify');
     var spSession;
     var spPlayer;
+    var spotifyEnabled = fs.existsSync(__dirname + '/../spotify/spotify_appkey.key');
 
     function init() {
-        if ( fs.existsSync(__dirname + '/../spotify/spotify_appkey.key') ) {
+        if (spotifyEnabled) {
             spSession = new sp.Session({
                 cache_location: __dirname + "/../spotify/cache/",
                 settings_location: __dirname + "/../spotify/settings/",
                 applicationKey: __dirname + '/../spotify/spotify_appkey.key'
             });
+        } else {
+            winston.info('No Spotify app key found: ' + __dirname + '/../spotify/spotify_appkey.key');
         }
+
+        return spotifyEnabled;
     }
 
     that.login = function(username, password) {
-        init();
-        spSession.login(username, password, true);
-        spSession.once('login', onLogin);
+        if (init()) {
+            spSession.login(username, password, true);
+            spSession.once('login', onLogin);
+        }
     }
 
     that.relogin = function() {
-        init();
-        spSession.relogin();
-        spSession.once('login', onLogin);
+        if (init()) {
+            spSession.relogin();
+            spSession.once('login', onLogin);
+        }
     }
 
     function onLogin(err) {
@@ -45,8 +52,12 @@ module.exports = function(winston) {
     }
 
     that.logout = function() {
-        spSession.logout();
-        spSession.once('logout', onLogout);
+        if (spotifyEnabled) {
+            spSession.logout();
+            spSession.once('logout', onLogout);
+        } else {
+            that.emit('logout', {message: 'Spotify not enabled.'});
+        }
     }
 
     function onLogout(err) {
