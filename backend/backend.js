@@ -23,6 +23,8 @@ var requests = [];
 var skippers = [];
 var currentStationUrl = '';
 
+spotify.relogin();
+
 redis.on("ready", function () {
     winston.info("Redis ready");
 
@@ -255,10 +257,14 @@ process.on('SIGINT', function () {
 	redis.set('currentTrack', {}, function (err, reply) {
 		winston.info( "currentTrack cleared" );
 		redis.set('skippers', [], function (err, reply) {
-			winston.info( "skippers cleared.\nExit..." );
-			process.exit();
-		} );
-	} );
+			winston.info( "skippers cleared." );
+			spotify.logout();
+			spotify.once('logout', function (err) {
+				winston.info( "Spotify logged out!\n***EXIT***" );
+				process.exit();
+			});
+		});
+	});
 })
 
 

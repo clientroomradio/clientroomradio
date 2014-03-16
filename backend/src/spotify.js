@@ -6,29 +6,57 @@ module.exports = function(winston) {
     var lameEncoder = new lame.Encoder();
     var crypto = require("crypto");
     var fs = require("fs");
-    var sp;
+    var sp = require('libspotify');
     var spSession;
     var spPlayer;
 
-    if ( fs.existsSync(__dirname + '/../spotify/spotify_appkey.key') ) {
-        sp = require('libspotify');
+    function init() {
+        if ( fs.existsSync(__dirname + '/../spotify/spotify_appkey.key') ) {
+            spSession = new sp.Session({
+                cache_location: __dirname + "/../spotify/cache/",
+                settings_location: __dirname + "/../spotify/settings/",
+                applicationKey: __dirname + '/../spotify/spotify_appkey.key'
+            });
+        }
+    }
 
-        spSession = new sp.Session({
-            cache_location: __dirname + "/../spotify/cache/",
-            settings_location: __dirname + "/../spotify/settings/",
-            applicationKey: __dirname + '/../spotify/spotify_appkey.key'
-        });
+    that.login = function(username, password) {
+        init();
+        spSession.login(username, password, true);
+        spSession.once('login', onLogin);
+    }
 
+    that.relogin = function() {
+        init();
         spSession.relogin();
         spSession.once('login', onLogin);
     }
 
     function onLogin(err) {
         if (err) winston.info("Spotify login failed:", err);
-        else winston.info("Spotify login success!");
+        else {
+            winston.info("Spotify login success!");
 
-        spPlayer = spSession.getPlayer();
-        spPlayer.pipe(lameEncoder);
+            spPlayer = spSession.getPlayer();
+            spPlayer.pipe(lameEncoder);
+        }
+
+        that.emit('login', err);
+    }
+
+    that.logout = function() {
+        spSession.logout();
+        spSession.once('logout', onLogout);
+    }
+
+    function onLogout(err) {
+        if (err) winston.info("Spotify logout failed:", err);
+        else {
+            winston.info("Spotify logout success!");
+            spSession.close();
+        }
+        
+        that.emit('logout', err);
     }
 
     function finished() {
