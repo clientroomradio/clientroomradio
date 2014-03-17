@@ -139,10 +139,8 @@ module.exports = function(config, winston) {
 		mDiscoveryHourStart = discoveryHourStart;
 	}
 
-	that.getStationUrl = function(users) {
+	function getRqlStationUrl(sortedUsers) {
 		var rqlString = '';
-
-		var sortedUsers = _.keys(users).sort();
 
 		for ( var user in sortedUsers ) {
 			if (rqlString.length == 0) {
@@ -178,13 +176,35 @@ module.exports = function(config, winston) {
 		return 'lastfm://rql/' + Buffer(rqlString).toString('base64');
 	}
 
+	function getStandardStationUrl(sortedUsers) {
+		var stationUsers = '';
+ 
+		for (var user in sortedUsers) {
+			if ( stationUsers.length > 0 )
+				stationUsers += ',' + sortedUsers[user];
+			else
+				stationUsers += sortedUsers[user];
+		}
+	
+		return 'lastfm://users/' + stationUsers + '/personal';
+	}
+
+	that.getStationUrl = function(users) {
+		var sortedUsers = _.keys(users).sort();
+		var stationUrl = getStandardStationUrl(sortedUsers);
+		winston.info(stationUrl);
+		return stationUrl;
+	}
+
 	that.radioTune = function(users, callback) {
 		var stationUrl = that.getStationUrl(users);
 
 		if ( !_.isEmpty(users) ) {
-			var request = lastfm.request("radio.tune", {
+			var request = lastfm.request("prototype.tune", {
 				station: stationUrl,
 				sk: config.sk,
+				signed: true,
+				write: true,
 				handlers: {
 					success: callback,
 					error: function(error) {
@@ -198,8 +218,9 @@ module.exports = function(config, winston) {
 	}
 
 	that.getPlaylist = function(callback) {
-		var request = lastfm.request("radio.getplaylist", {
+		var request = lastfm.request("prototype.getplaylist", {
 			sk: config.sk,
+			signed: true,
 			handlers: {
 				success: callback,
 				error: function(error) {
