@@ -10,7 +10,7 @@
         <link href="css/slider.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
     </head>
-    <body ng-cloak class="{{active?'active':'inactive'}}{{discoveryHour?' discovery-hour':''}}">
+    <body ng-cloak class="{{active?'active':'inactive'}}{{discoveryHour?' discovery-hour':''}}{{bingo?' bingo':''}}">
 
         <!-- Header -->
         <nav class="navbar navbar-default" role="navigation"  ng-controller="NavController">
@@ -22,7 +22,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">{{radioname}}{{discoveryHour?' - Discovery Hour':''}}</a>
+                <a class="navbar-brand" href="#">{{radioname}}{{discoveryHour?' - Discovery Hour':''}}{{bingo?' - BINGO!':''}}</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->

@@ -13,6 +13,7 @@ function MainController($scope, socket) {
 	$scope.stream = config.stream;
 	$scope.muted = false;
 	$scope.discoveryHour = false;
+	$scope.bingo = false;
 
 	$scope.login = function() {
 		location.href = "http://www.last.fm/api/auth/?api_key="+config.api_key+"&cb="+$(location).attr('href')+"login";
@@ -145,11 +146,18 @@ function MainController($scope, socket) {
 			}
 		}
 
+		$scope.bingo = data.bingo;
+
 		$scope.$apply();
 	});
 
 	socket.discoveryHourCallback.add(function(discoveryHour) {
 		$scope.discoveryHour = discoveryHour;
+		$scope.$apply();
+	});
+
+	socket.bingoCallback.add(function(bingo) {
+		$scope.bingo = bingo;
 		$scope.$apply();
 	});
 			

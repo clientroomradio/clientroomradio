@@ -84,6 +84,21 @@ function onGotContext(track) {
 	});
 }
 
+function onGotAllContext(track) {
+	if (_.keys(track.context).length == _.keys(active(users)).length) {
+		// it's a bingo!
+		track.bingo = true;
+		redis.get('currentTrack', function (err, currentTrack) {
+			if ( currentTrack.timestamp == track.timestamp ) {
+				// The current track is a bingo!!
+				redis.set('currentTrack', track, function (err, reply) {
+					winston.info('currentTrack set', err, reply);
+				});
+			}
+		});
+	}
+}
+
 function playTrack() {
 	track = tracks.shift();
 	play_mp3(track.location);
@@ -91,7 +106,7 @@ function playTrack() {
 	// if it's a Spotify track, get the context now
 	if (fs.existsSync(track.location)) {
 		winston.info("GET CONTEXT FOR SPOTIFY TRACK");
-		lastfm.getContext(track, active(users), onGotContext);
+		lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
 	}
 
 	winston.info("PLAYING TRACK:", track.title, '–', track.creator);
@@ -152,7 +167,7 @@ function onRadioGotPlaylist(data) {
 
 	// get all the contexts and insert them into the tracks
 	_.each(tracks, function(track) {
-		lastfm.getContext(track, active(users), onGotContext);
+		lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
 	});
 
 	playTrack();

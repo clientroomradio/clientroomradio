@@ -108,7 +108,9 @@ module.exports = function(config, winston) {
 	    });
 	}
 
-	that.getContext = function(track, users, callback) {
+	that.getContext = function(track, users, callback, callbackAll) {
+		var finished = _.after(_.keys(users).length, callbackAll);
+
 		_.each(users, function(data, user) {
 			var request = lastfm.request("track.getInfo", {
 				track: track.title,
@@ -120,12 +122,13 @@ module.exports = function(config, winston) {
 						track.context = track.context || [];
 						if ( lfm.track.userplaycount ) {
 							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
-
 							callback(track);
 						}
+						finished(track);
 					},
 					error: function(error) {
 						winston.info("Error: " + error.message);
+						finished(track);
 					}
 				}
 			});

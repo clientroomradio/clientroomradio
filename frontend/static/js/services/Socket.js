@@ -11,6 +11,7 @@ var Socket = function(SOCKJS_URL) {
 	this.skippersCallback = $.Callbacks();
 	this.updateVotesCallback = $.Callbacks();
 	this.discoveryHourCallback = $.Callbacks();
+	this.bingoCallback = $.Callbacks();
 
 	var sockjs;
 	var reconnectTimeout = null;
@@ -123,7 +124,12 @@ var Socket = function(SOCKJS_URL) {
 			if (type == 'discoveryHour') {
 				that.discoveryHourCallback.fire(data);
 				return;
-			}			
+			}	
+
+			if (type == 'bingo') {
+				that.bingoCallback.fire(data);
+				return;
+			}		
 
 			console.log('Unhandled Message: ', type, data);
 		};

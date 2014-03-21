@@ -43,7 +43,7 @@ redis.on('ready', function() {
 	var votingManager = new VotingManager(chat, socket, redis);
 
 	// Nothing depends on those:
-	new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao);
+	new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao, redis);
 	new SkipManager(socket, skippersDao, chat);
 	new ScrobblingManager(socket, userDao, chat);
 	new LoveManager(socket, currentTrackDao, chat, lastfmClient);
