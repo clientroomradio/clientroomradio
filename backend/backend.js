@@ -85,7 +85,9 @@ function onGotContext(track) {
 }
 
 function onGotAllContext(track) {
-	if (_.keys(track.context).length == _.keys(active(users)).length) {
+	var activeUserCount = _.keys(active(users)).length;
+	var trackContextCount = _.keys(track.context).length;
+	if (activeUserCount > 1 && activeUserCount == trackContextCount) {
 		// it's a bingo!
 		track.bingo = true;
 		redis.get('currentTrack', function (err, currentTrack) {
