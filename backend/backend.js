@@ -48,19 +48,6 @@ var vlc = require('vlc')([
   '--sout=#http{dst=:8080/stream.mp3}'
 ]);
 
-spotify.on('downloadedTrack', function (track) {
-	// get some extra info about the track and
-	// push it to the end of the requests queue
-	lastfm.trackGetAlbumArt(track);
-	requests.push(track);
-
-	var payload = {
-		"track": track
-	};
-
-	doSend('/requestcomplete', payload);
-});
-
 function active(aUsers) {
 	var activeUsers = {};
 
@@ -74,13 +61,9 @@ function active(aUsers) {
 }
 
 function onGotContext(track) {
-	redis.get('currentTrack', function (err, currentTrack) {
-		if ( currentTrack.timestamp == track.timestamp ) {
-			// update the current track with the new context
-			redis.set('currentTrack', track, function (err, reply) {
-				winston.info('currentTrack set', err, reply);
-			});
-		}
+	// update the current track with the new context
+	redis.set('currentTrack', track, function (err, reply) {
+		winston.info('currentTrack set', err, reply);
 	});
 }
 
@@ -90,36 +73,46 @@ function onGotAllContext(track) {
 	if (activeUserCount > 1 && activeUserCount == trackContextCount) {
 		// it's a bingo!
 		track.bingo = true;
-		redis.get('currentTrack', function (err, currentTrack) {
-			if ( currentTrack.timestamp == track.timestamp ) {
-				// The current track is a bingo!!
-				redis.set('currentTrack', track, function (err, reply) {
-					winston.info('currentTrack set', err, reply);
-				});
-			}
+		redis.set('currentTrack', track, function (err, reply) {
+			winston.info('currentTrack set', err, reply);
 		});
+
 	}
 }
 
 function playTrack() {
-	track = tracks.shift();
-	play_mp3(track.location);
+	vlc.mediaplayer.pause();
 
-	// if it's a Spotify track, get the context now
-	if (fs.existsSync(track.location)) {
-		winston.info("GET CONTEXT FOR SPOTIFY TRACK");
-		lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
-	}
+	redis.set('skippers', [], function (err, reply) {
+		winston.info('Skippers cleared', err, reply);
 
-	winston.info("PLAYING TRACK:", track.title, '–', track.creator);
+		handlers = {
+			success: function(track, port) {
+				var media = vlc.mediaFromUrl('http://localhost:' + port);
+				media.parseSync();
+				vlc.mediaplayer.media = media;
+				vlc.mediaplayer.play();
 
-	// add a timestamp to the track as we start it
-	track.timestamp = new Date().getTime();
+				// add a timestamp to the track as we start it
+				track.timestamp = new Date().getTime();
 
-	lastfm.updateNowPlaying(track, users);
+				lastfm.updateNowPlaying(track, users);
+				//redis.set('currentTrack', track, function (err, reply) { winston.info('currentTrack set', err, reply); });
+				lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
+			},
+			error: function() {
+				onEndTrack();
+			}
+		};
 
-	redis.set('currentTrack', track, function (err, reply) { winston.info('currentTrack set', err, reply); });
-	redis.set('skippers', [], function (err, reply) { winston.info('skippers set', err, reply); });
+		track = tracks.shift();
+		
+		if (_.has(track, 'request')) {
+			spotify.request(track, handlers);
+		} else {
+			spotify.search(track, handlers);
+		}
+	});
 }
 
 function onEndTrack() {
@@ -167,15 +160,11 @@ function onRadioGotPlaylist(data) {
 
 	tracks = data.playlist.trackList.track;
 
-	// get all the contexts and insert them into the tracks
-	_.each(tracks, function(track) {
-		lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
-	});
-
 	playTrack();
 };
 
 function onRadioTuned(data) {
+	winston.info('tuned');
 	lastfm.getPlaylist(onRadioGotPlaylist);
 };
 
@@ -215,17 +204,6 @@ function onDiscoveryHourChanged(err, discoveryHour) {
 	lastfm.setDiscoveryHourStart(discoveryHour.start);
 }
 
-function play_mp3(mp3) {
-	winston.info(mp3);
-
-	var media;
-	if (fs.existsSync(mp3)) media = vlc.mediaFromFile(mp3);
-	else media = vlc.mediaFromUrl(mp3);
-	media.parseSync();
-	vlc.mediaplayer.media = media;
-	vlc.mediaplayer.play();
-}
-
 function updateProgress() {
 	redis.get('currentTrack', function (err, currentTrack) {
 		var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / currentTrack.duration;
@@ -257,11 +235,11 @@ app.use(express.bodyParser());
 
 app.post('/request', function (req, res){
 	winston.info("Got a Spotify request!", req.body);
-	spotify.request(req.body);
+	requests.push(req.body);
     res.end();
 });
 
-app.use(function(req, res){
+app.use(function (req, res){
 	res.send(404);
 });
 

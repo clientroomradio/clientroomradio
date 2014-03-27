@@ -118,7 +118,10 @@ module.exports = function(config, winston) {
 				username: user,
 				handlers: {
 					success: function(lfm) {
-						winston.info(track.title, user, lfm.track.userplaycount)
+						winston.info(track.title, user, lfm.track.userplaycount);
+						if (typeof lfm.track.album != 'undefined') {
+							track.image = lfm.track.album.image[2]['#text'];
+						}
 						track.context = track.context || [];
 						if ( lfm.track.userplaycount ) {
 							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
