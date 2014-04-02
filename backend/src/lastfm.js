@@ -125,8 +125,8 @@ module.exports = function(config, winston) {
 						track.context = track.context || [];
 						if ( lfm.track.userplaycount ) {
 							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
-							callback(track);
 						}
+						callback(track);
 						finished(track);
 					},
 					error: function(error) {
