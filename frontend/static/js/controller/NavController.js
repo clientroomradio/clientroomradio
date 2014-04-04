@@ -1,12 +1,12 @@
-function NavController($scope, socket, notification) {
+function NavController($scope, socket, notificationManager) {
 	var that=this;
 
 	$scope.requestNotificationPermissions = function() {
-		notification.request();
+		notificationManager.request();
 	}
 
 	$scope.NotificationPermissionNeeded = function() {
-		return notification.permissionNeeded();
+		return notificationManager.permissionNeeded();
 	}
 
 	$scope.endOfDayRequest = function() {

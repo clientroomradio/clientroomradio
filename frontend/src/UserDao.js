@@ -7,7 +7,7 @@ module.exports = function(redis, lastfmClient) {
 	var users = {};
 
 	redis.get('users', function (err, initialUsers) {
-		users = initialUsers;
+		users = initialUsers || {};
 	});
 
 	redis.on('users', function (err, newUsers) {
@@ -42,7 +42,7 @@ module.exports = function(redis, lastfmClient) {
 		var user = {
 			'username': username,
 			'session': sessionId,
-			'sk': lastfmSessionKey, 
+			'sk': lastfmSessionKey,
 			'scrobbling': true,
 			'active': true
 		};
@@ -57,7 +57,7 @@ module.exports = function(redis, lastfmClient) {
 	that.removeUser = function(user) {
 		delete users[user.username];
 		that.setUsers(users);
-	} 
+	}
 
 	that.getUserBySession = function(session) {
 		return _.find(that.getUsers(), function(user) { return user.session == session; });
@@ -66,7 +66,7 @@ module.exports = function(redis, lastfmClient) {
 	that.getFilteredUsers = function() {
 		// shitty deep clone to filter session keys out
 		var filteredUsers = JSON.parse(JSON.stringify(users));
-		_.each(filteredUsers, function (user, name) { 
+		_.each(filteredUsers, function (user, name) {
 			delete(user.sk);
 			delete(user.session);
 		});

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
-        
+
         <link href="css/slider.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
     </head>
@@ -28,15 +28,15 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav navbar-right" ng-show="username" >
-                    <li> 
+                    <li>
                         <a ng-href="{{getListeningHistoryLink()}}" target="_blank">Listening History</a>
                     </li>
 
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Propose <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR for today</a></li>   
-                            <li><a data-toggle="modal" href="#spotifySearch">Play Spotify track</a></li>                  
+                            <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR for today</a></li>
+                            <li><a data-toggle="modal" href="#spotifySearch">Play Spotify track</a></li>
                         </ul>
                     </li>
                     <li ng-show="NotificationPermissionNeeded()">
@@ -68,9 +68,9 @@
                             </a>
                             <div class="media-body">
                                 <h4 class="media-heading" ng-show="isPlaying()">
-                                    <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.creator}}</a> 
-                                    – 
-                                    <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.title}}</a> 
+                                    <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.creator}}</a>
+                                    –
+                                    <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.title}}</a>
                                     ({{durationInText()}})
                                 </h4>
                                 <h4 class="media-heading" ng-hide="isPlaying()">Nothing playing at the moment.</h4>
@@ -131,7 +131,7 @@
 
                         <button type="button" class="btn btn-default btn-tooltip btn-volume" ng-click="muted=!muted">
                             <i class="{{muted?'icon-volume-off':'icon-volume-up'}}"></i>
-                        
+
                             <div class="volume-inline-block" ng-click="clickOnVolumeBar()">
                                 <div class="volume">
                                     <input type="text" class="volume-slider-init" value="" data-slider-min="0" data-slider-max="1" data-slider-step="0.02" data-slider-value="1" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide">
@@ -182,21 +182,21 @@
                     </div>
                     <div class="modal-body">
                         <input type="text" class="form-control spotify-search-input" ng-model="searchTerm" ng-change="update()" placeholder="Search term">
-                       
+
                         <div class="list-group">
-                            <a  ng-href="#" 
-                                class="list-group-item {{choosenTrack.href == track.href?'active':''}}" 
-                                ng-repeat="track in tracks" 
+                            <a  ng-href="#"
+                                class="list-group-item {{choosenTrack.href == track.href?'active':''}}"
+                                ng-repeat="track in tracks"
                                 ng-click="clickTrack(track)">
                                 {{track.artists[0].name}} - {{track.name}}
                             </a>
                         </div>
-                        
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" ng-disabled="!choosenTrack" class="btn btn-primary" data-dismiss="modal" ng-click="request()">Request</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-   
+
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
@@ -213,6 +213,7 @@
         <script src="/js/lib/jquery.cookie.js"></script>
         <script src="/js/lib/jquery.jplayer.min.js"></script>
         <script src="/js/lib/bootstrap-slider.js"></script>
+        <script src="/js/lib/WebNotification.js"></script>
 
         <!-- Javascript - Config -->
         <script src="/config.js"></script>
@@ -226,7 +227,7 @@
 
         <!-- Javascript - Services -->
         <script src="/js/services/Socket.js"></script>
-        <script src="/js/services/Notification.js"></script>
+        <script src="/js/services/NotificationManager.js"></script>
 
         <!-- Start services -->
         <script src="/js/services.js"></script>
