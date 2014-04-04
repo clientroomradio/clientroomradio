@@ -37,13 +37,12 @@ var NotificationManager = function(socket) {
 			);
 
 			notification.onclick = function () {
-				notification.cancel();
+				notification.close();
 				window.focus();
 				clearTimeout(closeTimeout);
 			}
 
-			notification.show();
-			closeTimeout = setTimeout(function() { notification.cancel(); }, 3000);
+			closeTimeout = setTimeout(function() { notification.close(); }, 3000);
 		}
 	}
 
