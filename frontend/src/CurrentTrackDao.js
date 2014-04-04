@@ -7,7 +7,7 @@ module.exports = function(redis, socket) {
 	var discoveryHour = false;
 
 	redis.get('currentTrack', function (err, initialCurrentTrack) {
-		currentTrack = initialCurrentTrack;
+		currentTrack = initialCurrentTrack || {};
 		updateState();
 		that.emit('change', currentTrack);
 	});
@@ -30,7 +30,7 @@ module.exports = function(redis, socket) {
 		// is it a bingo?
 		socket.broadcast('bingo', typeof currentTrack.bingo != 'undefined' && currentTrack.bingo);
 	}
-	
+
 	that.getCurrentTrack = function() {
 		return currentTrack;
 	}
@@ -46,7 +46,7 @@ module.exports = function(redis, socket) {
 			}
 		});
 
-		redis.set('currentTrack', currentTrack);	
+		redis.set('currentTrack', currentTrack);
 	}
 }
 

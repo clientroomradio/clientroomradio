@@ -7,12 +7,12 @@ module.exports = function(redis) {
 	var skippers = [];
 
 	redis.get('skippers', function (err, initialSkippers) {
-		skippers = initialSkippers;
+		skippers = initialSkippers || [];
 	});
 
 	redis.on('skippers', function (err, newSkippers) {
 		that.emit('change', newSkippers);
-		
+
 		var skipper = _.without(newSkippers, skippers);
 
 		if ( skipper.length == 1 ) {
@@ -20,10 +20,10 @@ module.exports = function(redis) {
 				that.emit('skip', users[skipper[0]], newSkippers);
 			});
 		}
-		
+
 		skippers = newSkippers;
 	});
-	
+
 	that.getSkippers = function() {
 		return skippers;
 	}
