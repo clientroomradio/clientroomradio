@@ -2,10 +2,9 @@ module.exports = function(winston) {
     var that = this;
 
     var server = null;
-    var bitrate = 128;
     var http = require('http');
     var lame = require('lame');
-    var lameEncoder = new lame.Encoder({"-b": bitrate});
+    var lameEncoder = new lame.Encoder();
     var crypto = require("crypto");
     var fs = require("fs");
     var sp = require('libspotify');
@@ -21,7 +20,7 @@ module.exports = function(winston) {
                 applicationKey: __dirname + '/../spotify/spotify_appkey.key'
             });
         } else {
-            winston.info('No Spotify app key found: ' + __dirname + '/../spotify/spotify_appkey.key');
+            winston.error('No Spotify app key found', __dirname + '/../spotify/spotify_appkey.key');
         }
 
         return spotifyEnabled;
@@ -42,7 +41,7 @@ module.exports = function(winston) {
     }
 
     function onLogin(err) {
-        if (err) winston.info("Spotify login failed:", err);
+        if (err) winston.error("spotify.onLogin", err);
         else {
             winston.info("Spotify login success!");
 
@@ -63,7 +62,7 @@ module.exports = function(winston) {
     }
 
     function onLogout(err) {
-        if (err) winston.info("Spotify logout failed:", err);
+        if (err) winston.error("spotify.onLogout", err);
         else {
             winston.info("Spotify logout success!");
             spSession.close();
@@ -81,8 +80,7 @@ module.exports = function(winston) {
         search.execute();
         search.once('ready', function() {
             if(!search.tracks.length) {
-                console.error('Couldn\'t find on Spotify.');
-                handlers.error();
+                handlers.error({message: "Couldn't find on Spotify."});
             } else {
                 playTrack(search.tracks[0], track, handlers);
             }
@@ -95,8 +93,6 @@ module.exports = function(winston) {
         var spTrack = sp.Track.getFromUrl(crrRequest.request);
 
         spTrack.once('ready', function () {
-            winston.info("Found:", spTrack.artist.name, spTrack.title, spTrack.availability);
-
             track = {};
             track.identifier = crrRequest.request;
             track.requester = crrRequest.username;
@@ -115,31 +111,29 @@ module.exports = function(winston) {
     }
 
     function playTrack(spTrack, track, handlers) {
-        if (server) {
-            server.close();
-        }
+        winston.info("Spotify track to play", spTrack.artist.name, spTrack.title, spTrack.availability);
 
-        var available = spTrack.availability != 'UNAVAILABLE';
+        if (server) server.close();
 
-        if (available) {
+        if (spTrack.availability != 'UNAVAILABLE') {
             spPlayer.load(spTrack);
-            spPlayer.play();
 
             var port = 4000 + Math.round(Math.random() * 1000);
 
             server = http.createServer(function (req, res) {
-                winston.info('CONNECTED');
+                winston.info('VLC connected to internal spotify proxy server.');
                 res.writeHead(200, {
                     'Transfer-Encoding': 'chunked',
                     'Content-Disposition': 'filename="sometrack.mp3"',
-                    'Content-Length': (spTrack.duration * bitrate) / 8,
+                    'Content-Length': (spTrack.duration * 128) / 8,
                     'Content-Type': 'audio/mpeg' });
                 lameEncoder.pipe(res);
+                spPlayer.play();
             }).listen(port);
 
             handlers.success(track, port);
         } else {
-            handlers.error();
+            handlers.error({message: spTrack.availability});
         }
     }
 }

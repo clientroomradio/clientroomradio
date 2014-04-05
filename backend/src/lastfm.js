@@ -27,7 +27,7 @@ module.exports = function(config, winston) {
 					winston.info("Updated now playing for:", username);
 				},
 				error: function(error) {
-					winston.info("Now playing error:" + error.message);
+					winston.error("doUpdateNowPlaying", error.message);
 				}
 			}
 		});
@@ -130,7 +130,7 @@ module.exports = function(config, winston) {
 				username: user,
 				handlers: {
 					success: function(lfm) {
-						winston.info(track.title, user, lfm.track.userplaycount);
+						winston.info("getContext", user, track.title, lfm.track.userplaycount);
 						if (typeof lfm.track.album != 'undefined') {
 							track.image = lfm.track.album.image[2]['#text'];
 						}
@@ -143,7 +143,7 @@ module.exports = function(config, winston) {
 						finished(track);
 					},
 					error: function(error) {
-						winston.info("Error: " + error.message);
+						winston.error("getContext", error.message);
 						finished(track);
 					}
 				}
@@ -204,8 +204,6 @@ module.exports = function(config, winston) {
 			rqlString = util.format('%s %s', rqlString, 'opt:discovery|true');
 		}
 
-		winston.info(rqlString);
-
 		return 'lastfm://rql/' + Buffer(rqlString).toString('base64');
 	}
 
@@ -225,7 +223,7 @@ module.exports = function(config, winston) {
 	that.getStationUrl = function(users) {
 		var sortedUsers = _.keys(users).sort();
 		var stationUrl = getStandardStationUrl(sortedUsers);
-		winston.info(stationUrl);
+		winston.info("getStationUrl", stationUrl);
 		return stationUrl;
 	}
 
@@ -241,7 +239,9 @@ module.exports = function(config, winston) {
 				handlers: {
 					success: callback,
 					error: function(error) {
-						winston.info("Error: " + error.message);
+						winston.error("radioTune", error.message);
+						winston.info("Try again in one second...");
+						setTimeout(radioTune, 1000, users, callback);
 					}
 				}
 			});
@@ -257,7 +257,9 @@ module.exports = function(config, winston) {
 			handlers: {
 				success: callback,
 				error: function(error) {
-					winston.info("Error: " + error.message);
+					winston.error("getPlaylist", error.message);
+					winston.info("Try again in one second...");
+					setTimeout(getPlaylist, 1000, callback);
 				}
 			}
 		});

@@ -63,7 +63,7 @@ function active(aUsers) {
 function onGotContext(track) {
 	// update the current track with the new context
 	redis.set('currentTrack', track, function (err, reply) {
-		winston.info('currentTrack set', err, reply);
+		if (err) winston.info('onGotContext', err, reply);
 	});
 }
 
@@ -74,15 +74,13 @@ function onGotAllContext(track) {
 		// it's a bingo!
 		track.bingo = true;
 		redis.set('currentTrack', track, function (err, reply) {
-			winston.info('currentTrack set', err, reply);
+			if (err) winston.info('onGotAllContext', err, reply);
 		});
 
 	}
 }
 
 function playTrack() {
-	vlc.mediaplayer.pause();
-
 	redis.set('skippers', [], function (err, reply) {
 		winston.info('Skippers cleared', err, reply);
 
@@ -100,7 +98,8 @@ function playTrack() {
 				//redis.set('currentTrack', track, function (err, reply) { winston.info('currentTrack set', err, reply); });
 				lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
 			},
-			error: function() {
+			error: function(error) {
+				winston.error("playTrack", error.message);
 				onEndTrack();
 			}
 		};
@@ -155,21 +154,21 @@ vlc.mediaplayer.on('EndReached', function () {
 	_.defer(onEndTrack);
 });
 
-function onRadioGotPlaylist(data) {
-	winston.info(data);
+function onRadioGotPlaylist(xspf) {
+	winston.info('onRadioGotPlaylist', xspf.playlist.trackList.track.length);
 
-	tracks = data.playlist.trackList.track;
+	tracks = xspf.playlist.trackList.track;
 
 	playTrack();
 };
 
 function onRadioTuned(data) {
-	winston.info('tuned');
+	winston.info('onRadioTuned', data.url);
 	lastfm.getPlaylist(onRadioGotPlaylist);
 };
 
 function onUsersChanged(err, newUsers) {
-	winston.info('onUsersChanged: ', util.inspect(newUsers, false, null));
+	winston.info('onUsersChanged', _.keys(newUsers));
 
 	if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(users))
 			&& !vlc.mediaplayer.is_playing ) {
@@ -183,7 +182,7 @@ function onUsersChanged(err, newUsers) {
 }
 
 function onSkippersChanged(err, newSkippers) {
-	winston.info('onSkippersChanged:', util.inspect(newSkippers, false, null));
+	winston.info('onSkippersChanged:', newSkippers);
 	skippers = newSkippers; 
 
 	if ( _.keys(active(users)).length > 0 && newSkippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
@@ -193,7 +192,7 @@ function onSkippersChanged(err, newSkippers) {
 }
 
 function onTagsChanged(err, newTags) {
-	winston.info('onTagsChanged: ', util.inspect(newTags, false, null));
+	winston.info('onTagsChanged: ', newTags);
 
 	// clear the track list so that the tag change is in effect from the next track
 	lastfm.setTags(newTags);
@@ -207,12 +206,7 @@ function onDiscoveryHourChanged(err, discoveryHour) {
 function updateProgress() {
 	redis.get('currentTrack', function (err, currentTrack) {
 		var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / currentTrack.duration;
-
-		payload = {
-			"progress": actualPosition
-		}
-
-		doSend('/progress', payload);
+		doSend('/progress', {progress: actualPosition});
 	});
 }
 
@@ -221,9 +215,9 @@ setInterval(updateProgress, 500);
 function doSend(path, payload) {
 	request.post('http://localhost:3001' + path, {json:payload}, function (error, response, body) {
 		if (error) {
-			winston.info("ERR", error)
+			winston.error("doSend", error)
 		} else if (response.statusCode != 200) {
-			winston.info("STATUS CODE != 200: ", response.body);
+			winston.error("doSend: STATUS CODE != 200", response.body);
 		}
 	});
 }
@@ -250,12 +244,12 @@ process.on('SIGINT', function () {
 	winston.info( "\nShutting down!" );
 
 	redis.set('currentTrack', {}, function (err, reply) {
-		winston.info( "currentTrack cleared" );
+		winston.info("currentTrack cleared", err, reply);
 		redis.set('skippers', [], function (err, reply) {
-			winston.info( "skippers cleared." );
+			winston.info("skippers cleared.", err, reply);
 			spotify.logout();
 			spotify.once('logout', function (err) {
-				winston.info( "Spotify logged out!\n***EXIT***" );
+				winston.info("Spotify logged out!\n***EXIT***", err);
 				process.exit();
 			});
 		});
