@@ -185,7 +185,9 @@ function onSkippersChanged(err, newSkippers) {
 	winston.info('onSkippersChanged:', newSkippers);
 	skippers = newSkippers; 
 
-	if ( _.keys(active(users)).length > 0 && newSkippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
+	if ( _.keys(active(users)).length > 0
+			&& newSkippers.length > 0
+			&& newSkippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
 		winston.info('SKIP!');
 		onEndTrack();
 	}
