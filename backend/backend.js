@@ -61,23 +61,19 @@ function active(aUsers) {
 }
 
 function onGotContext(track) {
-	// update the current track with the new context
-	redis.set('currentTrack', track, function (err, reply) {
-		if (err) winston.info('onGotContext', err, reply);
-	});
-}
+	winston.info("onGotContext");
 
-function onGotAllContext(track) {
 	var activeUserCount = _.keys(active(users)).length;
 	var trackContextCount = _.keys(track.context).length;
+
 	if (activeUserCount > 1 && activeUserCount == trackContextCount) {
 		// it's a bingo!
 		track.bingo = true;
-		redis.set('currentTrack', track, function (err, reply) {
-			if (err) winston.info('onGotAllContext', err, reply);
-		});
-
 	}
+
+	redis.set('currentTrack', track, function (err, reply) {
+		if (err) winston.error('onGotAllContext', err, reply);
+	});
 }
 
 function playTrack() {
@@ -95,8 +91,7 @@ function playTrack() {
 				track.timestamp = new Date().getTime();
 
 				lastfm.updateNowPlaying(track, users);
-				//redis.set('currentTrack', track, function (err, reply) { winston.info('currentTrack set', err, reply); });
-				lastfm.getContext(track, active(users), onGotContext, onGotAllContext);
+				lastfm.getContext(track, active(users), onGotContext);
 			},
 			error: function(error) {
 				winston.error("playTrack", error.message);

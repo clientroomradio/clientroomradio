@@ -108,22 +108,12 @@ module.exports = function(config, winston) {
 	    });
 	}
 
-	that.getContext = function(track, users, callback, callbackAll) {
-		var context = [];
-		var finished = _.after(_.keys(users).length * 2, function() {
-			track.context = [];
-			_.each(context, function(user) {
-				if (user.userplaycount || user.userloved || user.artistInLibrary) {
-					track.context.push(user);
-				}
-			});
+	that.getContext = function(track, users, callback) {
+		track.context = {};
 
-			callbackAll(track);
-		});
+		var finished = _.after(_.keys(users).length * 2, callback);
 
 		_.each(users, function(data, user) {
-			context[user] = {"username": user};
-
 			lastfm.request("track.getInfo", {
 				track: track.title,
 				artist: track.creator,
@@ -134,16 +124,15 @@ module.exports = function(config, winston) {
 						if (typeof lfm.track.album != 'undefined') {
 							track.image = lfm.track.album.image[2]['#text'];
 						}
-						track.context = track.context || [];
-						if ( lfm.track.userplaycount ) {
-							context[username].userplaycount = lfm.track.userplaycount;
-							context[username].userloved = lfm.track.userloved;
+						if (typeof lfm.track.userplaycount != 'undefined') {
+							track.context[user] = track.context[user] || {"username": user};
+							track.context[user].userplaycount = lfm.track.userplaycount;
+							track.context[user].userloved = lfm.track.userloved;
 						}
-						callback(track);
 						finished(track);
 					},
 					error: function(error) {
-						winston.error("getContext", error.message);
+						winston.error("getContext:track.getInfo", error.message);
 						finished(track);
 					}
 				}
@@ -154,13 +143,15 @@ module.exports = function(config, winston) {
 				username: user,
 				handlers: {
 					success: function(lfm) {
-						if ( lfm.artist && lfm.artist.stats) {
-							context[username].artistInLibrary = lfm.artist.stats.hasOwnProperty('userplaycount');
+						if (typeof lfm.artist != 'undefined'
+								&& typeof lfm.artist.stats != 'undefined') {
+							track.context[user] = track.context[user] || {"username": user};
+							track.context[user].artistInLibrary = lfm.artist.stats.hasOwnProperty('userplaycount');
 						}
 						finished(track);
 					},
 					error: function(error) {
-						winston.info("Error: " + error.message);
+						winston.error("getContext:artist.getInfo", error.message);
 						finished(track);
 					}
 				}
@@ -241,7 +232,7 @@ module.exports = function(config, winston) {
 					error: function(error) {
 						winston.error("radioTune", error.message);
 						winston.info("Try again in one second...");
-						setTimeout(radioTune, 1000, users, callback);
+						setTimeout(that.radioTune, 1000, users, callback);
 					}
 				}
 			});
@@ -259,7 +250,7 @@ module.exports = function(config, winston) {
 				error: function(error) {
 					winston.error("getPlaylist", error.message);
 					winston.info("Try again in one second...");
-					setTimeout(getPlaylist, 1000, callback);
+					setTimeout(that.getPlaylist, 1000, callback);
 				}
 			}
 		});
