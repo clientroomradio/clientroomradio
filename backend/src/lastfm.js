@@ -7,7 +7,7 @@ module.exports = function(config, winston) {
 	var util = require('util');
 
 	var mDiscoveryHourStart = new Date(0);
-	var tags = []; 
+	var tags = [];
 
 	var lastfm = new LastFmNode({
 		api_key: config.api_key,
@@ -85,7 +85,7 @@ module.exports = function(config, winston) {
 			}
 
 			_.each(users, function(data, user) {
-				if (  !(!data.scrobbling || !data.active) 
+				if (  !(!data.scrobbling || !data.active)
 						&& !_.contains(skippers, user) ) {
 					// the user hasn't voted to skip this track
 					doScrobble(user, data.sk, track);
@@ -109,10 +109,22 @@ module.exports = function(config, winston) {
 	}
 
 	that.getContext = function(track, users, callback, callbackAll) {
-		var finished = _.after(_.keys(users).length, callbackAll);
+		var context = [];
+		var finished = _.after(_.keys(users).length * 2, function() {
+			track.context = [];
+			_.each(context, function(user) {
+				if (user.userplaycount || user.userloved || user.artistInLibrary) {
+					track.context.push(user);
+				}
+			});
+
+			callbackAll(track);
+		});
 
 		_.each(users, function(data, user) {
-			var request = lastfm.request("track.getInfo", {
+			context[user] = {"username": user};
+
+			lastfm.request("track.getInfo", {
 				track: track.title,
 				artist: track.creator,
 				username: user,
@@ -124,9 +136,27 @@ module.exports = function(config, winston) {
 						}
 						track.context = track.context || [];
 						if ( lfm.track.userplaycount ) {
-							track.context.push({"username":user,"userplaycount":lfm.track.userplaycount,"userloved":lfm.track.userloved});
+							context[username].userplaycount = lfm.track.userplaycount;
+							context[username].userloved = lfm.track.userloved;
 						}
 						callback(track);
+						finished(track);
+					},
+					error: function(error) {
+						winston.info("Error: " + error.message);
+						finished(track);
+					}
+				}
+			});
+
+			lastfm.request("artist.getInfo", {
+				artist: track.creator,
+				username: user,
+				handlers: {
+					success: function(lfm) {
+						if ( lfm.artist && lfm.artist.stats) {
+							context[username].artistInLibrary = lfm.artist.stats.hasOwnProperty('userplaycount');
+						}
 						finished(track);
 					},
 					error: function(error) {
@@ -181,14 +211,14 @@ module.exports = function(config, winston) {
 
 	function getStandardStationUrl(sortedUsers) {
 		var stationUsers = '';
- 
+
 		for (var user in sortedUsers) {
 			if ( stationUsers.length > 0 )
 				stationUsers += ',' + sortedUsers[user];
 			else
 				stationUsers += sortedUsers[user];
 		}
-	
+
 		return 'lastfm://users/' + stationUsers + '/personal';
 	}
 
