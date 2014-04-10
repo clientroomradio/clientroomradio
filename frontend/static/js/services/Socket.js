@@ -70,7 +70,7 @@ var Socket = function(SOCKJS_URL) {
 
 	function connect () {
 		sockjs = new SockJS(SOCKJS_URL);
-		
+
 		sockjs.onmessage = function(payload) {
 			payload = $.parseJSON(payload.data);
 			var type = payload.type;
@@ -119,17 +119,17 @@ var Socket = function(SOCKJS_URL) {
 			if (type == 'updateVotes') {
 				that.updateVotesCallback.fire(data);
 				return;
-			}	
+			}
 
 			if (type == 'discoveryHour') {
 				that.discoveryHourCallback.fire(data);
 				return;
-			}	
+			}
 
 			if (type == 'bingo') {
 				that.bingoCallback.fire(data);
 				return;
-			}		
+			}
 
 			console.log('Unhandled Message: ', type, data);
 		};
@@ -152,6 +152,10 @@ var Socket = function(SOCKJS_URL) {
 			heartbeat = setInterval(function() {
 				send('heartbeat', null);
 			}, 2000);
+
+			// detect mobile phones and set flag on the backend
+			var isMobile = ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) );
+			send('mobileStatus', isMobile);
 		};
 		sockjs.onclose = function() {
 			that.closeCallback.fire();
@@ -161,7 +165,7 @@ var Socket = function(SOCKJS_URL) {
 	};
 
 	connect();
-	
-	
-	
+
+
+
 }
