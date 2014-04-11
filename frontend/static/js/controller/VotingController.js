@@ -1,4 +1,4 @@
-function VotingController($scope, socket, notification) {
+function VotingController($scope, socket) {
 	var that=this;
 	$scope.id = null;
 	$scope.votes = {};
