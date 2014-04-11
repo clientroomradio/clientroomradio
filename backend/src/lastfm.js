@@ -144,9 +144,11 @@ module.exports = function(config, winston) {
 				handlers: {
 					success: function(lfm) {
 						if (typeof lfm.artist != 'undefined'
-								&& typeof lfm.artist.stats != 'undefined') {
+								&& typeof lfm.artist.stats != 'undefined'
+								&& lfm.artist.stats.hasOwnProperty('userplaycount')
+								&& lfm.artist.stats.userplaycount == 0) {
 							track.context[user] = track.context[user] || {"username": user};
-							track.context[user].artistInLibrary = lfm.artist.stats.hasOwnProperty('userplaycount');
+							track.context[user].artistInLibrary = true;
 						}
 						finished(track);
 					},
