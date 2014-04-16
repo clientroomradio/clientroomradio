@@ -13,9 +13,9 @@ winston.add(winston.transports.File, { filename: 'backend.log' });
 winston.remove(winston.transports.Console);
 winston.add(winston.transports.Console, { timestamp: true });
 
-var spotify = new Spotify(winston);
-var lastfm = new Lastfm(config, winston);
 var redis = new Redis(winston);
+var spotify = new Spotify(winston);
+var lastfm = new Lastfm(config, winston, redis);
 
 var users = {};
 var tracks = [];

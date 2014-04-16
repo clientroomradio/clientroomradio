@@ -1,4 +1,4 @@
-module.exports = function(config, winston) {
+module.exports = function(config, winston, redis) {
 	var that = this;
 
 	var config = require("../../config.js");
@@ -34,6 +34,8 @@ module.exports = function(config, winston) {
 	}
 
 	that.updateNowPlaying = function(track, users) {
+		addPlayedTrack(track);
+
 		if ( !_.isEmpty(track) ) {
 			// always scrobble to clientroom
 			if (typeof config.scrobbleToHost == 'undefined' || config.scrobbleToHost) {
@@ -243,12 +245,39 @@ module.exports = function(config, winston) {
 		return stationUrl;
 	}
 
+	function addPlayedTrack(track) {
+		redis.get("playedTracks", function (err, playedTracks) {
+			playedTracks[getTrackId(track)] = {"timestamp": new Date().getTime()};
+
+			winston.info("addPlayedTrack", _.keys(playedTracks));
+
+			// TODO: get rid of any tracks more than one day old
+			redis.set("playedTracks", playedTracks, function (err) {
+			});
+		});
+	}
+
+	function getTrackId(track) {
+		return track.creator + track.title;
+	}
+
 	that.getPlaylist = function(callback) {
 		var request = lastfm.request("prototype.getplaylist", {
 			sk: config.sk,
 			signed: true,
 			handlers: {
-				success: callback,
+				success: function(xspf) {
+					redis.get("playedTracks", function (err, playedTracks) {
+						for (var i = xspf.playlist.trackList.track.length - 1 ; i >= 0 ; i--) {
+							if (_.contains(_.keys(playedTracks), getTrackId(xspf.playlist.trackList.track[i]))) {
+								var removedTrack = xspf.playlist.trackList.track.splice(i, 1);
+								winston.info("removedTrack", removedTrack.title);
+							}
+						}
+
+						callback(xspf);
+					});
+				},
 				error: function(error) {
 					winston.error("getPlaylist", error.message);
 					winston.info("Try again in one second...");
