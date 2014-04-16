@@ -82,6 +82,9 @@ module.exports = function(winston) {
             if(!search.tracks.length) {
                 handlers.error({message: "Couldn't find on Spotify."});
             } else {
+                // use the duration of the actual Spotify track
+                // not the duration Last.fm thinks it is
+                search.tracks[0] = String(spTrack.duration);
                 playTrack(search.tracks[0], track, handlers);
             }
         });
