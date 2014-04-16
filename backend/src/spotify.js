@@ -84,7 +84,7 @@ module.exports = function(winston) {
             } else {
                 // use the duration of the actual Spotify track
                 // not the duration Last.fm thinks it is
-                search.tracks[0] = String(spTrack.duration);
+                track = String(search.tracks[0].duration);
                 playTrack(search.tracks[0], track, handlers);
             }
         });
