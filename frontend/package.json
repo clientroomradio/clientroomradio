@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "3.x",
+    "express": "4.2.0",
     "lastfm": "0.9.0",
     "sockjs": "0.3.7",
     "underscore": "1.5.1",
