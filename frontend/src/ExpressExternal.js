@@ -3,13 +3,14 @@ module.exports = function(config, lastfmClient, userDao, chat, permissionChecker
 	var express = require('express');
 	var uuid = require('node-uuid');
 	var httpProxy = require('http-proxy');
+	var cookieParser = require('cookie-parser');
 
 	var app;
 
 	that.start = function() {
 		app = express();
 		app.use(express.static(__dirname + '/../static'));
-		app.use(express.cookieParser());
+		app.use(cookieParser('coffey'));
 
 		app.get('/logout', function(req, res) {
 			var user = userDao.getUserBySession(req.cookies.session);

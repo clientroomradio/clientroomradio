@@ -1,3 +1,4 @@
+source 'https://api.berkshelf.com'
 ## TODO should really pick tags, not master, to avoid nasty upgrade suprises..
 cookbook 'apt',             github: 'opscode-cookbooks/apt',        tag: 'master'
 cookbook 'fail2ban',        github: 'opscode-cookbooks/fail2ban',   tag: 'master'

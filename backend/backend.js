@@ -220,9 +220,10 @@ function doSend(path, payload) {
 }
 
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 
-app.use(express.bodyParser());
+app.use(bodyParser.json());
 
 app.post('/request', function (req, res){
 	winston.info("Got a Spotify request!", req.body);
