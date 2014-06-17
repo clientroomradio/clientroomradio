@@ -138,12 +138,8 @@ function MainController($scope, socket) {
 		$scope.currentTrack = data;
 
 		$scope.loved = false;
-		if (data.context) {
-			for(var i=0, len=data.context.length; i < len; i++){
-				if(data.context[i].userloved == 1 && loggedInAs == data.context[i].username) {
-					$scope.loved = true;
-				}
-			}
+		if (data.context && data.context[loggedInAs].userloved == 1) {
+			$scope.loved = true;
 		}
 
 		$scope.bingo = data.bingo;
