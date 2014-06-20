@@ -138,7 +138,9 @@ function MainController($scope, socket) {
 		$scope.currentTrack = data;
 
 		$scope.loved = false;
-		if (data.context && data.context[loggedInAs].userloved == 1) {
+		if (data.context
+			&& typeof data.context[loggedInAs] != 'undefined'
+			&& data.context[loggedInAs].userloved == 1) {
 			$scope.loved = true;
 		}
 
