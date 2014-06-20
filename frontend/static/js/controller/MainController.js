@@ -83,10 +83,19 @@ function MainController($scope, socket) {
 
 		    		$player.jPlayer("play");
 
-
 		    		function updateMute() {
-		    			$player.jPlayer("mute", $scope.muted || (!$scope.active));
+		    			if ($scope.muted || (!$scope.active)) {
+		    				// muted
+							$player.jPlayer("clearMedia");
+		    			} else {
+		    				// restart playback
+							$player.jPlayer("setMedia", {
+		    					mp3: config.stream
+		    				});
+							$player.jPlayer("play");
+		    			}
 		    		}
+
 		    		$scope.$watch('muted', updateMute);
 		    		$scope.$watch('active', updateMute);
 
