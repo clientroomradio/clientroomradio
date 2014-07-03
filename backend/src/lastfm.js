@@ -247,12 +247,12 @@ module.exports = function(config, winston, redis) {
 
 	function addPlayedTrack(track) {
 		redis.get("playedTracks", function (err, playedTracks) {
+			winston.info('addPlayedTrack');
+
 			playedTracks[getTrackId(track)] = {"timestamp": new Date().getTime()};
 
-			winston.info("addPlayedTrack", _.keys(playedTracks));
-
-			// TODO: get rid of any tracks more than one day old
 			redis.set("playedTracks", playedTracks, function (err) {
+				winston.info('addPlayedTrack: playedTracks set');
 			});
 		});
 	}
@@ -268,6 +268,20 @@ module.exports = function(config, winston, redis) {
 			handlers: {
 				success: function(xspf) {
 					redis.get("playedTracks", function (err, playedTracks) {
+						winston.info('got playlist');
+
+						// Get rid of any tracks more than one day old
+						for (playedTrack in playedTracks) {
+							if (playedTracks[playedTrack].timestamp < new Date().getTime() - (86400000)) {
+								// the timestamp is older than a day so remove the track
+								delete playedTracks[playedTrack];
+							}
+						}
+
+						redis.set("playedTracks", playedTracks, function (err) {
+							winston.info('got playlist: playedTracks set');
+						});
+
 						for (var i = xspf.playlist.trackList.track.length - 1 ; i >= 0 ; i--) {
 							if (_.contains(_.keys(playedTracks), getTrackId(xspf.playlist.trackList.track[i]))) {
 								var removedTrack = xspf.playlist.trackList.track.splice(i, 1);
