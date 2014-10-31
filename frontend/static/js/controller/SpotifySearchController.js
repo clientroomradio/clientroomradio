@@ -6,7 +6,7 @@ function SpotifySearchController($scope, socket) {
 	$scope.update = _.debounce(function() {
 		$scope.choosenTrack = null;
 		$.get(
-			'http://ws.spotify.com/search/1/track.json',
+			'https://ws.spotify.com/search/1/track.json',
 			{"q": $scope.searchTerm},
 			function(data) {
 				$scope.tracks = [];
