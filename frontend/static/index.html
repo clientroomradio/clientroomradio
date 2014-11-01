@@ -64,7 +64,7 @@
                     <div>
                         <div class="media current-track">
                             <a class="pull-left" href="#">
-                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.creator}} – {{currentTrack.title}}">
+                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?'/image?url='+currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.creator}} – {{currentTrack.title}}">
                             </a>
                             <div class="media-body">
                                 <h4 class="media-heading" ng-show="isPlaying()">

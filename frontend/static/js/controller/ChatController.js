@@ -109,7 +109,7 @@ function ChatController($scope, $element, $compile, socket) {
 		} else if (data.system == 'newTrack') {
 			$el = $newTrackChatLineTemplate.clone();
 			$el.id = data.data.timestamp;
-			$('.chat-img', $el).html('<a target="_blank" href="' + data.data.extension.trackpage + '"><img class="album-art media-object img-rounded" src="' + (data.data.image?data.data.image:'/img/crr_128.png') + '"/></a>');
+			$('.chat-img', $el).html('<a target="_blank" href="' + data.data.extension.trackpage + '"><img class="album-art media-object img-rounded" src="' + (data.data.image?"/image?url="+encodeURI(data.data.image):'/img/crr_128.png') + '"/></a>');
 			$('.chat-inner-text', $el).html('<h4><a target="_blank" href="' + data.data.extension.artistpage + '">'+data.data.creator+'</a>' + ' – ' + '<a target="_blank" href="' + data.data.extension.trackpage + '">'+data.data.title+'</a></h4>');
 		} else {
 			$('.chat-inner-text', $el).html(linkify(data.text));

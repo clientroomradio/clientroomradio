@@ -4,6 +4,7 @@ module.exports = function(config, lastfmClient, userDao, chat, permissionChecker
 	var uuid = require('node-uuid');
 	var httpProxy = require('http-proxy');
 	var cookieParser = require('cookie-parser');
+	var request = require('request');
 
 	var app;
 
@@ -50,6 +51,11 @@ module.exports = function(config, lastfmClient, userDao, chat, permissionChecker
 			} else {
 				res.send('var config = ' + JSON.stringify(config.external) + "; var loggedInAs = null;");
 			}
+		});
+
+		app.get('/image', function(req, res) {
+			var lastfm_image_url = req.param('url');
+			request(lastfm_image_url).pipe(res);
 		});
 
 		var proxy = new httpProxy.RoutingProxy();
