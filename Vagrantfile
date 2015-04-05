@@ -4,9 +4,9 @@
 # vagrant plugin install vagrant-omnibus
 # vagrant plugin install vagrant-berkshelf
 # Select a nice box from this list: https://github.com/opscode/bento
-BOXNAME = "opscode_ubuntu-12.04"
-BOX_VAG = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-12.04_chef-provisionerless.box"
-BOX_VMW = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_ubuntu-12.04_chef-provisionerless.box"
+BOXNAME = "opscode_ubuntu-14.04"
+BOX_VAG = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box"
+BOX_VMW = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_ubuntu-14.04_chef-provisionerless.box"
 RAM = 512
 HOSTNAME = "crr"
 PROVIDER = (ARGV[2] || ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
@@ -36,7 +36,7 @@ end
 
 Vagrant.configure("2") do |config|
     # Install latest chef-client onto vm
-    config.omnibus.chef_version = "11.10.4"  # :latest
+    config.omnibus.chef_version = :latest
     # Bershelf manages cookbooks and deps
     config.berkshelf.enabled = true
     config.berkshelf.berksfile_path = "cookbooks/Berksfile"
@@ -50,6 +50,7 @@ Vagrant.configure("2") do |config|
 
     recipes = ["basebox", "clientroomradio"]
     config.vm.provision "chef_solo" do |chef|
+        chef.data_bags_path = "data_bags"
         recipes.each { |r| chef.add_recipe r }
     end
 end

@@ -1,8 +1,9 @@
 include_recipe "basebox"
 
-directory "/etc/clientroomradio" do
+directory "/etc/clientroomradio/backend/spotify" do
     owner "root"
     action :create
+    recursive true
 end
 
 if not File.exist?("/etc/clientroomradio/crr.pem")

@@ -1,84 +1,89 @@
-{
-  "sources": {
-    "apt": {
-      "locked_version": "2.3.9",
-      "git": "git://github.com/opscode-cookbooks/apt.git",
-      "ref": "8ef28bceaa6a9eded47e640d26df4a6f3a80320c"
-    },
-    "fail2ban": {
-      "locked_version": "2.1.3",
-      "git": "git://github.com/opscode-cookbooks/fail2ban.git",
-      "ref": "937e98c283c99ae48b2c3871f75161ddbe5e6650"
-    },
-    "ntp": {
-      "locked_version": "1.6.1",
-      "git": "git://github.com/opscode-cookbooks/ntp.git",
-      "ref": "295ac93651eaadb71c2087dcdc6764199f050de5"
-    },
-    "python": {
-      "locked_version": "1.4.7",
-      "git": "git://github.com/opscode-cookbooks/python.git",
-      "ref": "574ad93c308f77cf6a3d40237be806033cfabde9"
-    },
-    "ssh_known_hosts": {
-      "locked_version": "1.2.1",
-      "git": "git://github.com/opscode-cookbooks/ssh_known_hosts.git",
-      "ref": "dbf65051a881d766eaeef44408778eda486bece3"
-    },
-    "haproxy": {
-      "locked_version": "1.6.3",
-      "git": "git://github.com/opscode-cookbooks/haproxy.git",
-      "ref": "cf10889232c9c3ecb7a923f23e6a2487d4cdcafa"
-    },
-    "redisio": {
-      "locked_version": "1.7.1",
-      "git": "git://github.com/brianbianco/redisio.git",
-      "ref": "2b7fc068417fb95758b07bc4f6e3c4a450419812"
-    },
-    "afw": {
-      "locked_version": "0.0.6",
-      "git": "git://github.com/irccloud/afw.git",
-      "ref": "8c7e343d9b3ddcded77bfe207f8655298ba57bee"
-    },
-    "timezone-ii": {
-      "locked_version": "0.2.0",
-      "git": "git://github.com/irccloud/timezone-ii.git",
-      "ref": "d685abcc3c7f48394b0ac811119dfe797920d1cf"
-    },
-    "sysctl": {
-      "locked_version": "0.2.0",
-      "git": "git://github.com/irccloud/sysctl-cookbook.git",
-      "ref": "00cbc8868f0544cd3dcd34217f7f14b0c3957d13"
-    },
-    "basebox": {
-      "path": "./basebox"
-    },
-    "clientroomradio": {
-      "path": "./clientroomradio"
-    },
-    "yum": {
-      "locked_version": "3.1.2"
-    },
-    "yum-epel": {
-      "locked_version": "0.3.4"
-    },
-    "build-essential": {
-      "locked_version": "1.4.4"
-    },
-    "partial_search": {
-      "locked_version": "1.0.8"
-    },
-    "cpu": {
-      "locked_version": "0.2.0"
-    },
-    "ulimit": {
-      "locked_version": "0.3.2"
-    },
-    "sudo": {
-      "locked_version": "2.5.2"
-    },
-    "users": {
-      "locked_version": "1.7.0"
-    }
-  }
-}
+DEPENDENCIES
+  afw
+    git: git://github.com/irccloud/afw.git
+    revision: 536fa5c584a45ce8e36ec6c7f06a672acff6e427
+    tag: master
+  apt
+    git: git://github.com/opscode-cookbooks/apt.git
+    revision: 1480e9f2d15f3573004d9d870e61d33a0c2dbaaf
+    tag: master
+  basebox
+    path: basebox
+  clientroomradio
+    path: clientroomradio
+  fail2ban
+    git: git://github.com/opscode-cookbooks/fail2ban.git
+    revision: 1120f3f0244ffffa52037425ff56c58a82195fb4
+    tag: master
+  haproxy
+    git: git://github.com/opscode-cookbooks/haproxy.git
+    revision: 988f0849198862623f27d5e3a552986c32147c6a
+    tag: master
+  ntp
+    git: git://github.com/opscode-cookbooks/ntp.git
+    revision: 4dd0c94bfbbb74ade5237a524f27215f98128487
+    tag: master
+  python
+    git: git://github.com/opscode-cookbooks/python.git
+    revision: 68edd40d9a9f4289547df71a9e16d4910cce486d
+    tag: master
+  redisio
+    git: git://github.com/brianbianco/redisio.git
+    revision: 02bda65816540f50dd3b8f14a14ff91b076051e3
+    tag: master
+  ssh_known_hosts
+    git: git://github.com/opscode-cookbooks/ssh_known_hosts.git
+    revision: d94aa1b44fdaeddae0c3c19a0ede051f62a8f37c
+    tag: master
+  sysctl
+    git: git://github.com/irccloud/sysctl-cookbook.git
+    revision: 00cbc8868f0544cd3dcd34217f7f14b0c3957d13
+    tag: master
+  timezone-ii
+    git: git://github.com/irccloud/timezone-ii.git
+    revision: d685abcc3c7f48394b0ac811119dfe797920d1cf
+    tag: master
+
+GRAPH
+  afw (0.0.9)
+  apt (2.7.0)
+  basebox (1.0.0)
+    afw (>= 0.0.0)
+    apt (>= 0.0.0)
+    fail2ban (>= 0.0.0)
+    ntp (>= 0.0.0)
+    ssh_known_hosts (>= 0.0.0)
+    sudo (>= 0.0.0)
+    sysctl (>= 0.0.0)
+    timezone-ii (>= 0.0.0)
+    users (>= 0.0.0)
+  build-essential (2.2.2)
+  clientroomradio (1.0.0)
+    basebox (>= 0.0.0)
+    haproxy (>= 0.0.0)
+    redisio (>= 0.0.0)
+  cpu (0.2.0)
+  fail2ban (2.2.1)
+    yum (~> 3.0)
+    yum-epel (>= 0.0.0)
+  haproxy (1.6.6)
+    build-essential (>= 0.0.0)
+    cpu (>= 0.2.0)
+  ntp (1.7.0)
+  partial_search (1.0.8)
+  python (1.4.7)
+    build-essential (>= 0.0.0)
+    yum-epel (>= 0.0.0)
+  redisio (2.2.4)
+    build-essential (>= 0.0.0)
+    ulimit (>= 0.1.2)
+  ssh_known_hosts (2.0.0)
+    partial_search (>= 0.0.0)
+  sudo (2.7.1)
+  sysctl (0.2.0)
+  timezone-ii (0.2.0)
+  ulimit (0.3.3)
+  users (1.8.2)
+  yum (3.5.3)
+  yum-epel (0.6.0)
+    yum (~> 3.0)
