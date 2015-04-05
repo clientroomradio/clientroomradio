@@ -14,38 +14,31 @@
 
         <!-- Header -->
         <nav class="navbar navbar-default" role="navigation"  ng-controller="NavController">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-hide="username==null">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">{{radioname}}{{discoveryHour?' - Discovery Hour':''}}{{bingo?' - BINGO!':''}}</a>
-            </div>
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-hide="username==null">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href=""><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/> {{radioname}}{{discoveryHour?' - Discovery Hour':''}}{{bingo?' - BINGO!':''}}</a>
+                </div>
 
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse navbar-ex1-collapse">
-                <ul class="nav navbar-nav navbar-right" ng-show="username" >
-                    <li>
-                        <a ng-href="{{getListeningHistoryLink()}}" target="_blank">Listening History</a>
-                    </li>
-
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Propose <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR for today</a></li>
-                            <li><a data-toggle="modal" href="#spotifySearch">Play Spotify track</a></li>
-                        </ul>
-                    </li>
-                    <li ng-show="NotificationPermissionNeeded()">
-                        <a href="javascript:void(0)" ng-click="requestNotificationPermissions();">Enable Notifications</a>
-                    </li>
-                    <li>
-                        <a href="/logout">Log out</a>
-                    </li>
-                </ul>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                    <ul class="nav navbar-nav navbar-right" ng-show="username" >
+                        <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
+                        <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
+                        <li ng-show="NotificationPermissionNeeded()">
+                            <a href="javascript:void(0)" ng-click="requestNotificationPermissions();">Enable Notifications</a>
+                        </li>
+                        <li>
+                            <a href="/logout">Log out</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
 

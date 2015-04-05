@@ -1,3 +1,5 @@
+#
+
 from subprocess import call
 import os
 
@@ -29,7 +31,7 @@ def do_create(size, alpha):
 if not os.path.exists("gen"):
     os.makedirs("gen")
 
-sizes = [29, 40, 50, 57, 58, 72, 76, 80, 100, 114, 120, 144, 152]
+sizes = [29, 40, 50, 57, 58, 72, 76, 80, 100, 114, 120, 144, 152, 192, 300, 512]
 
 for size in sizes:
     create(size)
