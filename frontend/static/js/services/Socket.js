@@ -152,10 +152,6 @@ var Socket = function(SOCKJS_URL) {
 			heartbeat = setInterval(function() {
 				send('heartbeat', null);
 			}, 2000);
-
-			// detect mobile phones and set flag on the backend
-			var isMobile = ( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) );
-			send('mobileStatus', isMobile);
 		};
 		sockjs.onclose = function() {
 			that.closeCallback.fire();
