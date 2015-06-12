@@ -207,7 +207,7 @@ function updateProgress() {
 	});
 }
 
-setInterval(updateProgress, 500);
+setInterval(updateProgress, 2000);
 
 function doSend(path, payload) {
 	request.post('http://localhost:3001' + path, {json:payload}, function (error, response, body) {
