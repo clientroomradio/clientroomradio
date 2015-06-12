@@ -256,17 +256,17 @@
 /* Last.fm icon */
 .icon-lastfm {
 	display: inline-block;
+	background-image: url(/img/crr_scrobble_icon_white.png);
+	background-repeat: no-repeat;
+	background-size: 21px 12px;
+	width: 21px;
 	height: 12px;
-	width: 22px;
-	background: url(/img/crr_scrobble_icon.png) no-repeat;
 	position:relative;
-    top:1px;
-    margin-top: 2px;
+	margin-top: 4px;
 }
 
 .list-group-item .icon-lastfm {
-	background-position: 0 -12px;
-	display: block;
+	background-image: url(/img/crr_scrobble_icon_black.png);
 }
 
 .user--inactive a {
