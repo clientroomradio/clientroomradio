@@ -17,8 +17,6 @@ module.exports = function(userDao, permissionChecker, config) {
 		conn.once('data', function(session) {
 			var user = null;
 
-			that.emit('join', user, send);
-
 			if (session != '') {
 				try {
 					console.log('session: ', session);
@@ -43,6 +41,8 @@ module.exports = function(userDao, permissionChecker, config) {
 
 					console.log('connected to %s', user.username);
 
+					that.emit('join', user, send);
+
 					conn.on('data', function(dataAsString) {
 						var payload = JSON.parse(dataAsString);
 						var type = payload.type;
@@ -52,6 +52,9 @@ module.exports = function(userDao, permissionChecker, config) {
 						}
 					});
 				}
+			} else {
+				// send a join for logged out users
+				that.emit('join', user, send);
 			}
 			broadcastEventHandler.on('broadcast', send);
 
