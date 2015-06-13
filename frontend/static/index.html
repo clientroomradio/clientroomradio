@@ -150,18 +150,22 @@
                         </div>
                     </div>
                 </div>
-                <ul class="list-group col-sm-2 col-xs-12 no-right-padding">
-                    <li class="list-group-item active listener-count">
-                        <ng-pluralize
-                             count="getActiveUserCount()"
-                             when="{'one': '1 Listener', 'other': '{} Listeners'}">
-                        </ng-pluralize>
-                    </li>
-                    <li ng-repeat="(username, user) in users" class="list-group-item {{user.active?'user--active':'user--inactive'}}">
-                        <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
-                        <i ng-show="user.active && user.scrobbling" class="icon-lastfm pull-right"></i>
-                    </li>
-                </ul>
+                <div class="col-sm-2 col-xs-12 no-right-padding">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <ng-pluralize
+                                 count="getActiveUserCount()"
+                                 when="{'one': '1 Listener', 'other': '{} Listeners'}">
+                            </ng-pluralize>
+                        </div>
+                        <ul class="list-group listener-list">
+                            <li ng-repeat="(username, user) in users" class="list-group-item {{user.active?'user--active':'user--inactive'}}">
+                                <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
+                                <i ng-show="user.active && user.scrobbling" class="icon-lastfm pull-right"></i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
 
