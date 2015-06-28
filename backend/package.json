@@ -13,5 +13,11 @@
     "lame": "https://github.com/clientroomradio/node-lame/tarball/master",
     "libspotify": "https://github.com/clientroomradio/node-libspotify/tarball/master",
     "winston": "0.7.2"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": false,
+      "node": true
+    }
   }
 }
