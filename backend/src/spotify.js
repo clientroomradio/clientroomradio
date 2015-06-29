@@ -12,7 +12,7 @@ module.exports = function(winston) {
     var sp = require("libspotify");
     var spSession;
     var spPlayer;
-    var spotifyEnabled = fs.existsSync(path.join(__dirname, "/../spotify/spotify_appkey.key"));
+    var spotifyEnabled = fs.existsSync(path.join(__dirname, "../spotify/spotify_appkey.key"));
 
     function init() {
         if (spotifyEnabled) {
@@ -112,6 +112,8 @@ module.exports = function(winston) {
         search.trackCount = 1; // we're only interested in the first result;
         search.execute();
         search.once("ready", function() {
+            winston.info("search results ready");
+
             if(!search.tracks.length) {
                 handlers.error({message: "Couldn't find on Spotify."});
             } else {

@@ -26,6 +26,10 @@ var currentStationUrl = "";
 spotify.relogin();
 
 var CURRENT_TRACK_KEY = "currentTrack";
+var SKIPPERS_KEY = "skippers";
+var TAGS_KEY = "tags";
+var DISCOVERY_HOUR_KEY = "discoveryHour";
+var USERS_KEY = "users";
 
 var vlc = require("vlc")([
   "-I", "dummy",
@@ -65,8 +69,8 @@ function onGotContext(track) {
 }
 
 function playTrack() {
-	redis.set("skippers", [], function (err, reply) {
-		winston.info("Skippers cleared", err, reply);
+	redis.set(SKIPPERS_KEY, [], function (err, reply) {
+		winston.info("Skippers cleared", reply);
 
 		var handlers = {
 			success: function(track, port) {
@@ -158,11 +162,7 @@ function onRadioTuned(data) {
 }
 
 function onUsersChanged(err, newUsers) {
-	if (err) {
-		winston.error("onUsersChanged", err);
-	}
-
-	winston.info("onUsersChanged", _.keys(newUsers));
+	winston.info("onUsersChanged", _.keys(newUsers), err);
 
 	if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(users))
 			&& !vlc.mediaplayer.is_playing ) {
@@ -176,12 +176,7 @@ function onUsersChanged(err, newUsers) {
 }
 
 function onSkippersChanged(err, newSkippers) {
-	if (err) {
-		winston.error("onSkippersChanged", err);
-	}
-
-
-	winston.info("onSkippersChanged:", newSkippers);
+	winston.info("onSkippersChanged:", newSkippers, err);
 	skippers = newSkippers;
 
 	if ( _.keys(active(users)).length > 0
@@ -193,22 +188,14 @@ function onSkippersChanged(err, newSkippers) {
 }
 
 function onTagsChanged(err, newTags) {
-	if (err) {
-		winston.error("onTagsChanged", err);
-	}
-
-	winston.info("onTagsChanged: ", newTags);
+	winston.info("onTagsChanged: ", newTags, err);
 
 	// clear the track list so that the tag change is in effect from the next track
 	lastfm.setTags(newTags);
 }
 
 function onDiscoveryHourChanged(err, discoveryHour) {
-	if (err) {
-		winston.error("onDiscoveryHourChanged", err);
-	}
-
-	winston.info("Start discovery hour!");
+	winston.info("Start discovery hour!", err);
 	lastfm.setDiscoveryHourStart(discoveryHour.start);
 }
 
@@ -237,16 +224,16 @@ redis.on("ready", function () {
     winston.info("Redis ready");
 
     // Get initial values
-    redis.get("tags", onTagsChanged);
-    redis.get("discoveryHour", onDiscoveryHourChanged);
-    redis.get("skippers", onSkippersChanged);
-    redis.get("users", onUsersChanged);
+    redis.get(TAGS_KEY, onTagsChanged);
+    redis.get(DISCOVERY_HOUR_KEY, onDiscoveryHourChanged);
+    redis.get(SKIPPERS_KEY, onSkippersChanged);
+    redis.get(USERS_KEY, onUsersChanged);
 
     // listen for changes
-    redis.on("users", onUsersChanged);
-    redis.on("skippers", onSkippersChanged);
-    redis.on("tags", onTagsChanged);
-    redis.on("discoveryHour", onDiscoveryHourChanged);
+    redis.on(USERS_KEY, onUsersChanged);
+    redis.on(SKIPPERS_KEY, onSkippersChanged);
+    redis.on(TAGS_KEY, onTagsChanged);
+    redis.on(DISCOVERY_HOUR_KEY, onDiscoveryHourChanged);
 });
 
 setInterval(updateProgress, 2000);
@@ -267,15 +254,15 @@ app.use(function (req, res){
 	res.send(404);
 });
 
-app.listen(3002);
-winston.info("Listening internally on port %s", 3002);
+app.listen(config.backendPort);
+winston.info("Listening internally on port %s", config.backendPort);
 
 process.on("SIGINT", function () {
 	winston.info( "\nShutting down!" );
 
 	redis.set(CURRENT_TRACK_KEY, {}, function (ctErr, ctReply) {
 		winston.info("currentTrack cleared", ctErr, ctReply);
-		redis.set("skippers", [], function (sErr, sReply) {
+		redis.set(SKIPPERS_KEY, [], function (sErr, sReply) {
 			winston.info("skippers cleared.", sErr, sReply);
 			spotify.logout();
 			spotify.once("logout", function (lErr) {
