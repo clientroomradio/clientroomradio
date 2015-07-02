@@ -220,29 +220,54 @@ module.exports = function(config, winston, redis) {
         return "lastfm://rql/" + new Buffer(rqlString).toString("base64");
     }
 
-    function getStandardStationUrl(sortedUsers) {
+    function getStandardStationUrl(users) {
         var stationUsers = "";
 
-        for (var user in sortedUsers) {
+        for (var user in users) {
             if ( stationUsers.length > 0 ) {
-                stationUsers += "," + sortedUsers[user];
+                stationUsers += "," + users[user];
             } else {
-                stationUsers += sortedUsers[user];
+                stationUsers += users[user];
             }
         }
 
         return "lastfm://users/" + stationUsers + "/personal";
     }
 
-    that.getStationUrl = function(users) {
-        var sortedUsers = _.keys(users).sort();
+    that.alphabetSort = function(array) {
+        return array.sort();
+    };
+
+    that.shuffle = function(array) {
+        var counter = array.length, temp, index;
+
+        // While there are elements in the array
+        while (counter > 0) {
+            // Pick a random index
+            index = Math.floor(Math.random() * counter);
+
+            // Decrease counter by 1
+            counter--;
+
+            // And swap the last element with it
+            temp = array[counter];
+            array[counter] = array[index];
+            array[index] = temp;
+        }
+
+        return array;
+    };
+
+    that.getStationUrl = function(users, sortMethod) {
+        var sortedUsers = sortMethod(_.keys(users));
         var stationUrl = getStandardStationUrl(sortedUsers);
-        winston.info("getStationUrl", stationUrl);
         return stationUrl;
     };
 
     that.radioTune = function(users, callback) {
-        var stationUrl = that.getStationUrl(users);
+        var stationUrl = that.getStationUrl(users, that.shuffle);
+
+        winston.info("radioTune", stationUrl);
 
         if ( !_.isEmpty(users) ) {
             lastfm.request("prototype.tune", {
@@ -260,8 +285,6 @@ module.exports = function(config, winston, redis) {
                 }
             });
         }
-
-        return stationUrl;
     };
 
     that.getPlaylist = function(callback) {

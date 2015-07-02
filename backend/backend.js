@@ -122,10 +122,15 @@ function onEndTrack() {
 					playTrack();
 				} else {
 					// there are no requests so continue playing the radio
-					if (currentStationUrl !== lastfm.getStationUrl(active(users))) {
+					var stationUrl = lastfm.getStationUrl(active(users), lastfm.alphabetSort);
+
+					winston.info("check Radio", stationUrl);
+
+					if (currentStationUrl !== stationUrl) {
 						// The station is different so clear tracks and retune
 						tracks = [];
-						currentStationUrl = lastfm.radioTune(active(users), onRadioTuned);
+						lastfm.radioTune(active(users), onRadioTuned);
+						currentStationUrl = stationUrl;
 					} else {
 						// the station is the same
 						if (tracks.length > 0) {
