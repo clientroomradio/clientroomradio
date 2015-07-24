@@ -61,7 +61,9 @@ function ChatController($scope, $element, $compile, socket) {
 			}
 		} else if (data.system == 'spotifyRequest') {
 			var track = data.data;
-			$('.chat-inner-text', $el).html('requested <a href="'+track.href+'">' +track.artists[0].name+" — "+ track.name + '</a>');
+			if (track.href && track.artists && track.name) {
+				$('.chat-inner-text', $el).html('requested <a href="'+track.href+'">' +track.artists[0].name+" — "+ track.name + '</a>');
+			}
 		} else if (data.system == 'alreadySkipped') {
 			$('.chat-inner-text', $el).text('has already skipped, but tried anyway.');
 		} else if (data.system == 'inactiveUserWantsToSkip') {
