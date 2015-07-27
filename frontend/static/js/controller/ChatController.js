@@ -146,8 +146,11 @@ function ChatController($scope, $element, $compile, socket) {
 				inputText = inputText.substring(6);
 				socket.sendSkip(inputText);
 			} else if (inputText.indexOf('?request') == 0) {
-				inputText = inputText.substring(9);
-				socket.sendRequest(inputText);
+				var search = $("#spotifySearch");
+				search.modal('show');
+				var inputElement = search.find('.modal-body input')
+				inputElement.val(inputText.substring(9));
+				inputElement.trigger('input');
 			} else if (inputText.indexOf('?away') == 0) {
 				inputText = inputText.substring(6);
 				socket.sendActiveStatus(false, inputText);
