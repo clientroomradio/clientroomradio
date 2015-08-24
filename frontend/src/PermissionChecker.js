@@ -1,12 +1,12 @@
-module.exports = function(config, lastfmClient) {
+module.exports = function(permissionFetcher) {
 	var that = this;
 
 	var _ = require('underscore');
-	
+
 	var allowedUsers = [];
 
 	function reloadPermissions() {
-		lastfmClient.getGroupMembers(config.lastFmGroup, function(err, users) {
+		permissionFetcher.fetch(function(err, users) {
 			if (err) {
 				console.log("Error: " + err);
 			} else {
@@ -16,7 +16,7 @@ module.exports = function(config, lastfmClient) {
 	}
 
 	reloadPermissions();
-	setInterval(reloadPermissions, 60000);	
+	setInterval(reloadPermissions, 60000);
 
 	that.isAllowedToJoin = function(user) {
 		return _.contains(allowedUsers, user);
