@@ -8,8 +8,7 @@ var config = {
     "frontendPort": 3000,
     "internalPort": 3001,
     "backendPort": 3002,
-    "lastFmGroup": "Client Room Radio",
-    "notAllowedInUrl": "http://www.last.fm/group/Client+Room+Radio",
+    "whitelistUrl": "https://docs.google.com/spreadsheets/d/1kgNgjC3ort37VpJxXeLr8tAYo9fLxGpOiAX48fiH6_s/pub?gid=0&single=true&output=csv",
     "spotifyRequestUrl": "http://localhost:3002/request",
     "discoveryHourRequestUrl": "http://localhost:3002/discovery",
     "external": {
@@ -20,5 +19,5 @@ var config = {
     }
 }
 
-// for nodejs 
+// for nodejs
 module.exports = config;

@@ -13,6 +13,7 @@ var LastfmClient = require('./src/LastfmClient.js');
 var LoveManager = require('./src/LoveManager.js');
 var ProgressManager = require('./src/ProgressManager.js');
 var PermissionChecker = require('./src/PermissionChecker.js');
+var PermissionFetcher= require('./src/PermissionFetcher.js');
 var ScrobblingManager = require('./src/ScrobblingManager.js');
 var SkipManager = require('./src/SkipManager.js');
 var SkippersDao = require('./src/SkippersDao.js');
@@ -30,7 +31,8 @@ var config = require('../config.js');
 redis.on('ready', function() {
 	// DI
 	var lastfmClient = new LastfmClient(config);
-	var permissionChecker = new PermissionChecker(config, lastfmClient)
+	var permissionFetcher = new PermissionFetcher(config);
+	var permissionChecker = new PermissionChecker(permissionFetcher);
 	var userDao = new UserDao(redis, lastfmClient);
 	var skippersDao  = new SkippersDao(redis);
 	var socket = new Socket(userDao, permissionChecker, config);

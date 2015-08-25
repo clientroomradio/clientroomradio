@@ -5,7 +5,7 @@ module.exports = function(config) {
 	var _ = require('underscore');
 
 	var lastfm = new LastFmNode({
-	  api_key: config.api_key, 
+	  api_key: config.api_key,
 	  secret: config.secret
 	});
 
@@ -39,21 +39,6 @@ module.exports = function(config) {
 			handlers: {
 				success: function(lfm) {
 					callback(null, lfm);
-				},
-				error: function(error) {
-					callback(error.message, '');
-				}
-			}
-		});
-	}
-
-	that.getGroupMembers = function(groupName, callback) {
-		lastfm.request('group.getMembers', {
-			group: groupName,
-			limit: 100,
-			handlers: {
-				success: function(lfm) {
-					callback(null, _.pluck(lfm.members.user, 'name'));
 				},
 				error: function(error) {
 					callback(error.message, '');
