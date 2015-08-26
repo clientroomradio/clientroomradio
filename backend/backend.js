@@ -15,7 +15,7 @@ winston.add(winston.transports.Console, { timestamp: true });
 
 var redis = new Redis(winston);
 var spotify = new Spotify(winston);
-var lastfm = new Lastfm(config, winston, redis);
+var lastfm = new Lastfm(config, winston, redis, request);
 
 var users = {};
 var tracks = [];
@@ -87,16 +87,18 @@ function playTrack() {
 			},
 			error: function(error) {
 				winston.error("playTrack", error.message);
-				onEndTrack();
+			    onEndTrack();
 			}
 		};
 
 		var nextTrack = tracks.shift();
 
 		if (_.has(nextTrack, "request")) {
-			spotify.request(nextTrack, handlers);
+			spotify.playTrack(nextTrack.request, handlers);
 		} else {
-			spotify.search(nextTrack, handlers);
+			var spotifyPlayLinks = _.filter(nextTrack.playlinks, function (playlink) { return playlink.affiliate === "spotify"; } );
+			var spotifyUrl = spotifyPlayLinks[0].url;
+			spotify.playTrack(spotifyUrl, handlers);
 		}
 	});
 }
@@ -129,7 +131,7 @@ function onEndTrack() {
 					if (currentStationUrl !== stationUrl) {
 						// The station is different so clear tracks and retune
 						tracks = [];
-						lastfm.radioTune(active(users), onRadioTuned);
+						lastfm.getPlaylist(active(users), onRadioGotPlaylist);
 						currentStationUrl = stationUrl;
 					} else {
 						// the station is the same
@@ -138,7 +140,7 @@ function onEndTrack() {
 							playTrack();
 						} else {
 							// fetch a new playlist
-							lastfm.getPlaylist(onRadioGotPlaylist);
+							lastfm.getPlaylist(active(users), onRadioGotPlaylist);
 						}
 					}
 				}
@@ -153,17 +155,12 @@ vlc.mediaplayer.on("EndReached", function () {
 	_.defer(onEndTrack);
 });
 
-function onRadioGotPlaylist(xspf) {
-	winston.info("onRadioGotPlaylist", xspf.playlist.trackList.track.length);
+function onRadioGotPlaylist(lfm) {
+	winston.info("onRadioGotPlaylist", lfm.playlist.length);
 
-	tracks = xspf.playlist.trackList.track;
+	tracks = lfm.playlist;
 
 	playTrack();
-}
-
-function onRadioTuned(data) {
-	winston.info("onRadioTuned", data.url);
-	lastfm.getPlaylist(onRadioGotPlaylist);
 }
 
 function onUsersChanged(err, newUsers) {
@@ -174,7 +171,8 @@ function onUsersChanged(err, newUsers) {
 		// we"ve gone from no users to some users
 		// and we"re not already playing so start
 		winston.info("START!");
-		currentStationUrl = lastfm.radioTune(active(newUsers), onRadioTuned);
+		currentStationUrl = lastfm.getStationUrl(active(users), lastfm.alphabetSort);
+		lastfm.getPlaylist(active(users), onRadioGotPlaylist);
 	}
 
 	users = newUsers;

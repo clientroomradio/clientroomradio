@@ -2,7 +2,7 @@
 <html ng-controller="MainController" ng-app="crrAngular" id="clientroomradio-com">
     <head>
         <meta charset="UTF-8" />
-        <title ng:bind-template="{{isPlaying()?currentTrack.creator+' – '+currentTrack.title+' | ':''}}{{radioname}}">Client Room Radio</title>
+        <title ng:bind-template="{{isPlaying()?currentTrack.artists[0].name+' – '+currentTrack.name+' | ':''}}{{radioname}}">Client Room Radio</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
@@ -57,13 +57,13 @@
                     <div>
                         <div class="media current-track">
                             <a class="pull-left" href="#">
-                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?'/image?url='+currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.creator}} – {{currentTrack.title}}">
+                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?'/image?url='+currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.artists[0].name}} – {{currentTrack.name}}">
                             </a>
                             <div class="media-body">
                                 <h4 class="media-heading" ng-show="isPlaying()">
-                                    <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.creator}}</a>
+                                    <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.artists[0].name}}</a>
                                     –
-                                    <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.title}}</a>
+                                    <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.name}}</a>
                                     ({{durationInText()}})
                                 </h4>
                                 <h4 class="media-heading" ng-hide="isPlaying()">Nothing playing at the moment.</h4>
@@ -80,7 +80,7 @@
                                     <i class="icon-group"></i>
 
                                     <span ng-repeat="contextUser in currentTrack.context">
-                                        <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.creator}}/_/{{currentTrack.title}}" target="_blank">{{contextUser.username}}</a>
+                                        <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
                                         ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> ❤</span><span ng-show="contextUser.artistInLibrary && (!contextUser.userplaycount)">+</span>)<span ng-show="$last==false">,</span>
                                     </span>
                                 </div>

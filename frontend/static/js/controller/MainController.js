@@ -30,7 +30,7 @@ function MainController($scope, socket) {
 	}
 
 	$scope.isPlaying = function() {
-		return $scope.currentTrack.creator ? true : false; 
+		return $scope.currentTrack.artists ? true : false;
 	}
 
 	$scope.skip = function(message) {
@@ -131,11 +131,11 @@ function MainController($scope, socket) {
 	// Update progress bar
 
 	$scope.progressBarStyle = function() {
-		return {'width':  ($scope.currentPositionInTrack / $scope.currentTrack.duration * 100) + '%'};
+		return {'width':  ($scope.currentPositionInTrack / ($scope.currentTrack.duration * 10)) + '%'};
 	};
 
 	$scope.durationInText = function() {
-		var totalSeconds   = $scope.currentTrack.duration / 1000,
+		var totalSeconds   = $scope.currentTrack.duration,
 			minutes        = Math.floor(totalSeconds / 60),
 			remainder      = "" + totalSeconds % 60;
 
