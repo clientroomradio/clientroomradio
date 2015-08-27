@@ -75,7 +75,7 @@ module.exports = function(winston) {
         }
     };
 
-    function playTrack(spTrack, track, handlers) {
+    function doPlayTrack(spTrack, track, handlers) {
         winston.info("Spotify track to play", spTrack.artist.name, spTrack.title, spTrack.availability);
 
         if (server) {
@@ -104,48 +104,26 @@ module.exports = function(winston) {
         }
     }
 
-    that.search = function(track, handlers) {
-        var term = "artist:\"" + track.creator + "\" track:\"" + track.title + "\"";
-        winston.info("Search term: " + term);
+    that.playTrack = function (spotifyUrl, handlers) {
+        winston.info("crrRequest:", spotifyUrl);
 
-        var search = new sp.Search(term);
-        search.trackCount = 1; // we're only interested in the first result;
-        search.execute();
-        search.once("ready", function() {
-            winston.info("search results ready");
-
-            if(!search.tracks.length) {
-                handlers.error({message: "Couldn't find on Spotify."});
-            } else {
-                // use the duration of the actual Spotify track
-                // not the duration Last.fm thinks it is
-                track.duration = String(search.tracks[0].duration);
-                playTrack(search.tracks[0], track, handlers);
-            }
-        });
-    };
-
-    that.request = function(crrRequest, handlers) {
-        winston.info("crrRequest:", crrRequest);
-
-        var spTrack = sp.Track.getFromUrl(crrRequest.request);
+        var spTrack = sp.Track.getFromUrl(spotifyUrl);
 
         spTrack.once("ready", function () {
             var track = {};
-            track.identifier = crrRequest.request;
-            track.requester = crrRequest.username;
-            track.creator = spTrack.artist.name;
-            track.album = spTrack.album.name;
-            track.title = spTrack.title;
-            track.duration = String(spTrack.duration);
+            track.identifier = spotifyUrl;
+            track.artists = [ { "name": spTrack.artist.name } ];
+            track.name = spTrack.title;
+            track.duration = String(spTrack.duration / 1000);
             track.extension = {};
 
             // Make up the Last.fm links
             track.extension.artistpage = "http://www.last.fm/music/" + encodeURIComponent(spTrack.artist.name);
             track.extension.trackpage = "http://www.last.fm/music/" + encodeURIComponent(spTrack.artist.name) + "/_/" + encodeURIComponent(spTrack.title);
 
-            playTrack(spTrack, track, handlers);
+            doPlayTrack(spTrack, track, handlers);
         });
+
     };
 };
 

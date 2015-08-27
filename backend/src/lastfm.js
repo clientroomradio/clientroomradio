@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(config, winston, redis) {
+module.exports = function(config, winston, redis, request) {
     var that = this;
 
     var _ = require("underscore");
@@ -18,10 +18,9 @@ module.exports = function(config, winston, redis) {
 
     function doUpdateNowPlaying(username, sessionKey, track) {
         lastfm.request("track.updateNowPlaying", {
-            album: track.album,
-            track: track.title,
-            artist: track.creator,
-            duration: (track.duration / 1000),
+            track: track.name,
+            artist: track.artists[0].name,
+            duration: track.duration,
             sk: sessionKey,
             handlers: {
                 success: function(lfm) {
@@ -35,7 +34,7 @@ module.exports = function(config, winston, redis) {
     }
 
     function getTrackId(track) {
-        return track.creator + track.title;
+        return track.artists[0].name + track.name;
     }
 
     function addPlayedTrack(track) {
@@ -69,11 +68,10 @@ module.exports = function(config, winston, redis) {
 
     function doScrobble(username, sessionKey, track) {
         var options = {
-            "album[0]": track.album,
-            "track[0]": track.title,
-            "artist[0]": track.creator,
+            "track[0]": track.name,
+            "artist[0]": track.artists[0].name,
             "timestamp[0]": Math.round(track.timestamp / 1000),
-            "duration[0]": Math.round(track.duration / 1000),
+            "duration[0]": track.duration,
             sk: sessionKey,
             "chosenByUser[0]": "0",
             handlers: {
@@ -98,7 +96,7 @@ module.exports = function(config, winston, redis) {
     };
 
     that.scrobble = function(track, users, skippers) {
-        if ( !_.isEmpty(track) && new Date().getTime() - track.timestamp > Math.round( track.duration / 2 ) ) {
+        if ( !_.isEmpty(track) && new Date().getTime() - track.timestamp > Math.round( (track.duration * 1000) / 2 ) ) {
             // we've listened to more than half the song
             if (typeof config.scrobbleToHost === "undefined" || config.scrobbleToHost) {
                 doScrobble("clientroom", config.sk, track);
@@ -116,8 +114,8 @@ module.exports = function(config, winston, redis) {
 
     that.trackGetAlbumArt = function(track) {
         lastfm.request("track.getInfo", {
-            track: track.title,
-            artist: track.creator,
+            track: track.name,
+            artist: track.artists[0].name,
             handlers: {
                 success: function(lfm) {
                     if (typeof lfm.track.album !== "undefined") {
@@ -135,12 +133,12 @@ module.exports = function(config, winston, redis) {
 
         _.each(users, function(data, user) {
             lastfm.request("track.getInfo", {
-                track: track.title,
-                artist: track.creator,
+                track: track.name,
+                artist: track.artists[0].name,
                 username: user,
                 handlers: {
                     success: function(lfm) {
-                        winston.info("getContext", user, track.title, lfm.track.userplaycount);
+                        winston.info("getContext", user, track.name, lfm.track.userplaycount);
                         if (typeof lfm.track.album !== "undefined") {
                             track.image = lfm.track.album.image[2]["#text"];
                         }
@@ -159,7 +157,7 @@ module.exports = function(config, winston, redis) {
             });
 
             lastfm.request("artist.getInfo", {
-                artist: track.creator,
+                artist: track.artists[0].name,
                 username: user,
                 handlers: {
                     success: function(lfm) {
@@ -223,15 +221,19 @@ module.exports = function(config, winston, redis) {
     function getStandardStationUrl(users) {
         var stationUsers = "";
 
-        for (var user in users) {
-            if ( stationUsers.length > 0 ) {
-                stationUsers += "," + users[user];
-            } else {
-                stationUsers += users[user];
+        if (config.stationUsersOverride) {
+            stationUsers = config.stationUsersOverride;
+        } else {
+            for (var user in users) {
+                if ( stationUsers.length > 0 ) {
+                    stationUsers += "," + users[user];
+                } else {
+                    stationUsers += users[user];
+                }
             }
         }
 
-        return "lastfm://users/" + stationUsers + "/personal";
+        return "http://www.last.fm/player/station/user/" + stationUsers + "/library";
     }
 
     that.alphabetSort = function(array) {
@@ -264,65 +266,42 @@ module.exports = function(config, winston, redis) {
         return stationUrl;
     };
 
-    that.radioTune = function(users, callback) {
+    that.getPlaylist = function(users, callback) {
         var stationUrl = that.getStationUrl(users, that.shuffle);
 
-        winston.info("radioTune", stationUrl);
+        request.get(stationUrl, function (error, response, body) {
+            if (error) {
+                winston.error("getPlaylist", error.message);
+                winston.info("Try again in one second...");
+                setTimeout(that.getPlaylist, 1000, users, callback);
+            } else {
+                redis.get("playedTracks", function (getRrr, playedTracks) {
+                    winston.info("got playlist", getRrr);
 
-        if ( !_.isEmpty(users) ) {
-            lastfm.request("prototype.tune", {
-                station: stationUrl,
-                sk: config.sk,
-                signed: true,
-                write: true,
-                handlers: {
-                    success: callback,
-                    error: function(error) {
-                        winston.error("radioTune", error.message);
-                        winston.info("Try again in one second...");
-                        setTimeout(that.radioTune, 1000, users, callback);
+                    // Get rid of any tracks more than one day old
+                    for (var playedTrack in playedTracks) {
+                        if (playedTracks[playedTrack].timestamp < new Date().getTime() - (86400000)) {
+                            // the timestamp is older than a day so remove the track
+                            delete playedTracks[playedTrack];
+                        }
                     }
-                }
-            });
-        }
-    };
 
-    that.getPlaylist = function(callback) {
-        lastfm.request("prototype.getplaylist", {
-            sk: config.sk,
-            signed: true,
-            handlers: {
-                success: function(xspf) {
-                    redis.get("playedTracks", function (getRrr, playedTracks) {
-                        winston.info("got playlist", getRrr);
-
-                        // Get rid of any tracks more than one day old
-                        for (var playedTrack in playedTracks) {
-                            if (playedTracks[playedTrack].timestamp < new Date().getTime() - (86400000)) {
-                                // the timestamp is older than a day so remove the track
-                                delete playedTracks[playedTrack];
-                            }
-                        }
-
-                        redis.set("playedTracks", playedTracks, function (setErr) {
-                            winston.info("got playlist: playedTracks set", setErr);
-                        });
-
-                        for (var i = xspf.playlist.trackList.track.length - 1; i >= 0; i--) {
-                            if (_.contains(_.keys(playedTracks), getTrackId(xspf.playlist.trackList.track[i]))) {
-                                var removedTrack = xspf.playlist.trackList.track.splice(i, 1);
-                                winston.info("removedTrack", removedTrack.title);
-                            }
-                        }
-
-                        callback(xspf);
+                    redis.set("playedTracks", playedTracks, function (setErr) {
+                        winston.info("got playlist: playedTracks set", setErr);
                     });
-                },
-                error: function(error) {
-                    winston.error("getPlaylist", error.message);
-                    winston.info("Try again in one second...");
-                    setTimeout(that.getPlaylist, 1000, callback);
-                }
+
+                    var lfm = JSON.parse(body);
+
+                    // remove any tracks that have been played before
+                    for (var i = lfm.playlist.length - 1; i >= 0; i--) {
+                        if (_.contains(_.keys(playedTracks), getTrackId(lfm.playlist[i]))) {
+                            var removedTrack = lfm.playlist.splice(i, 1);
+                            winston.info("removedTrack", removedTrack.title);
+                        }
+                    }
+
+                    callback(lfm);
+                });
             }
         });
     };
