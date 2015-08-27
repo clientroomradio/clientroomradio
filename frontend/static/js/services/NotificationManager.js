@@ -16,7 +16,7 @@ var NotificationManager = function(socket) {
 		var lastIdentifier = null;
 		socket.newTrackCallback.add(function(track) {
 			if (track.identifier && track.identifier != lastIdentifier) {
-				notify('New track' , track.creator + ' - ' + track.title, track.image);
+				notify('New track' , track.artists[0].name + ' - ' + track.name, track.image);
 				lastIdentifier = track.identifier;
 			}
 		});
