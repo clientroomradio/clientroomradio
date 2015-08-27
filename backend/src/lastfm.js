@@ -221,11 +221,15 @@ module.exports = function(config, winston, redis, request) {
     function getStandardStationUrl(users) {
         var stationUsers = "";
 
-        for (var user in users) {
-            if ( stationUsers.length > 0 ) {
-                stationUsers += "," + users[user];
-            } else {
-                stationUsers += users[user];
+        if (config.stationUsersOverride) {
+            stationUsers = config.stationUsersOverride;
+        } else {
+            for (var user in users) {
+                if ( stationUsers.length > 0 ) {
+                    stationUsers += "," + users[user];
+                } else {
+                    stationUsers += users[user];
+                }
             }
         }
 
