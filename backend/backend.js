@@ -126,29 +126,32 @@ function onEndTrack() {
                     winston.error("there was an error setting the track", setErr);
                 }
 
-                if (requests.length > 0) {
-                    // there's a request, so cue it and play now
-                    tracks.unshift(requests.shift());
-                    playTrack();
-                } else {
-                    // there are no requests so continue playing the radio
-                    var stationUrl = lastfm.getStationUrl(active(users), lastfm.alphabetSort);
-
-                    winston.info("check Radio", stationUrl);
-
-                    if (currentStationUrl !== stationUrl) {
-                        // The station is different so clear tracks and retune
-                        tracks = [];
-                        lastfm.getPlaylist(active(users), onRadioGotPlaylist);
-                        currentStationUrl = stationUrl;
+                if (_.keys(active(users)).length > 0) {
+                    // there are some users so play next track
+                    if (requests.length > 0) {
+                        // there's a request, so cue it and play now
+                        tracks.unshift(requests.shift());
+                        playTrack();
                     } else {
-                        // the station is the same
-                        if (tracks.length > 0) {
-                            // there are more tracks to play so continue playing them
-                            playTrack();
-                        } else {
-                            // fetch a new playlist
+                        // there are no requests so continue playing the radio
+                        var stationUrl = lastfm.getStationUrl(active(users), lastfm.alphabetSort);
+
+                        winston.info("check Radio", stationUrl);
+
+                        if (currentStationUrl !== stationUrl) {
+                            // The station is different so clear tracks and retune
+                            tracks = [];
                             lastfm.getPlaylist(active(users), onRadioGotPlaylist);
+                            currentStationUrl = stationUrl;
+                        } else {
+                            // the station is the same
+                            if (tracks.length > 0) {
+                                // there are more tracks to play so continue playing them
+                                playTrack();
+                            } else {
+                                // fetch a new playlist
+                                lastfm.getPlaylist(active(users), onRadioGotPlaylist);
+                            }
                         }
                     }
                 }
@@ -176,11 +179,11 @@ function onUsersChanged(err, newUsers) {
 
     if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(users))
             && !vlc.mediaplayer.is_playing ) {
-        // we"ve gone from no users to some users
-        // and we"re not already playing so start
+        // we've gone from no users to some users
+        // and we're not already playing so start
         winston.info("START!");
-        currentStationUrl = lastfm.getStationUrl(active(users), lastfm.alphabetSort);
-        lastfm.getPlaylist(active(users), onRadioGotPlaylist);
+        currentStationUrl = lastfm.getStationUrl(active(newUsers), lastfm.alphabetSort);
+        lastfm.getPlaylist(active(newUsers), onRadioGotPlaylist);
     }
 
     users = newUsers;
