@@ -229,7 +229,7 @@ module.exports = function(config, winston, redis, request) {
             }
         }
 
-        return "lastfm://users/" + stationUsers + "/personal";
+        return "http://www.last.fm/player/station/user/" + stationUsers + "/library";
     }
 
     that.alphabetSort = function(array) {
@@ -257,10 +257,9 @@ module.exports = function(config, winston, redis, request) {
     };
 
     that.getStationUrl = function(users, sortMethod) {
-        return "http://www.last.fm/player/station/user/clientroom/library";
-        //var sortedUsers = sortMethod(_.keys(users));
-        //var stationUrl = getStandardStationUrl(sortedUsers);
-        //return stationUrl;
+        var sortedUsers = sortMethod(_.keys(users));
+        var stationUrl = getStandardStationUrl(sortedUsers);
+        return stationUrl;
     };
 
     that.getPlaylist = function(users, callback) {
