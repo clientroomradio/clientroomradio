@@ -53,11 +53,6 @@ module.exports = function(config, lastfmClient, userDao, chat, permissionChecker
 			}
 		});
 
-		app.get('/image', function(req, res) {
-			var lastfm_image_url = req.param('url');
-			request(lastfm_image_url).pipe(res);
-		});
-
 		var proxy = new httpProxy.RoutingProxy();
 		app.all('/stream.mp3', function(req, res) {
 		    req.url = '/stream.mp3';

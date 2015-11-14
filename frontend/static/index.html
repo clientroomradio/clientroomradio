@@ -57,7 +57,7 @@
                     <div>
                         <div class="media current-track">
                             <a class="pull-left" href="#">
-                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?'/image?url='+currentTrack.image:'/img/crr_128.png'}}" alt="{{currentTrack.artists[0].name}} – {{currentTrack.name}}">
+                                <img class="media-object img-rounded" ng-src="{{(isPlaying()&&currentTrack.image)?currentTrack.image.replace('http://img2-ak.lst.fm/', 'https://secure-img2.last.fm/'):'/img/crr_128.png'}}" alt="{{currentTrack.artists[0].name}} – {{currentTrack.name}}">
                             </a>
                             <div class="media-body">
                                 <h4 class="media-heading" ng-show="isPlaying()">
