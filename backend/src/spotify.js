@@ -78,8 +78,10 @@ module.exports = function(winston) {
     function doPlayTrack(spTrack, track, handlers) {
         winston.info("Spotify track to play", spTrack.artist.name, spTrack.title, spTrack.availability);
 
-        if (server) {
+        try {
             server.close();
+        } catch (ex) {
+            winston.error("there was an error closing the server", ex.message);
         }
 
         if (spTrack.availability !== "UNAVAILABLE") {
