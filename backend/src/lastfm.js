@@ -270,8 +270,12 @@ module.exports = function(config, winston, redis, request) {
         var stationUrl = that.getStationUrl(users, that.shuffle);
 
         request.get(stationUrl, function (error, response, body) {
-            if (error || response.statusCode !== 200) {
-                winston.error("getPlaylist", error.message);
+            if (error) {
+                winston.error("getPlaylist error", error.message);
+                winston.info("Try again in one second...");
+                setTimeout(that.getPlaylist, 1000, users, callback);
+            } else if (response.statusCode !== 200) {
+                winston.error("getPlaylist not 200", response.statusCode);
                 winston.info("Try again in one second...");
                 setTimeout(that.getPlaylist, 1000, users, callback);
             } else {
