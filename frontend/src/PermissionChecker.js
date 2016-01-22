@@ -19,6 +19,6 @@ module.exports = function(permissionFetcher) {
 	setInterval(reloadPermissions, 60000);
 
 	that.isAllowedToJoin = function(user) {
-		return _.contains(allowedUsers, user);
+		return _.contains(allowedUsers, user.toLowerCase());
 	}
 }

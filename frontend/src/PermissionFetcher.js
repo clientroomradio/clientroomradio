@@ -16,7 +16,7 @@ module.exports = function(config) {
 
             var users = body.split("\n");
             users = _.map(users, function(user) {
-                return user.trim();
+                return user.trim().toLowerCase();
             });
             callback(null, users);
         });
