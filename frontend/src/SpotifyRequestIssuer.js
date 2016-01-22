@@ -6,7 +6,7 @@ module.exports = function(chat, socket, config) {
 	socket.on('request', function(user, track){
 		var payload = {
 			username: user.username,
-			request: track.href
+			request: track.uri
 		};
 
 		request.post(config.spotifyRequestUrl, {json:payload}, function (error, response, body) {

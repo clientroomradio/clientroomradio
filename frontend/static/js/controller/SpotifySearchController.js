@@ -6,13 +6,16 @@ function SpotifySearchController($scope, socket) {
 	$scope.update = _.debounce(function() {
 		$scope.choosenTrack = null;
 		$.get(
-			'https://ws.spotify.com/search/1/track.json',
-			{"q": $scope.searchTerm},
+			'https://api.spotify.com/v1/search/',
+			{
+				"q": $scope.searchTerm,
+				"type": "track"
+			},
 			function(data) {
 				$scope.tracks = [];
-				for (track in data.tracks) {
-					if (data.tracks[track].album.availability.territories.indexOf('GB') != -1) {
-						$scope.tracks.push(data.tracks[track]);
+				for (track in data.tracks.items) {
+					if (data.tracks.items[track].available_markets.indexOf('GB') != -1) {
+						$scope.tracks.push(data.tracks.items[track]);
 					}
 				}
 				$scope.$apply();
