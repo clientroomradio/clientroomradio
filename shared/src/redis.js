@@ -5,6 +5,16 @@ module.exports = function (winston) {
 
     var client = redis.createClient();
 
+    var defaults = {
+        votings: {},
+        users: {},
+        currentTrack: {},
+        discoveryHour: {},
+        skippers: [],
+        tags: [],
+        playedTracks: {}
+    };
+
     client.on('ready', function () {
         winston.info("Redis client ready");
 
@@ -47,17 +57,23 @@ module.exports = function (winston) {
                 callback(err, reply);
             }
         });
-    }
+    };
 
     that.get = function (key, callback) {
         client.get(key, function(err, reply) {
-            if (typeof callback === 'undefined') {
-                redis.print(err, reply)
+            if (typeof callback === "undefined") {
+                redis.print(err, reply);
             } else {
-                callback(err, JSON.parse(reply));
+                try {
+                    var json = JSON.parse(reply);
+                    callback(err, json);
+                } catch (ex) {
+                    winston.error("caught invalid redis output. going with default value", reply, ex);
+                    callback(err, defaults.hasOwnProperty(key) ? defaults[key] : {});
+                }
             }
         });
-    }
-}
+    };
+};
 
 require('util').inherits(module.exports, require("events").EventEmitter);
