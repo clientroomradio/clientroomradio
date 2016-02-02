@@ -1,11 +1,12 @@
 module.exports = function (winston) {
     var that = this;
 
-    var redis = require('redis');
+    var fs = require("fs");
 
-    var client = redis.createClient();
+    var filename = process.env.HOME + "/.crr.json";
 
-    var defaults = {
+    // setup the data defaults
+    var data = {
         votings: {},
         users: {},
         currentTrack: {},
@@ -15,65 +16,33 @@ module.exports = function (winston) {
         playedTracks: {}
     };
 
-    client.on('ready', function () {
-        winston.info("Redis client ready");
+    try {
+        if (fs.lstatSync(filename).isFile()) {
+            data = JSON.parse(fs.readFileSync(filename, "utf8"));
+        }
+    }
+    catch (e) {
+        winston.error(filename + " does not exist", e);
+    }
 
-        client.on("error", function (err) {
-            winston.info("Redis client error " + err);
-        });
+    that.set = function (key, value) {
+        data[key] = value;
 
-        var sclient = redis.createClient();
-
-        sclient.on('ready', function () {
-            that.emit('ready');
-
-            sclient.on("error", function (err) {
-                winston.info("Redis sclient error " + err);
-            });
-            
-            sclient.on('subscribe', function (channel, count) {
-                winston.info('Redis sclient subscribed to ' + channel);
-            });
-
-            // emit events when we get messages
-            sclient.on("message", function (channel, message) {
-                that.get(message, function (err, value) {
-                    that.emit(message, err, value);
-                });
-                
-            });
-
-            sclient.subscribe('crr');
-        });
-    });
-
-    that.set = function (key, value, callback) {
-        client.set(key, JSON.stringify(value), function (err, reply) {
-            client.publish('crr', key);
-
-            if (typeof callback === 'undefined') {
-                redis.print(err, reply)
+        fs.writeFile(filename, JSON.stringify(data), function(err) {
+            if (err) {
+                winston.log("There was an error saving " + filename, err);
             } else {
-                callback(err, reply);
+                winston.log("We saved " + filename);
             }
         });
+
+        that.emit(key, value);
     };
 
-    that.get = function (key, callback) {
-        client.get(key, function(err, reply) {
-            if (typeof callback === "undefined") {
-                redis.print(err, reply);
-            } else {
-                try {
-                    var json = JSON.parse(reply);
-                    callback(err, json);
-                } catch (ex) {
-                    winston.error("caught invalid redis output. going with default value", reply, ex);
-                    callback(err, defaults.hasOwnProperty(key) ? defaults[key] : {});
-                }
-            }
-        });
+    that.get = function (key) {
+        // return a copy
+        return JSON.parse(JSON.stringify(data[key]));
     };
 };
 
-require('util').inherits(module.exports, require("events").EventEmitter);
+require("util").inherits(module.exports, require("events").EventEmitter);

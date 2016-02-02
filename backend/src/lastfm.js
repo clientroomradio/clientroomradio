@@ -38,15 +38,9 @@ module.exports = function(config, winston, redis, request) {
     }
 
     function addPlayedTrack(track) {
-        redis.get("playedTracks", function (getErr, playedTracks) {
-            winston.info("addPlayedTrack", getErr);
-
-            playedTracks[getTrackId(track)] = {"timestamp": new Date().getTime()};
-
-            redis.set("playedTracks", playedTracks, function (setErr) {
-                winston.info("addPlayedTrack", "playedTracks set", setErr);
-            });
-        });
+        var playedTracks = redis.get("playedTracks");
+        playedTracks[getTrackId(track)] = {"timestamp": new Date().getTime()};
+        redis.set("playedTracks", playedTracks);
     }
 
     that.updateNowPlaying = function(track, users) {
@@ -279,33 +273,29 @@ module.exports = function(config, winston, redis, request) {
                 winston.info("Try again in one second...");
                 setTimeout(that.getPlaylist, 1000, users, callback);
             } else {
-                redis.get("playedTracks", function (getRrr, playedTracks) {
-                    winston.info("got playlist", getRrr);
+                var playedTracks = redis.get("playedTracks")
 
-                    // Get rid of any tracks more than one day old
-                    for (var playedTrack in playedTracks) {
-                        if (playedTracks[playedTrack].timestamp < new Date().getTime() - (86400000)) {
-                            // the timestamp is older than a day so remove the track
-                            delete playedTracks[playedTrack];
-                        }
+                // Get rid of any tracks more than one day old
+                for (var playedTrack in playedTracks) {
+                    if (playedTracks[playedTrack].timestamp < new Date().getTime() - (86400000)) {
+                        // the timestamp is older than a day so remove the track
+                        delete playedTracks[playedTrack];
                     }
+                }
 
-                    redis.set("playedTracks", playedTracks, function (setErr) {
-                        winston.info("got playlist: playedTracks set", setErr);
-                    });
+                redis.set("playedTracks", playedTracks);
 
-                    var lfm = JSON.parse(body);
+                var lfm = JSON.parse(body);
 
-                    // remove any tracks that have been played before
-                    for (var i = lfm.playlist.length - 1; i >= 0; i--) {
-                        if (_.contains(_.keys(playedTracks), getTrackId(lfm.playlist[i]))) {
-                            var removedTrack = lfm.playlist.splice(i, 1);
-                            winston.info("removedTrack", removedTrack.title);
-                        }
+                // remove any tracks that have been played before
+                for (var i = lfm.playlist.length - 1; i >= 0; i--) {
+                    if (_.contains(_.keys(playedTracks), getTrackId(lfm.playlist[i]))) {
+                        var removedTrack = lfm.playlist.splice(i, 1);
+                        winston.info("removedTrack", removedTrack.title);
                     }
+                }
 
-                    callback(lfm);
-                });
+                callback(lfm);
             }
         });
     };

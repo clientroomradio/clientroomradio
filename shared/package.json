@@ -3,7 +3,5 @@
   "description": "",
   "version": "0.0.1",
   "private": true,
-  "dependencies": {
-    "redis": "0.10.1"
-  }
+  "dependencies": {}
 }

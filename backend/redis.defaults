@@ -1,7 +1,0 @@
-SET votings {}
-SET users {}
-SET currentTrack {}
-SET discoveryHour {}
-SET skippers []
-SET tags []
-SET playedTracks {}
