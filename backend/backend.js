@@ -227,10 +227,10 @@ function updateProgress() {
     redis.get(CURRENT_TRACK_KEY, function (err, currentTrack) {
         if (err) {
             winston.error("updateProgress", "couldn't get track", err);
+        } else {
+            var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / currentTrack.duration;
+            doSend("/progress", {progress: actualPosition});
         }
-
-        var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / currentTrack.duration;
-        doSend("/progress", {progress: actualPosition});
     });
 }
 
