@@ -7,8 +7,6 @@ cookbook 'python',          github: 'opscode-cookbooks/python',     tag: 'master
 cookbook 'ssh_known_hosts', github: 'opscode-cookbooks/ssh_known_hosts', tag: 'master'
 cookbook 'haproxy',         github: 'opscode-cookbooks/haproxy',    tag: 'master'
 
-cookbook 'redisio',         github: 'brianbianco/redisio', tag: 'master'
-
 cookbook 'afw',             github: 'irccloud/afw',                 tag: 'master'
 cookbook 'timezone-ii',     github: 'irccloud/timezone-ii',         tag: 'master'
 cookbook 'sysctl',          github: 'irccloud/sysctl-cookbook',     tag: 'master'

@@ -27,10 +27,6 @@ DEPENDENCIES
     git: git://github.com/opscode-cookbooks/python.git
     revision: 68edd40d9a9f4289547df71a9e16d4910cce486d
     tag: master
-  redisio
-    git: git://github.com/brianbianco/redisio.git
-    revision: 02bda65816540f50dd3b8f14a14ff91b076051e3
-    tag: master
   ssh_known_hosts
     git: git://github.com/opscode-cookbooks/ssh_known_hosts.git
     revision: d94aa1b44fdaeddae0c3c19a0ede051f62a8f37c
@@ -61,7 +57,6 @@ GRAPH
   clientroomradio (1.0.0)
     basebox (>= 0.0.0)
     haproxy (>= 0.0.0)
-    redisio (>= 0.0.0)
   cpu (0.2.0)
   fail2ban (2.2.1)
     yum (~> 3.0)
@@ -74,9 +69,6 @@ GRAPH
   python (1.4.7)
     build-essential (>= 0.0.0)
     yum-epel (>= 0.0.0)
-  redisio (2.2.4)
-    build-essential (>= 0.0.0)
-    ulimit (>= 0.1.2)
   ssh_known_hosts (2.0.0)
     partial_search (>= 0.0.0)
   sudo (2.7.1)

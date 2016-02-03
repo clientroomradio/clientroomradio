@@ -24,16 +24,6 @@ Now ssh in:
 * `vagrant ssh`
 * `cd /vagrant/`
 
+Now run the app:
 
-## Automation doesn't do this yet:
-
-Set up redis defaults:
-
-* `redis-cli < backend/redis.defaults`
-
-Now run the frontend and backend apps:
-
-* `cd frontend && node app.js`
-* `cd backend && node backend.js`
-
-
+* `.startForever.sh`
