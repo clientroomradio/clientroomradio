@@ -36,7 +36,8 @@ module.exports = function (winston) {
             }
         });
 
-        that.emit(key, value);
+        // emit a copy of the value passed in
+        that.emit(key, JSON.parse(JSON.stringify(value)));
     };
 
     that.get = function (key) {
