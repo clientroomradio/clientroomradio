@@ -2,7 +2,7 @@
  * This module doesn"t really need rebus, it just makes it easier to debug.
  * Feel free to ditch it
  */
-module.exports = function(chat, socket, redis) {
+module.exports = function(chat, socket, dataStore) {
     var that = this;
 
     var defaultPeriod = 30000;
@@ -13,11 +13,11 @@ module.exports = function(chat, socket, redis) {
     var callbacks = {};
 
     function getVotings() {
-        return redis.get("votings");
+        return dataStore.get("votings");
     }
 
     function setVotings(newVotings) {
-        redis.set("votings", newVotings);
+        dataStore.set("votings", newVotings);
     }
 
     function setVoting(voting) {
@@ -49,7 +49,7 @@ module.exports = function(chat, socket, redis) {
 
         callbacks[id] = callback;
 
-        redis.on("votings", function (newVotings) {
+        dataStore.on("votings", function (newVotings) {
             socket.broadcast("updateVotes", newVotings[id]);
         });
     };

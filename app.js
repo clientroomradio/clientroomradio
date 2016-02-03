@@ -1,8 +1,8 @@
-var Redis = require("./shared/src/redis.js");
-var redis = new Redis(console);
+var DataStore = require("./shared/src/DataStore.js");
+var dataStore = new DataStore(console);
 
 var Frontend = require("./frontend/app.js");
-var frontend = new Frontend(redis);
+var frontend = new Frontend(dataStore);
 
 var Backend = require("./backend/backend.js");
-var backend = new Backend(redis);
+var backend = new Backend(dataStore);

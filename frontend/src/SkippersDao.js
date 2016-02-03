@@ -1,18 +1,18 @@
-module.exports = function(redis) {
+module.exports = function(dataStore) {
 	var that = this;
 	this.setMaxListeners(0);
 
 	var _ = require("underscore");
 
-	var skippers = redis.get("skippers");
+	var skippers = dataStore.get("skippers");
 
-	redis.on("skippers", function (newSkippers) {
+	dataStore.on("skippers", function (newSkippers) {
 		that.emit("change", newSkippers);
 
 		var skipper = _.without(newSkippers, skippers);
 
 		if (skipper.length === 1 ) {
-			var users = redis.get("users");
+			var users = dataStore.get("users");
 			that.emit("skip", users[skipper[0]], newSkippers);
 		}
 
@@ -33,7 +33,7 @@ module.exports = function(redis) {
 	};
 
 	that.setSkippers = function(newSkippers) {
-		redis.set("skippers", newSkippers);
+		dataStore.set("skippers", newSkippers);
 	};
 };
 

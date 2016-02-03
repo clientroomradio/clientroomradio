@@ -1,7 +1,7 @@
 /**
  * This keeps the frontend updated when data changes
  */
-module.exports = function(socket, userDao, currentTrackDao, skippersDao, redis) {
+module.exports = function(socket, userDao, currentTrackDao, skippersDao, dataStore) {
 
 	userDao.on("change", function(users) {
 		socket.broadcast("users", userDao.getFilteredUsers());
@@ -24,7 +24,7 @@ module.exports = function(socket, userDao, currentTrackDao, skippersDao, redis) 
 		send("skippers", skippersDao.getSkippers());
 		send("newTrack", currentTrackDao.getCurrentTrack());
 
-		var discoveryHour = redis.get("discoveryHour");
+		var discoveryHour = dataStore.get("discoveryHour");
         var discoveryHourOn = (new Date().getTime() - discoveryHour.start < 3600000);
 		send("discoveryHour", discoveryHourOn);
 	});

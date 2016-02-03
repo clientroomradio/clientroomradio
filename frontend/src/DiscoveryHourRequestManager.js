@@ -1,11 +1,11 @@
-module.exports = function(votingManager, socket, redis) {
+module.exports = function(votingManager, socket, dataStore) {
 
 	socket.on("discoveryHourRequest", function(user) {
 		votingManager.propose("discoveryHour", user, {}, function(successful) {
 			if (successful) {
-				var discoveryHour = redis.get("discoveryHour");
+				var discoveryHour = dataStore.get("discoveryHour");
 				discoveryHour.start = new Date().getTime();
-				redis.set("discoveryHour", discoveryHour);
+				dataStore.set("discoveryHour", discoveryHour);
 			}
 		});
 	});

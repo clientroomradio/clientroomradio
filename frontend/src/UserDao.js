@@ -1,12 +1,12 @@
-module.exports = function(redis, lastfmClient) {
+module.exports = function(dataStore, lastfmClient) {
 	var that = this;
 	this.setMaxListeners(0);
 
 	var _ = require("underscore");
 
-	var users = redis.get("users");
+	var users = dataStore.get("users");
 
-	redis.on("users", function (newUsers) {
+	dataStore.on("users", function (newUsers) {
 		users = newUsers;
 		that.emit("change", users);
 	});
@@ -15,8 +15,8 @@ module.exports = function(redis, lastfmClient) {
 		return users;
 	};
 
-	that.setUsers = function(users) {
-		redis.set("users", users);
+	that.setUsers = function(newUsers) {
+		dataStore.set("users", newUsers);
 	};
 
 	that.setUser = function(user) {

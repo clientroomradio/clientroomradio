@@ -1,16 +1,16 @@
-module.exports = function(redis, socket) {
+module.exports = function(dataStore, socket) {
 	var that = this;
 
 	var _ = require("underscore");
 
-	var currentTrack = redis.get("currentTrack");
+	var currentTrack = dataStore.get("currentTrack");
 	var discoveryHour = false;
 
     updateState();
 
 	this.setMaxListeners(0);
 
-	redis.on("currentTrack", function (newCurrentTrack) {
+	dataStore.on("currentTrack", function (newCurrentTrack) {
 		currentTrack = newCurrentTrack;
         updateState();
 		that.emit("change", currentTrack);
@@ -18,7 +18,7 @@ module.exports = function(redis, socket) {
 
 	function updateState() {
 		// check if discovery hour was set for this track
-		var discoveryHourData = redis.get("discoveryHour");
+		var discoveryHourData = dataStore.get("discoveryHour");
         discoveryHour = (new Date().getTime() - discoveryHourData.start < 3600000);
 		socket.broadcast("discoveryHour", discoveryHour);
 
@@ -41,7 +41,7 @@ module.exports = function(redis, socket) {
 			}
 		});
 
-		redis.set("currentTrack", currentTrack);
+		dataStore.set("currentTrack", currentTrack);
 	};
 };
 

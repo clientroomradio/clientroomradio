@@ -1,4 +1,4 @@
-module.exports = function(redis) {
+module.exports = function(dataStore) {
     // Classes
     var Chat = require("./src/Chat.js");
     var CurrentTrackChatUpdater = require("./src/CurrentTrackChatUpdater.js");
@@ -31,19 +31,19 @@ module.exports = function(redis) {
     var lastfmClient = new LastfmClient(config);
     var permissionFetcher = new PermissionFetcher(config);
     var permissionChecker = new PermissionChecker(permissionFetcher);
-    var userDao = new UserDao(redis, lastfmClient);
-    var skippersDao = new SkippersDao(redis);
+    var userDao = new UserDao(dataStore, lastfmClient);
+    var skippersDao = new SkippersDao(dataStore);
     var socket = new Socket(userDao, permissionChecker, config);
-    var currentTrackDao = new CurrentTrackDao(redis, socket);
+    var currentTrackDao = new CurrentTrackDao(dataStore, socket);
     var chat = new Chat(socket, config);
     var progressManager = new ProgressManager(socket);
     var expressInternal = new ExpressInternal(config, chat, progressManager);
     var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionChecker);
     var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config);
-    var votingManager = new VotingManager(chat, socket, redis);
+    var votingManager = new VotingManager(chat, socket, dataStore);
 
     // Nothing depends on those:
-    new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao, redis);
+    new FrontendUpdater(socket, userDao, currentTrackDao, skippersDao, dataStore);
     new SkipManager(socket, skippersDao, chat);
     new ScrobblingManager(socket, userDao, chat);
     new LoveManager(socket, currentTrackDao, chat, lastfmClient);
@@ -51,7 +51,7 @@ module.exports = function(redis) {
     new CurrentTrackChatUpdater(currentTrackDao, chat);
     new SpotifyRequestIssuer(chat, socket, config);
     new EndOfDayRequestManager(userDao, votingManager, socket);
-    new DiscoveryHourRequestManager(votingManager, socket, redis);
+    new DiscoveryHourRequestManager(votingManager, socket, dataStore);
     new UserActivityFlagManager(userDao, chat, socket);
 
     // Start

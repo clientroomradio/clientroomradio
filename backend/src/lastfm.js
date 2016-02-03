@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(config, winston, redis, request) {
+module.exports = function(config, winston, dataStore, request) {
     var that = this;
 
     var _ = require("underscore");
@@ -38,9 +38,9 @@ module.exports = function(config, winston, redis, request) {
     }
 
     function addPlayedTrack(track) {
-        var playedTracks = redis.get("playedTracks");
+        var playedTracks = dataStore.get("playedTracks");
         playedTracks[getTrackId(track)] = {"timestamp": new Date().getTime()};
-        redis.set("playedTracks", playedTracks);
+        dataStore.set("playedTracks", playedTracks);
     }
 
     that.updateNowPlaying = function(track, users) {
@@ -273,7 +273,7 @@ module.exports = function(config, winston, redis, request) {
                 winston.info("Try again in one second...");
                 setTimeout(that.getPlaylist, 1000, users, callback);
             } else {
-                var playedTracks = redis.get("playedTracks")
+                var playedTracks = dataStore.get("playedTracks")
 
                 // Get rid of any tracks more than one day old
                 for (var playedTrack in playedTracks) {
@@ -283,7 +283,7 @@ module.exports = function(config, winston, redis, request) {
                     }
                 }
 
-                redis.set("playedTracks", playedTracks);
+                dataStore.set("playedTracks", playedTracks);
 
                 var lfm = JSON.parse(body);
 

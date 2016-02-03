@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(redis) {
+module.exports = function(dataStore) {
     var _ = require("underscore");
     var config = require("../config.js");
     var request = require("request");
@@ -14,7 +14,7 @@ module.exports = function(redis) {
     winston.add(winston.transports.Console, { timestamp: true });
 
     var spotify = new Spotify(winston);
-    var lastfm = new Lastfm(config, winston, redis, request);
+    var lastfm = new Lastfm(config, winston, dataStore, request);
 
     var users = {};
     var tracks = [];
@@ -60,11 +60,11 @@ module.exports = function(redis) {
             track.bingo = true;
         }
 
-        redis.set(CURRENT_TRACK_KEY, track);
+        dataStore.set(CURRENT_TRACK_KEY, track);
     }
 
     function playTrack() {
-        redis.set(SKIPPERS_KEY, []);
+        dataStore.set(SKIPPERS_KEY, []);
 
         var handlers = {
             success: function(track, port) {
@@ -107,12 +107,12 @@ module.exports = function(redis) {
     function onEndTrack() {
         winston.info("onEndTrack");
 
-        var currentTrack = redis.get(CURRENT_TRACK_KEY);
+        var currentTrack = dataStore.get(CURRENT_TRACK_KEY);
 
         lastfm.scrobble(currentTrack, users, skippers);
 
         // clear the current track before doing anything else
-        redis.set(CURRENT_TRACK_KEY, {});
+        dataStore.set(CURRENT_TRACK_KEY, {});
 
         if (_.keys(active(users)).length > 0) {
             // there are some users so play next track
@@ -209,22 +209,22 @@ module.exports = function(redis) {
     }
 
     function updateProgress() {
-        var currentTrack = redis.get(CURRENT_TRACK_KEY);
+        var currentTrack = dataStore.get(CURRENT_TRACK_KEY);
         var actualPosition = (vlc.mediaplayer.position * vlc.mediaplayer.length) / currentTrack.duration;
         doSend("/progress", {progress: actualPosition});
     }
 
     // Get initial values
-    onTagsChanged(redis.get(TAGS_KEY));
-    onDiscoveryHourChanged(redis.get(DISCOVERY_HOUR_KEY));
-    onSkippersChanged(redis.get(SKIPPERS_KEY));
-    onUsersChanged(redis.get(USERS_KEY));
+    onTagsChanged(dataStore.get(TAGS_KEY));
+    onDiscoveryHourChanged(dataStore.get(DISCOVERY_HOUR_KEY));
+    onSkippersChanged(dataStore.get(SKIPPERS_KEY));
+    onUsersChanged(dataStore.get(USERS_KEY));
 
     // listen for changes
-    redis.on(USERS_KEY, onUsersChanged);
-    redis.on(SKIPPERS_KEY, onSkippersChanged);
-    redis.on(TAGS_KEY, onTagsChanged);
-    redis.on(DISCOVERY_HOUR_KEY, onDiscoveryHourChanged);
+    dataStore.on(USERS_KEY, onUsersChanged);
+    dataStore.on(SKIPPERS_KEY, onSkippersChanged);
+    dataStore.on(TAGS_KEY, onTagsChanged);
+    dataStore.on(DISCOVERY_HOUR_KEY, onDiscoveryHourChanged);
 
     setInterval(updateProgress, 2000);
 
@@ -250,9 +250,9 @@ module.exports = function(redis) {
     process.on("SIGINT", function () {
         winston.info( "\nShutting down!" );
 
-        redis.set(CURRENT_TRACK_KEY, {});
+        dataStore.set(CURRENT_TRACK_KEY, {});
         winston.info("currentTrack cleared");
-        redis.set(SKIPPERS_KEY, []);
+        dataStore.set(SKIPPERS_KEY, []);
         winston.info("skippers cleared.");
         spotify.logout();
         spotify.once("logout", function (err) {
