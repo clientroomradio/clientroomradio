@@ -26,7 +26,9 @@ module.exports = function (winston) {
     }
 
     that.set = function (key, value) {
-        data[key] = value;
+        var oldValue = JSON.parse(JSON.stringify(data[key]));
+
+        data[key] = JSON.parse(JSON.stringify(value));
 
         fs.writeFile(filename, JSON.stringify(data), function(err) {
             if (err) {
@@ -37,7 +39,7 @@ module.exports = function (winston) {
         });
 
         // emit a copy of the value passed in
-        that.emit(key, JSON.parse(JSON.stringify(value)));
+        that.emit(key, JSON.parse(JSON.stringify(value)), oldValue);
     };
 
     that.get = function (key) {

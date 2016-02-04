@@ -4,15 +4,12 @@ module.exports = function(dataStore, lastfmClient) {
 
 	var _ = require("underscore");
 
-	var users = dataStore.get("users");
-
-	dataStore.on("users", function (newUsers) {
-		users = newUsers;
+	dataStore.on("users", function (users) {
 		that.emit("change", users);
 	});
 
 	that.getUsers = function() {
-		return users;
+		return dataStore.get("users");
 	};
 
 	that.setUsers = function(newUsers) {
@@ -20,6 +17,7 @@ module.exports = function(dataStore, lastfmClient) {
 	};
 
 	that.setUser = function(user) {
+		var users = dataStore.get("users");
 		users[user.username] = user;
 		that.setUsers(users);
 	};
@@ -29,6 +27,7 @@ module.exports = function(dataStore, lastfmClient) {
 			console.log(err);
 		}
 		else {
+			var users = dataStore.get("users");
 			users[lfm.user.name].image = lfm.user.image[2]["#text"];
 			that.setUsers(users);
 		}
@@ -51,6 +50,7 @@ module.exports = function(dataStore, lastfmClient) {
 	};
 
 	that.removeUser = function(user) {
+		var users = dataStore.get("users");
 		delete users[user.username];
 		that.setUsers(users);
 	};
@@ -61,10 +61,10 @@ module.exports = function(dataStore, lastfmClient) {
 
 	that.getFilteredUsers = function() {
 		// shitty deep clone to filter session keys out
-		var filteredUsers = JSON.parse(JSON.stringify(users));
-		_.each(filteredUsers, function (user, name) {
-            delete(user.sk);
-            delete(user.session);
+		var filteredUsers = dataStore.get("users");
+		_.each(filteredUsers, function (user) {
+            delete user.sk;
+            delete user.session;
 		});
 		return filteredUsers;
 	};

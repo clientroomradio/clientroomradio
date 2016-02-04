@@ -16,7 +16,6 @@ module.exports = function(dataStore) {
     var spotify = new Spotify(winston);
     var lastfm = new Lastfm(config, winston, dataStore, request);
 
-    var users = {};
     var tracks = [];
     var requests = [];
     var skippers = [];
@@ -52,7 +51,7 @@ module.exports = function(dataStore) {
     function onGotContext(track) {
         winston.info("onGotContext");
 
-        var activeUserCount = _.keys(active(users)).length;
+        var activeUserCount = _.keys(active(dataStore.get(USERS_KEY))).length;
         var trackContextCount = _.keys(track.context).length;
 
         if (activeUserCount > 1 && activeUserCount === trackContextCount) {
@@ -76,6 +75,7 @@ module.exports = function(dataStore) {
                 // add a timestamp to the track as we start it
                 track.timestamp = new Date().getTime();
 
+                var users = dataStore.get(USERS_KEY);
                 lastfm.updateNowPlaying(track, users);
                 lastfm.getContext(track, active(users), onGotContext);
             },
@@ -113,6 +113,8 @@ module.exports = function(dataStore) {
 
         // clear the current track before doing anything else
         dataStore.set(CURRENT_TRACK_KEY, {});
+
+        var users = dataStore.get(USERS_KEY);
 
         if (_.keys(active(users)).length > 0) {
             // there are some users so play next track
@@ -159,10 +161,10 @@ module.exports = function(dataStore) {
         onEndTrack();
     }
 
-    function onUsersChanged(newUsers) {
-        winston.info("onUsersChanged", _.keys(newUsers), _.isEmpty(active(newUsers)), _.isEmpty(active(users)), vlc.mediaplayer.is_playing);
+    function onUsersChanged(newUsers, oldUsers) {
+        winston.info("onUsersChanged", oldUsers, newUsers, vlc.mediaplayer.is_playing);
 
-        if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(users))
+        if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(oldUsers))
                 && !vlc.mediaplayer.is_playing ) {
             // we've gone from no users to some users
             // and we're not already playing so start
@@ -170,13 +172,13 @@ module.exports = function(dataStore) {
             currentStationUrl = lastfm.getStationUrl(active(newUsers), lastfm.alphabetSort);
             lastfm.getPlaylist(active(newUsers), onRadioGotPlaylist);
         }
-
-        users = newUsers;
     }
 
     function onSkippersChanged(newSkippers) {
         winston.info("onSkippersChanged:", newSkippers);
         skippers = newSkippers;
+
+        var users = dataStore.get(USERS_KEY);
 
         if ( _.keys(active(users)).length > 0
                 && newSkippers.length > 0
