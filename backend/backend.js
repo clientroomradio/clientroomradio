@@ -18,7 +18,6 @@ module.exports = function(dataStore) {
 
     var tracks = [];
     var requests = [];
-    var skippers = [];
     var currentStationUrl = "";
 
     spotify.relogin();
@@ -109,7 +108,7 @@ module.exports = function(dataStore) {
 
         var currentTrack = dataStore.get(CURRENT_TRACK_KEY);
 
-        lastfm.scrobble(currentTrack, users, skippers);
+        lastfm.scrobble(currentTrack, dataStore.get(USERS_KEY), dataStore.get(SKIPPERS_KEY));
 
         // clear the current track before doing anything else
         dataStore.set(CURRENT_TRACK_KEY, {});
@@ -174,15 +173,14 @@ module.exports = function(dataStore) {
         }
     }
 
-    function onSkippersChanged(newSkippers) {
-        winston.info("onSkippersChanged:", newSkippers);
-        skippers = newSkippers;
+    function onSkippersChanged(skippers) {
+        winston.info("onSkippersChanged:", skippers);
 
         var users = dataStore.get(USERS_KEY);
 
         if ( _.keys(active(users)).length > 0
-                && newSkippers.length > 0
-                && newSkippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
+                && skippers.length > 0
+                && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
             winston.info("SKIP!");
             onEndTrack();
         }
