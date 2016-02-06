@@ -1,8 +1,8 @@
-var DataStore = require("./shared/src/DataStore.js");
+var DataStore = require("./lib/shared/DataStore.js");
 var dataStore = new DataStore(console);
 
-var Frontend = require("./frontend/app.js");
+var Frontend = require("./lib/frontend/Frontend.js");
 var frontend = new Frontend(dataStore);
 
-var Backend = require("./backend/backend.js");
+var Backend = require("./lib/backend/Backend.js");
 var backend = new Backend(dataStore);

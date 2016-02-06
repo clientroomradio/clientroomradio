@@ -1,10 +1,9 @@
-*/node_modules/
+node_modules
 config.js
-/rebus-storage/
-*/spotify/
+spotify_appkey.key
 .DS_Store
 *.dat
 .vagrant
-/frontend/static/img/gen/
+/static/img/gen/
 *.log
 *.pem
