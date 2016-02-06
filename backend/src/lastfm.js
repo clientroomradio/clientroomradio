@@ -38,8 +38,6 @@ module.exports = function(config, winston, dataStore, request) {
     }
 
     function getTrackIdFromPlaylistTrack(track) {
-        winston.info("getTrackId", track);
-
         var spotifyPlayLinks = track.playlinks.filter(function (playlink) {
             return playlink.affiliate === "spotify";
         });
