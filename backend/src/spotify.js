@@ -106,7 +106,7 @@ module.exports = function(winston) {
         }
     }
 
-    that.playTrack = function (spotifyUrl, handlers) {
+    that.playTrack = function (spotifyUrl, handlers, optionalTrack) {
         winston.info("crrRequest:", spotifyUrl);
 
         var spTrack = sp.Track.getFromUrl(spotifyUrl);
@@ -114,8 +114,8 @@ module.exports = function(winston) {
         spTrack.once("ready", function () {
             var track = {};
             track.identifier = spotifyUrl;
-            track.artists = [ { "name": spTrack.artist.name } ];
-            track.name = spTrack.title;
+            track.artists = (typeof optionalTrack === "undefined") ? [ { "name": spTrack.artist.name } ] : optionalTrack.artists;
+            track.name = (typeof optionalTrack === "undefined") ? spTrack.title : optionalTrack.name;
             track.duration = String(spTrack.duration / 1000);
             track.extension = {};
 
