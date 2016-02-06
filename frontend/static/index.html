@@ -60,7 +60,7 @@
                         <h4 class="media-heading" ng-hide="isPlaying()">{{getActiveUserCount()===0?"Nothing playing at the moment.":"Loading track..."}}</h4>
                         <p ng-hide="username!==null||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
 
-                        <div class="progress progress-white" ng-show="isPlaying()">
+                        <div class="progress" ng-show="isPlaying()">
                             <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"></div>
                         </div>
 
