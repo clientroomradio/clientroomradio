@@ -1,33 +1,32 @@
 module.exports = function(dataStore, socket) {
 	var that = this;
 
-	var _ = require("underscore");
-
-	var currentTrack = dataStore.get("currentTrack");
 	var discoveryHour = false;
+	var CURRENT_TRACK_KEY = "currentTrack";
+	var DISCOVERY_HOUR_KEY = "discoveryHour";
 
     updateState();
 
 	this.setMaxListeners(0);
 
-	dataStore.on("currentTrack", function (newCurrentTrack) {
-		currentTrack = newCurrentTrack;
+	dataStore.on(CURRENT_TRACK_KEY, function (newCurrentTrack) {
         updateState();
-		that.emit("change", currentTrack);
+		that.emit("change", newCurrentTrack);
 	});
 
 	function updateState() {
 		// check if discovery hour was set for this track
-		var discoveryHourData = dataStore.get("discoveryHour");
+		var discoveryHourData = dataStore.get(DISCOVERY_HOUR_KEY);
         discoveryHour = (new Date().getTime() - discoveryHourData.start < 3600000);
-		socket.broadcast("discoveryHour", discoveryHour);
+		socket.broadcast(DISCOVERY_HOUR_KEY, discoveryHour);
 
 		// is it a bingo?
-		socket.broadcast("bingo", typeof currentTrack.bingo !== "undefined" && currentTrack.bingo);
+		var bingo = dataStore.get(CURRENT_TRACK_KEY).bingo;
+		socket.broadcast("bingo", typeof bingo !== "undefined" && bingo);
 	}
 
 	that.getCurrentTrack = function() {
-		return currentTrack;
+		return dataStore.get(CURRENT_TRACK_KEY);
 	};
 
 	that.getDiscoveryHour = function() {
@@ -35,13 +34,17 @@ module.exports = function(dataStore, socket) {
 	};
 
 	that.updateLoveFlag = function(username, loveFlag) {
-		_.each(currentTrack.context, function(userContext) {
-			if (userContext.username === username) {
-				userContext.userloved = loveFlag;
-			}
-		});
+		var currentTrack = dataStore.get(CURRENT_TRACK_KEY);
 
-		dataStore.set("currentTrack", currentTrack);
+		console.info("setting love", username, loveFlag);
+
+		currentTrack.context[username] = currentTrack.context[username] || {
+			"username": username,
+			"userplaycount": 0
+		};
+        currentTrack.context[username].userloved = loveFlag;
+
+		dataStore.set(CURRENT_TRACK_KEY, currentTrack);
 	};
 };
 
