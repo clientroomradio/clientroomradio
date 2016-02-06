@@ -13,7 +13,7 @@ module.exports = function (winston) {
         discoveryHour: {},
         skippers: [],
         tags: [],
-        playedTracks: {}
+        playedTracks: []
     };
 
     try {

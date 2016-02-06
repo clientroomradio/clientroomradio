@@ -1,7 +1,6 @@
 "use strict";
 
 module.exports = function(dataStore) {
-    var _ = require("underscore");
     var config = require("../config.js");
     var request = require("request");
     var winston = require("winston");
@@ -50,11 +49,11 @@ module.exports = function(dataStore) {
     function onGotContext(track) {
         winston.info("onGotContext");
 
-        var activeUserCount = _.keys(active(dataStore.get(USERS_KEY))).length;
-        var trackContextCount = _.keys(track.context).length;
+        var activeUserCount = Object.keys(active(dataStore.get(USERS_KEY))).length;
+        var trackContextCount = Object.keys(track.context).length;
 
         if (activeUserCount > 1 && activeUserCount === trackContextCount) {
-            // it"s a bingo!
+            // it's a bingo!
             track.bingo = true;
         }
 
@@ -80,25 +79,27 @@ module.exports = function(dataStore) {
             },
             error: function(error) {
                 winston.error("playTrack", error.message);
-                _.defer(onEndTrack);
+                onEndTrack();
             }
         };
 
         var nextTrack = tracks.shift();
 
-        if (_.has(nextTrack, "request")) {
+        if (nextTrack.hasOwnProperty("request")) {
             spotify.playTrack(nextTrack.request, handlers);
         } else {
             // find the spotify links
-            var spotifyPlayLinks = _.filter(nextTrack.playlinks, function (playlink) { return playlink.affiliate === "spotify"; } );
+            var spotifyPlayLinks = nextTrack.playlinks.filter(function (playlink) {
+                return playlink.affiliate === "spotify";
+            });
+
             if (spotifyPlayLinks.length > 0) {
                 // there is at least 1 spotify play link so use the first one!
-                var spotifyUrl = spotifyPlayLinks[0].url;
-                spotify.playTrack(spotifyUrl, handlers);
+                spotify.playTrack(spotifyPlayLinks[0].url, handlers, nextTrack);
             } else {
                 // There were no spotify tracks so go to the next track
                 winston.info("There was no spotify link for", nextTrack);
-                _.defer(onEndTrack);
+                onEndTrack();
             }
         }
     }
@@ -115,7 +116,7 @@ module.exports = function(dataStore) {
 
         var users = dataStore.get(USERS_KEY);
 
-        if (_.keys(active(users)).length > 0) {
+        if (Object.keys(active(users)).length > 0) {
             // there are some users so play next track
             if (requests.length > 0) {
                 // there's a request, so cue it and play now
@@ -147,9 +148,7 @@ module.exports = function(dataStore) {
     }
 
     vlc.mediaplayer.on("EndReached", function () {
-        // we can"t start another track from within a
-        // vlc callback (not reentrant) so we _.defer it
-        _.defer(onEndTrack);
+        onEndTrack();
     });
 
     function onRadioGotPlaylist(lfm) {
@@ -163,7 +162,7 @@ module.exports = function(dataStore) {
     function onUsersChanged(newUsers, oldUsers) {
         winston.info("onUsersChanged", oldUsers, newUsers, vlc.mediaplayer.is_playing);
 
-        if ( !_.isEmpty(active(newUsers)) && _.isEmpty(active(oldUsers))
+        if (Object.keys(active(newUsers)).length !== 0 && Object.keys(active(oldUsers)).length === 0
                 && !vlc.mediaplayer.is_playing ) {
             // we've gone from no users to some users
             // and we're not already playing so start
@@ -178,9 +177,9 @@ module.exports = function(dataStore) {
 
         var users = dataStore.get(USERS_KEY);
 
-        if ( _.keys(active(users)).length > 0
+        if ( Object.keys(active(users)).length > 0
                 && skippers.length > 0
-                && skippers.length >= Math.ceil(_.keys(active(users)).length / 2) ) {
+                && skippers.length >= Math.ceil(Object.keys(active(users)).length / 2) ) {
             winston.info("SKIP!");
             onEndTrack();
         }

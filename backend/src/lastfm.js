@@ -3,7 +3,6 @@
 module.exports = function(config, winston, dataStore, request) {
     var that = this;
 
-    var _ = require("underscore");
     var LastFmNode = require("lastfm").LastFmNode;
     var util = require("util");
 
@@ -33,28 +32,48 @@ module.exports = function(config, winston, dataStore, request) {
         });
     }
 
-    function getTrackId(track) {
+    function getTrackIdFromURI(uri) {
+        var urlSplit = uri.split("/");
+        return urlSplit[urlSplit.length - 1];
+    }
+
+    function getTrackIdFromPlaylistTrack(track) {
+        winston.info("getTrackId", track);
+
+        var spotifyPlayLinks = track.playlinks.filter(function (playlink) {
+            return playlink.affiliate === "spotify";
+        });
+
+        if (spotifyPlayLinks.length > 0) {
+            return getTrackIdFromURI(spotifyPlayLinks[0].url);
+        }
+
         return track.artists[0].name + track.name;
     }
 
     function addPlayedTrack(track) {
         var playedTracks = dataStore.get("playedTracks");
-        playedTracks[getTrackId(track)] = {"timestamp": new Date().getTime()};
+
+        playedTracks.push({
+            id: getTrackIdFromURI(track.identifier),
+            timestamp: new Date().getTime()
+        });
+
         dataStore.set("playedTracks", playedTracks);
     }
 
     that.updateNowPlaying = function(track, users) {
         addPlayedTrack(track);
 
-        if ( !_.isEmpty(track) ) {
+        if (Object.keys(track).length !== 0) {
             // always scrobble to clientroom
             if (typeof config.scrobbleToHost === "undefined" || config.scrobbleToHost) {
                 doUpdateNowPlaying("clientroom", config.sk, track);
             }
 
-            _.each(users, function(data, user) {
-                if ( !(!data.scrobbling || !data.active) ) {
-                    doUpdateNowPlaying(user, data.sk, track);
+            Object.keys(users).forEach(function (username) {
+                if ( !(!users[username].scrobbling || !users[username].active) ) {
+                    doUpdateNowPlaying(users[username], users[username].sk, track);
                 }
             });
         }
@@ -78,7 +97,7 @@ module.exports = function(config, winston, dataStore, request) {
             }
         };
 
-        if ( _.has( track.extension, "streamid") ) {
+        if (track.extension.hasOwnProperty("streamid")) {
             options["streamid[0]"] = track.extension.streamid;
         }
 
@@ -90,17 +109,17 @@ module.exports = function(config, winston, dataStore, request) {
     };
 
     that.scrobble = function(track, users, skippers) {
-        if ( !_.isEmpty(track) && new Date().getTime() - track.timestamp > Math.round( (track.duration * 1000) / 2 ) ) {
+        if ( Object.keys(track).length !== 0 && new Date().getTime() - track.timestamp > Math.round( (track.duration * 1000) / 2 ) ) {
             // we've listened to more than half the song
             if (typeof config.scrobbleToHost === "undefined" || config.scrobbleToHost) {
                 doScrobble("clientroom", config.sk, track);
             }
 
-            _.each(users, function(data, user) {
-                if ( !(!data.scrobbling || !data.active)
-                        && !_.contains(skippers, user) ) {
+            Object.keys(users).forEach(function (username) {
+                if ( !(!users[username].scrobbling || !users[username].active)
+                        && skippers.indexOf(username) === -1 ) {
                     // the user hasn't voted to skip this track
-                    doScrobble(user, data.sk, track);
+                    doScrobble(users[username], users[username].sk, track);
                 }
             });
         }
@@ -123,50 +142,48 @@ module.exports = function(config, winston, dataStore, request) {
     that.getContext = function(track, users, callback) {
         track.context = {};
 
-        var finished = _.after(_.keys(users).length * 2, callback);
-
-        _.each(users, function(data, user) {
+        Object.keys(users).forEach(function (username) {
             lastfm.request("track.getInfo", {
                 track: track.name,
                 artist: track.artists[0].name,
-                username: user,
+                username: username,
                 handlers: {
                     success: function(lfm) {
-                        winston.info("getContext", user, track.name, lfm.track.userplaycount);
+                        winston.info("getContext", username, track.name, lfm.track.userplaycount);
                         if (typeof lfm.track.album !== "undefined") {
                             track.image = lfm.track.album.image[2]["#text"];
                         }
                         if (typeof lfm.track.userplaycount !== "undefined") {
-                            track.context[user] = track.context[user] || {"username": user};
-                            track.context[user].userplaycount = lfm.track.userplaycount;
-                            track.context[user].userloved = lfm.track.userloved;
+                            track.context[username] = track.context[username] || {"username": username};
+                            track.context[username].userplaycount = lfm.track.userplaycount;
+                            track.context[username].userloved = lfm.track.userloved;
                         }
-                        finished(track);
+                        callback(track);
                     },
                     error: function(error) {
                         winston.error("getContext:track.getInfo", error.message);
-                        finished(track);
+                        callback(track);
                     }
                 }
             });
 
             lastfm.request("artist.getInfo", {
                 artist: track.artists[0].name,
-                username: user,
+                username: username,
                 handlers: {
                     success: function(lfm) {
                         if (typeof lfm.artist !== "undefined"
                                 && typeof lfm.artist.stats !== "undefined"
                                 && lfm.artist.stats.hasOwnProperty("userplaycount")
                                 && lfm.artist.stats.userplaycount === 0) {
-                            track.context[user] = track.context[user] || {"username": user};
-                            track.context[user].artistInLibrary = true;
+                            track.context[username] = track.context[username] || {"username": username};
+                            track.context[username].artistInLibrary = true;
                         }
-                        finished(track);
+                        callback(track);
                     },
                     error: function(error) {
                         winston.error("getContext:artist.getInfo", error.message);
-                        finished(track);
+                        callback(track);
                     }
                 }
             });
@@ -255,7 +272,7 @@ module.exports = function(config, winston, dataStore, request) {
     };
 
     that.getStationUrl = function(users, sortMethod) {
-        var sortedUsers = sortMethod(_.keys(users));
+        var sortedUsers = sortMethod(Object.keys(users));
         var stationUrl = getStandardStationUrl(sortedUsers);
         return stationUrl;
     };
@@ -273,27 +290,23 @@ module.exports = function(config, winston, dataStore, request) {
                 winston.info("Try again in one second...");
                 setTimeout(that.getPlaylist, 1000, users, callback);
             } else {
-                var playedTracks = dataStore.get("playedTracks")
+                var playedTracks = dataStore.get("playedTracks");
 
                 // Get rid of any tracks more than one day old
-                for (var playedTrack in playedTracks) {
-                    if (playedTracks[playedTrack].timestamp < new Date().getTime() - (86400000)) {
-                        // the timestamp is older than a day so remove the track
-                        delete playedTracks[playedTrack];
-                    }
-                }
+                playedTracks = playedTracks.filter(function (playedTrack) {
+                    return playedTrack.timestamp >= new Date().getTime() - (86400000);
+                });
 
                 dataStore.set("playedTracks", playedTracks);
 
                 var lfm = JSON.parse(body);
 
                 // remove any tracks that have been played before
-                for (var i = lfm.playlist.length - 1; i >= 0; i--) {
-                    if (_.contains(_.keys(playedTracks), getTrackId(lfm.playlist[i]))) {
-                        var removedTrack = lfm.playlist.splice(i, 1);
-                        winston.info("removedTrack", removedTrack.title);
-                    }
-                }
+                lfm.playlist = lfm.playlist.filter(function (playlistTrack) {
+                    return playedTracks.filter(function (playedTrack) {
+                        return playedTrack.id === getTrackIdFromPlaylistTrack(playlistTrack);
+                    }).length === 0;
+                });
 
                 callback(lfm);
             }
