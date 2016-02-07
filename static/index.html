@@ -22,7 +22,10 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href=""><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/> {{radioname}}{{discoveryHour?' - Discovery Hour':''}}{{bingo?' - BINGO!':''}}</a>
+                <a class="navbar-brand" href="">
+                    <span><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/></span>
+                    {{radioname}}{{discoveryHour?' - Discovery Hour':''}}{{bingo?' - BINGO!':''}}
+                </a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -72,8 +75,6 @@
                                 <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
                                 ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span><span ng-show="contextUser.artistInLibrary && (!contextUser.userplaycount)">+</span>)<span ng-show="$last==false">,</span>
                             </span>
-                        </div>
-                        <div>
                             <i class="fa fa-thumbs-down"></i>
                             <span class="skippers">{{skippers.length}} of {{skippersNeeded()}} needed to skip
                                 <span class="text-muted" ng-hide="skippers.length==0">

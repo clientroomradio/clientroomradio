@@ -228,6 +228,4 @@ function MainController($scope, socket) {
             $scope.$apply();
         }
     });
-
-
 }
