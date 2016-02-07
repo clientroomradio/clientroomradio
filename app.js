@@ -13,7 +13,6 @@ var HeartbeatManager = require("./lib/HeartbeatManager.js");
 var LastfmClient = require("./lib/LastfmClient.js");
 var Logger = require("./lib/Logger.js");
 var LoveManager = require("./lib/LoveManager.js");
-var ProgressManager = require("./lib/ProgressManager.js");
 var PermissionChecker = require("./lib/PermissionChecker.js");
 var PermissionFetcher = require("./lib/PermissionFetcher.js");
 var ScrobblingManager = require("./lib/ScrobblingManager.js");
@@ -39,7 +38,6 @@ var socket = new Socket(userDao, permissionChecker, logger);
 var currentTrackDao = new CurrentTrackDao(dataStore, socket, logger);
 var chat = new Chat(socket, config);
 var skipManager = new SkipManager(socket, chat);
-var progressManager = new ProgressManager(socket);
 var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionChecker, logger);
 var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config, logger);
 var votingManager = new VotingManager(chat, socket, dataStore);
@@ -47,7 +45,7 @@ var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
 
 // Nothing depends on those:
 
-new Backend(dataStore, lastfmClient, spotify, skipManager, socket, chat, progressManager, logger);
+new Backend(dataStore, lastfmClient, spotify, skipManager, socket, chat, logger);
 new FrontendUpdater(socket, userDao, currentTrackDao, skipManager, dataStore);
 new ScrobblingManager(socket, userDao);
 new LoveManager(socket, currentTrackDao, chat, lastfmClient, logger);
