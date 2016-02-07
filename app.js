@@ -35,7 +35,7 @@ var dataStore = new DataStore(logger);
 var lastfmClient = new LastfmClient(config, logger, dataStore);
 var userDao = new UserDao(dataStore, lastfmClient, logger);
 var socket = new Socket(userDao, permissionChecker, logger);
-var currentTrackDao = new CurrentTrackDao(dataStore, socket, logger);
+var currentTrackDao = new CurrentTrackDao(socket, logger);
 var chat = new Chat(socket, config);
 var skipManager = new SkipManager(socket, chat);
 var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionChecker, logger);
@@ -45,7 +45,7 @@ var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
 
 // Nothing depends on those:
 
-new Backend(dataStore, lastfmClient, spotify, skipManager, socket, chat, logger);
+new Backend(dataStore, currentTrackDao, lastfmClient, spotify, skipManager, socket, chat, logger);
 new FrontendUpdater(socket, userDao, currentTrackDao, skipManager, dataStore);
 new ScrobblingManager(socket, userDao);
 new LoveManager(socket, currentTrackDao, chat, lastfmClient, logger);
