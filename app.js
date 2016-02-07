@@ -5,7 +5,6 @@ var CurrentTrackChatUpdater = require("./lib/CurrentTrackChatUpdater.js");
 var CurrentTrackDao = require("./lib/CurrentTrackDao.js");
 var DataStore = require("./lib/DataStore.js");
 var EndOfDayRequestManager = require("./lib/EndOfDayRequestManager.js");
-var DiscoveryHourRequestManager = require("./lib/DiscoveryHourRequestManager.js");
 var ExpressExternal = require("./lib/ExpressExternal.js");
 var ExternalHttpServer = require("./lib/ExternalHttpServer.js");
 var FrontendUpdater = require("./lib/FrontendUpdater.js");
@@ -40,7 +39,7 @@ var chat = new Chat(socket, config);
 var skipManager = new SkipManager(socket, chat);
 var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionChecker, logger);
 var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config, logger);
-var votingManager = new VotingManager(chat, socket, dataStore);
+var votingManager = new VotingManager(chat, socket);
 var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
 
 // Nothing depends on those:
@@ -51,7 +50,6 @@ new ScrobblingManager(socket, userDao);
 new LoveManager(socket, currentTrackDao, chat, lastfmClient, logger);
 new CurrentTrackChatUpdater(currentTrackDao, chat);
 new EndOfDayRequestManager(userDao, votingManager, socket);
-new DiscoveryHourRequestManager(votingManager, socket, dataStore);
 new UserActivityFlagManager(userDao, chat, socket);
 
 // Start

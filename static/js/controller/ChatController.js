@@ -7,16 +7,16 @@ function ChatController($scope, $element, $compile, socket) {
     var $voteChatLineTemplate = $("<div class=\"chat-line chat-line--sys chat-line--vote\" ng-controller=\"VotingController\"><div class=\"chat-time\"></div>" +
         "<div class=\"chat-text\"><span class=\"chat-name\"></span> " +
         "<span class=\"chat-inner-text\"></span>" +
-        "<div class=\"pull-right vote-decision vote-decision--{{decision}}\" ng-show=\"hasBeenDecided()\">{{(decision==\"yes\")?\"accepted\":\"crushed\"}}</div>" +
+        "<div class=\"pull-right vote-decision vote-decision--{{decision}}\" ng-show=\"hasBeenDecided()\">{{decision === 'yes' ? 'accepted' : 'crushed'}}</div>" +
         "<div class=\"pull-right vote-action-area\" ng-hide=\"hasBeenDecided()\">" +
         "<div class=\"vote-remaining-time\">{{remainingSeconds}} Sec</div> " +
         "<div class=\"btn-group\">" +
-        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==\"yes\"?\"btn-success\":\"btn-default\"}} btn-xs\" ng-click=\"vote(\"yes\")\">Yes</button> " +
-        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==\"no\"?\"btn-danger\":\"btn-default\"}} btn-xs\" ng-click=\"vote(\"no\")\">No</button>" +
+        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='yes'?'btn-success':'btn-default'}} btn-xs\" ng-click=\"vote('yes')\">Yes</button> " +
+        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='no'?'btn-danger':'btn-default'}} btn-xs\" ng-click=\"vote('no')\">No</button>" +
         "</div>" +
         "</div>" +
         "<span class=\"votes-cast\">" +
-        "<span ng-repeat=\"(username, vote) in votes track by $index\"><span class=\"{{vote==\"yes\"?\"vote-for\":\"vote-against\"}}\">{{username}}</span><span ng-hide=\"$last\">, </span></span>" +
+        "<span ng-repeat=\"(username, vote) in votes track by $index\"><span class=\"{{vote==='yes'?'vote-for':'vote-against'}}\">{{username}}</span><span ng-hide=\"$last\">, </span></span>" +
         "</span></div></div>");
 
     function getTimeString(timestamp) {
