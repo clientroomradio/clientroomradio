@@ -73,7 +73,7 @@
                             <i class="fa fa-headphones"></i> 
                             <span ng-repeat="contextUser in currentTrack.context">
                                 <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
-                                ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span><span ng-show="contextUser.artistInLibrary && (!contextUser.userplaycount)">+</span>)<span ng-show="$last==false">,</span>
+                                ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span>)<span ng-show="$last==false">,</span>
                             </span>
                         </div>
                         <div ng-show="isPlaying()">
