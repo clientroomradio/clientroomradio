@@ -10,7 +10,7 @@
         <link href="css/slider.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
     </head>
-    <body ng-cloak class="{{active?'active':'inactive'}}{{discoveryHour?' discovery-hour':''}}{{bingo?' bingo':''}}">
+    <body ng-cloak class="{{active?'active':'inactive'}}{{bingo?' bingo':''}}">
 
         <!-- Header -->
         <nav class="navbar navbar-default" role="navigation"  ng-controller="NavController">
@@ -24,7 +24,7 @@
                 </button>
                 <a class="navbar-brand" href="">
                     <span><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/></span>
-                    {{radioname}}{{discoveryHour?' - Discovery Hour':''}}{{bingo?' - BINGO!':''}}
+                    {{radioname}}{{bingo?' - BINGO!':''}}
                 </a>
             </div>
 

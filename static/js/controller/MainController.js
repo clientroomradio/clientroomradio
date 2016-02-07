@@ -1,3 +1,4 @@
+"use strict";
 
 function MainController($scope, socket) {
     $scope.username = loggedInAs;
@@ -12,7 +13,6 @@ function MainController($scope, socket) {
     $scope.active = true;
     $scope.stream = config.stream;
     $scope.muted = false;
-    $scope.discoveryHour = false;
     $scope.bingo = false;
 
     $scope.login = function() {
@@ -181,11 +181,6 @@ function MainController($scope, socket) {
 
         $scope.bingo = data.bingo;
 
-        $scope.$apply();
-    });
-
-    socket.discoveryHourCallback.add(function(discoveryHour) {
-        $scope.discoveryHour = discoveryHour;
         $scope.$apply();
     });
 

@@ -10,7 +10,6 @@ var Socket = function(SOCKJS_URL) {
     this.skipCallback = $.Callbacks();
     this.skippersCallback = $.Callbacks();
     this.updateVotesCallback = $.Callbacks();
-    this.discoveryHourCallback = $.Callbacks();
     this.bingoCallback = $.Callbacks();
 
     var sockjs;
@@ -54,10 +53,6 @@ var Socket = function(SOCKJS_URL) {
 
     that.endOfDayRequest = function() {
         send("endOfDayRequest", {});
-    };
-
-    that.discoveryHourRequest = function() {
-        send("discoveryHourRequest", {});
     };
 
     that.requestVotingUpdate = function(id) {
@@ -118,11 +113,6 @@ var Socket = function(SOCKJS_URL) {
 
             if (type === "updateVotes") {
                 that.updateVotesCallback.fire(data);
-                return;
-            }
-
-            if (type === "discoveryHour") {
-                that.discoveryHourCallback.fire(data);
                 return;
             }
 
