@@ -75,11 +75,14 @@
                                 <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
                                 ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span><span ng-show="contextUser.artistInLibrary && (!contextUser.userplaycount)">+</span>)<span ng-show="$last==false">,</span>
                             </span>
+                        </div>
+                        <div>
                             <i class="fa fa-thumbs-down"></i>
-                            <span class="skippers">{{skippers.length}} of {{skippersNeeded()}} needed to skip
+                            <span class="skippers">
                                 <span class="text-muted" ng-hide="skippers.length==0">
                                     (<span ng-repeat="skipper in skippers">{{skipper}}<span ng-show="$last==false">, </span></span>)
                                 </span>
+                                <span>{{skippers.length}} of {{skippersNeeded()}} needed to skip</span>
                             </span>
                         </div>
                     </div>

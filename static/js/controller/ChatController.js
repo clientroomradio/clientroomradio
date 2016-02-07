@@ -179,7 +179,7 @@ function ChatController($scope, $element, $compile, socket) {
 
     function updateContainer() {
         var containerHeight = $(window).height();
-        $chatContent.css("height", Math.max(200, containerHeight - 355));
+        $chatContent.css("height", Math.max(200, containerHeight - 360));
         scrollDown();
     }
 
