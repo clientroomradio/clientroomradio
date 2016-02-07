@@ -193,7 +193,7 @@ function MainController($scope, socket) {
         $scope.bingo = bingo;
         $scope.$apply();
     });
-            
+
     socket.progressCallback.add(function(progress) {
         $scope.currentPositionInTrack = $scope.currentTrack.duration * progress;
         $scope.$apply();
@@ -201,7 +201,7 @@ function MainController($scope, socket) {
 
     socket.usersCallback.add(function(data) {
         Object.keys(data).forEach(function(username) {
-            if (username == loggedInAs) {
+            if (username === loggedInAs) {
                 $scope.active = data[username].active;
                 $scope.scrobbling = data[username].scrobbling;
             }
@@ -210,20 +210,20 @@ function MainController($scope, socket) {
         $scope.$apply();
     });
 
-    socket.skippersCallback.add(function(data) {
+    socket.skippersCallback.add(function (data) {
         $scope.skippers = data;
         $scope.skipped = false;
-        for(var i=0, len=data.length; i < len; i++){
+        for(var i = 0, len = data.length; i < len; i++){
             var user = data[i];
-            if (user == loggedInAs) {
+            if (user === loggedInAs) {
                 $scope.skipped = true;
             }
         }
         $scope.$apply();
     });
 
-    socket.sysCallback.add(function(data) {
-        if (data.type == 'skip') {
+    socket.sysCallback.add(function (data) {
+        if (data.type === 'skip') {
             $scope.skipped = true;
             $scope.$apply();
         }
