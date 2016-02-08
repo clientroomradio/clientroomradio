@@ -20,5 +20,9 @@
     "env": {
         "browser": true,
         "jquery": true
+    },
+    "globals": {
+        "config": true,
+        "loggedInAs": true
     }
 }
