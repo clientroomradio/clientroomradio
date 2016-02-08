@@ -1,11 +1,5 @@
 include_recipe "basebox"
 
-directory "/etc/clientroomradio/backend/spotify" do
-    owner "root"
-    action :create
-    recursive true
-end
-
 if not File.exist?("/etc/clientroomradio/crr.pem")
     file "/etc/clientroomradio/crr.pem" do
         owner "root"
@@ -16,8 +10,8 @@ if not File.exist?("/etc/clientroomradio/crr.pem")
     end
 end
 
-if not File.exist?("/etc/clientroomradio/backend/spotify/spotify_appkey.key")
-    file "/etc/clientroomradio/backend/spotify/spotify_appkey.key" do
+if not File.exist?("/etc/clientroomradio//spotify_appkey.key")
+    file "/etc/clientroomradio/spotify_appkey.key" do
         owner "root"
         group "root"
         mode 0644
@@ -28,7 +22,6 @@ end
 
 include_recipe "clientroomradio::node"
 include_recipe "clientroomradio::libspotify"
-include_recipe "clientroomradio::redis"
 include_recipe "clientroomradio::haproxy"
 
 
