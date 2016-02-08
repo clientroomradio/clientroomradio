@@ -40,7 +40,9 @@ function ChatController($scope, $element, $compile, socket) {
         return hours + ":" + minutes + " " + suffix;
     }
 
-    socket.chatCallback.add(function(data) {
+    socket.chatCallback.add(function (data) {
+        console.log(data);
+
         var isScrolledDown = ($chatContent.scrollTop() + $chatContent.innerHeight() === $chatContent[0].scrollHeight);
         var $el = $simpleChatLineTemplate.clone();
 
@@ -113,13 +115,16 @@ function ChatController($scope, $element, $compile, socket) {
             $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a>" + " – " + "<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
         } else {
             $(".chat-inner-text", $el).html(linkify(data.text));
-        };
+        }
 
         if (data.user) {
             $(".chat-name", $el).text(data.user);
+        } else if (data.data.hasOwnProperty("data")) {
+            $(".chat-name", $el).text(data.data.data.username);
         } else {
             $(".chat-name", $el).text(config.name);
         }
+
         $(".chat-time", $el).text(getTimeString(data.timestamp));
 
         if (data.system === "startVoting") {

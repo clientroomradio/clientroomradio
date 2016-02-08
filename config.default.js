@@ -6,8 +6,7 @@ var config = {
     "host": "localhost",
     "chatBacklogLength": 100,
     "port": 3000,
-    "whitelistUrl": "https://docs.google.com/spreadsheets/d/1kgNgjC3ort37VpJxXeLr8tAYo9fLxGpOiAX48fiH6_s/pub?gid=0&single=true&output=csv",
-    "notAllowedInUrl": "http://www.last.fm/group/Client+Room+Radio",
+    "notAllowedInUrl": "http://www.websitepulse.com/blog/uploads/2013/02/Access-Denied_finalll.jpg",
     "spotifyRequestUrl": "http://localhost:3002/request",
     "discoveryHourRequestUrl": "http://localhost:3002/discovery",
     "external": {

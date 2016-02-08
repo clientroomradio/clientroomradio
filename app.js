@@ -26,18 +26,18 @@ var config = require("./config.js");
 // DI
 var logger = new Logger();
 var spotify = new Spotify(logger);
-var permissionManager = new PermissionManager(config, logger);
 var dataStore = new DataStore(logger);
 var lastfmClient = new LastfmClient(config, logger, dataStore);
 var userDao = new UserDao(dataStore, lastfmClient, logger);
-var socket = new Socket(userDao, permissionManager, logger);
+var socket = new Socket(userDao, logger);
 var chat = new Chat(socket, config);
+var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
+var votingManager = new VotingManager(chat, socket);
+var permissionManager = new PermissionManager(socket, dataStore, votingManager, logger);
 var currentTrackManager = new CurrentTrackManager(socket, chat, logger);
 var skipManager = new SkipManager(socket, chat);
 var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionManager, logger);
 var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config, logger);
-var votingManager = new VotingManager(chat, socket);
-var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
 
 // Nothing depends on those:
 
