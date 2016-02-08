@@ -9,6 +9,7 @@
 
         <link href="css/slider.css" rel="stylesheet">
         <link href="css/main.css" rel="stylesheet">
+
     </head>
     <body ng-cloak class="{{active?'active':'inactive'}}{{bingo?' bingo':''}}">
 
@@ -29,8 +30,11 @@
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse navbar-ex1-collapse">
-                <ul class="nav navbar-nav navbar-right" ng-show="isLoggedIn()" >
+            <div class="navbar-text">
+                <a class="twitter-follow-button" data-show-count="false" href="https://twitter.com/clientroomradio">@clientroomradio</a>
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse navbar-right">
+                <ul class="nav navbar-nav" ng-show="isLoggedIn()" >
                     <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
                     <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
                     <li ng-show="NotificationPermissionNeeded()">
@@ -214,6 +218,7 @@
         <script src="/js/lib/jquery.jplayer.min.js"></script>
         <script src="/js/lib/bootstrap-slider.js"></script>
         <script src="/js/lib/WebNotification.js"></script>
+        <script src="/js/lib/twitter.widgets.js"></script>
 
         <!-- Javascript - Config -->
         <script src="/config.js"></script>
