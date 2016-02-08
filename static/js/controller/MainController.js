@@ -115,7 +115,6 @@ function MainController($scope, socket) {
                     }
 
                     function checkPlaying(time) {
-                        console.log("position update", time, state);
                         if (time !== 0 && state === "stopped") {
                             restart(player);
                         }
