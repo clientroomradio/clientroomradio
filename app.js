@@ -41,8 +41,8 @@ var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
 
 // Nothing depends on those:
 
-new Backend(dataStore, currentTrackManager, lastfmClient, spotify, skipManager, socket, chat, logger);
-new FrontendUpdater(socket, userDao, currentTrackManager, skipManager, dataStore);
+new Backend(userDao, currentTrackManager, lastfmClient, spotify, skipManager, socket, chat, logger);
+new FrontendUpdater(socket, userDao, currentTrackManager, skipManager);
 new ScrobblingManager(socket, userDao);
 new LoveManager(socket, currentTrackManager, chat, lastfmClient, logger);
 new EndOfDayRequestManager(userDao, votingManager, socket);
