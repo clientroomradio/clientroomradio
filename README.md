@@ -24,6 +24,10 @@ Now ssh in:
 * `vagrant ssh`
 * `cd /vagrant/`
 
+Install the node modules:
+
+* `npm install`
+
 Now run the app:
 
 * `.startForever.sh`
