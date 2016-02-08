@@ -14,12 +14,16 @@ function VotingController($scope, socket) {
     };
 
     $scope.initWithSession = function() {
-        var session = $.cookie("session")
-        if (typeof session !== "undefined") {
-            $scope.id = session;
-            socket.requestVotingUpdate($scope.id);
-        }
-        $scope.$apply();
+        socket.openCallback.add(function () {
+            if (!$scope.id) {
+                var session = $.cookie("session");
+                if (typeof session !== "undefined") {
+                    $scope.id = session;
+                    socket.requestVotingUpdate($scope.id);
+                }
+                $scope.$apply();
+            }
+        });
     };
 
     $scope.userHasVoted = function() {

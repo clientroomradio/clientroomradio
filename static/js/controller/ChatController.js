@@ -41,8 +41,6 @@ function ChatController($scope, $element, $compile, socket) {
     }
 
     socket.chatCallback.add(function (data) {
-        console.log(data);
-
         var isScrolledDown = ($chatContent.scrollTop() + $chatContent.innerHeight() === $chatContent[0].scrollHeight);
         var $el = $simpleChatLineTemplate.clone();
 
@@ -84,6 +82,8 @@ function ChatController($scope, $element, $compile, socket) {
             $(".chat-inner-text", $el).text("left");
         } else if (data.system === "join") {
             $(".chat-inner-text", $el).text("joined");
+        } else if (data.system === "newUser") {
+            $(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
         } else if (data.system === "skipSuccessful") {
             $(".chat-inner-text", $el).text("SKIP!");
         } else if (data.system === "spotifyRequestComplete") {
@@ -174,6 +174,20 @@ function ChatController($scope, $element, $compile, socket) {
         }
     });
 
+    function scrollDown() {
+        $chatContent.scrollTop($chatContent[0].scrollHeight);
+    }
+
+    $scope.$watch("isLoggedIn()", function () {
+        scrollDown();
+    });
+
+    function updateContainer() {
+        var containerHeight = $(window).height();
+        $chatContent.css("height", Math.max(200, containerHeight - 365));
+        scrollDown();
+    }
+
     // Resize chat area
     $(document).ready(function () {
         updateContainer();
@@ -181,16 +195,6 @@ function ChatController($scope, $element, $compile, socket) {
             updateContainer();
         });
     });
-
-    function updateContainer() {
-        var containerHeight = $(window).height();
-        $chatContent.css("height", Math.max(200, containerHeight - 360));
-        scrollDown();
-    }
-
-    function scrollDown() {
-        $chatContent.scrollTop($chatContent[0].scrollHeight);
-    }
 
     /**
      * Taken from http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
