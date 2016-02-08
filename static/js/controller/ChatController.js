@@ -152,7 +152,7 @@ function ChatController($scope, $element, $compile, socket) {
             } else if (inputText.indexOf("?request") === 0) {
                 var search = $("#spotifySearch");
                 search.modal("show");
-                var inputElement = search.find(".modal-body input")
+                var inputElement = search.find(".modal-body input");
                 inputElement.val(inputText.substring(9));
                 inputElement.trigger("input");
             } else if (inputText.indexOf("?away") === 0) {

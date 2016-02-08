@@ -78,23 +78,27 @@
                             ({{durationInText()}})
                         </h4>
 
-                        <h4 class="media-heading" ng-hide="isPlaying()">{{getActiveUserCount()===0?"Nothing playing at the moment.":"Loading track..."}}</h4>
+                        <div  ng-hide="isPlaying()">
+                            <h4 class="media-heading" ng-show="getActiveUserCount()===0">Nothing playing at the moment.</h4>
+                            <h4 class="media-heading" ng-hide="getActiveUserCount()===0">Loading next track <i class="fa fa-spinner fa-pulse"></i></h4>
+                        </div>
+
                         <p ng-hide="isLoggedIn()||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
 
-                        <div class="progress" ng-show="isPlaying()">
+                        <div class="progress">
                             <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"></div>
                         </div>
 
                         <div id="audio-player"></div>
 
-                        <div ng-show="isPlaying()">
+                        <div>
                             <i class="fa fa-headphones"></i> 
                             <span ng-repeat="contextUser in currentTrack.context">
                                 <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
                                 ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span>)<span ng-show="$last==false">,</span>
                             </span>
                         </div>
-                        <div ng-show="isPlaying()">
+                        <div>
                             <i class="fa fa-thumbs-down"></i>
                             <span class="skippers">
                                 <span class="text-muted" ng-hide="skippers.length==0">
@@ -111,10 +115,10 @@
                             <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!active || skipped" ng-show="isLoggedIn()" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
                                 <i class="fa fa-thumbs-down"></i> Skip
                             </button>
-                            <button type="button" class="btn btn-danger btn-tooltip" ng-show="loved&&isLoggedIn()" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
+                            <button type="button" class="btn btn-danger btn-tooltip" ng-show="isLoggedIn()&&loved" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
                                 <i class="fa fa-heart"></i>
                             </button>
-                            <button type="button" class="btn btn-default btn-tooltip" ng-show="!loved&&isLoggedIn()">
+                            <button type="button" class="btn btn-default btn-tooltip" ng-show="isLoggedIn()&&!loved"ng-click="love()">
                                 <i class="fa fa-heart-o"></i>
                             </button>
                         </div>
