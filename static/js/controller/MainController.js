@@ -172,6 +172,11 @@ function MainController($scope, socket) {
     };
 
     socket.newTrackCallback.add(function (data) {
+        if (Object.keys($scope.currentTrack) === 0) {
+            // this is a new track so set the position to 0
+            $scope.currentPositionInTrack = 0;
+        }
+
         $scope.currentTrack = data;
 
         $scope.loved = false;
