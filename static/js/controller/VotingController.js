@@ -13,6 +13,15 @@ function VotingController($scope, socket) {
         socket.requestVotingUpdate(id);
     };
 
+    $scope.initWithSession = function() {
+        var session = $.cookie("session")
+        if (typeof session !== "undefined") {
+            $scope.id = session;
+            socket.requestVotingUpdate($scope.id);
+        }
+        $scope.$apply();
+    };
+
     $scope.userHasVoted = function() {
         for (var username in $scope.votes) {
             if (username === loggedInAs) {
@@ -25,7 +34,7 @@ function VotingController($scope, socket) {
         return $scope.decision !== null;
     };
 
-    socket.updateVotesCallback.add(function(voting) {
+    socket.updateVotesCallback.add(function (voting) {
         if (voting.id === $scope.id) {
             $scope.votes = voting.votes;
             $scope.remainingSeconds = Math.round(voting.remainingTime / 1000);

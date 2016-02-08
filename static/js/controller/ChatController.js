@@ -94,6 +94,8 @@ function ChatController($scope, $element, $compile, socket) {
             $el = $voteChatLineTemplate.clone();
             if (vote.type === "endOfDay") {
                 $(".chat-inner-text", $el).text("proposes to end today\"s Client Room Radio");
+            } else if (vote.type === "newUser") {
+                $(".chat-inner-text", $el).text("wants to join Client Room Radio. Allow them in?");
             }
             $el.attr("ng-init", "init(\"" + vote.id + "\")");
         } else if (data.system === "becomesInactive") {

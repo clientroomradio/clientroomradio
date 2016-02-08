@@ -16,7 +16,7 @@
         <nav class="navbar navbar-default" role="navigation"  ng-controller="NavController">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-hide="username==null">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-show="isLoggedIn()">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -30,7 +30,7 @@
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
-                <ul class="nav navbar-nav navbar-right" ng-show="username" >
+                <ul class="nav navbar-nav navbar-right" ng-show="isLoggedIn()" >
                     <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
                     <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
                     <li ng-show="NotificationPermissionNeeded()">
@@ -44,10 +44,24 @@
         </nav>
 
         <!-- Main area -->
-        <div ng-cloak>
+        <div ng-cloak ng-show="initialised">
             <div class="col-sm-12">
-                <div class="well" ng-show="username==null">
-                    <h1>It’s Friday, Friday…</h1>
+                <div class="well" ng-hide="isLoggedIn()">
+                    <div ng-controller="VotingController" ng-init="initWithSession()">
+                        <div ng-show="id">
+                            <div ng-hide="hasBeenDecided()">
+                                <h1>They're voting, voting…</h1>
+                                <span>Will current users let you in? You'll know in {{remainingSeconds}} seconds...</span>
+                            </div>
+                            <div ng-show="hasBeenDecided()&&decision==='no'">
+                                <h1>They voted, voted…</h1>
+                                <span >You weren't allowed in this time. Don't feel bad. Maybe no one saw. Try again?</span>
+                            </div>
+                        </div>
+                        <div ng-hide="id">
+                            <h1>It’s Friday, Friday…</h1>
+                        </div>               
+                    </div>
                 </div>
                 <div class="well current-track">
                     <div class="current-track-info clearfix">
@@ -61,7 +75,7 @@
                         </h4>
 
                         <h4 class="media-heading" ng-hide="isPlaying()">{{getActiveUserCount()===0?"Nothing playing at the moment.":"Loading track..."}}</h4>
-                        <p ng-hide="username!==null||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
+                        <p ng-hide="isLoggedIn()||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
 
                         <div class="progress" ng-show="isPlaying()">
                             <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"></div>
@@ -89,19 +103,19 @@
 
                     <div class="clearfix">
                         <div class="pull-left current-track-buttons">
-                            <button class="btn btn-primary" ng-show="username===null" ng-click="login()">Login via Last.fm</button>
-                            <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!active || skipped || (username==null)" ng-hide="username===null" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
+                            <button class="btn btn-primary" ng-hide="isLoggedIn()" ng-click="login()">Login via Last.fm</button>
+                            <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!active || skipped" ng-show="isLoggedIn()" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
                                 <i class="fa fa-thumbs-down"></i> Skip
                             </button>
-                            <button type="button" class="btn btn-danger btn-tooltip" ng-show="loved&&username!==null" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
+                            <button type="button" class="btn btn-danger btn-tooltip" ng-show="loved&&isLoggedIn()" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
                                 <i class="fa fa-heart"></i>
                             </button>
-                            <button type="button" class="btn btn-default btn-tooltip" ng-hide="loved||username===null" ng-hide="username==null" ng-click="love()" data-toggle="tooltip" title="Love this track">
+                            <button type="button" class="btn btn-default btn-tooltip" ng-show="!loved&&isLoggedIn()">
                                 <i class="fa fa-heart-o"></i>
                             </button>
                         </div>
 
-                        <div class="pull-right" ng-hide="username==null">
+                        <div class="pull-right" ng-show="isLoggedIn()">
                             <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!active)" data-toggle="tooltip" title="Sit out / in">
                                 <i class="{{active?'fa fa-sign-out':'fa fa-sign-in'}}"></i>
                             </button>
@@ -128,7 +142,7 @@
                 </div>
             </div>
 
-            <div ng-hide="username==null" class="col-md-10 col-xs-12">
+            <div ng-show="isLoggedIn()" class="col-md-10 col-xs-12">
                 <div class="panel panel-default" ng-controller="ChatController">
                     <div class="panel-body chat-content"></div>
                     <div class="panel-footer">
@@ -139,7 +153,7 @@
                     </div>
                 </div>
             </div>
-            <div ng-hide="username==null" class="col-md-2 col-xs-12">
+            <div ng-show="isLoggedIn()" class="col-md-2 col-xs-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <ng-pluralize
@@ -148,9 +162,9 @@
                         </ng-pluralize>
                     </div>
                     <ul class="list-group listener-list">
-                        <li ng-repeat="(username, user) in users" class="list-group-item {{user.active?'user--active':'user--inactive'}}">
+                        <li ng-repeat="(username, user) in users" class="list-group-item {{user.active&&user.allowed?'user--active':'user--inactive'}}">
                             <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
-                            <i ng-show="user.active && user.scrobbling" class="icon-lastfm pull-right"></i>
+                            <i ng-show="user.active && user.scrobbling && user.allowed" class="icon-lastfm pull-right"></i>
                         </li>
                     </ul>
                 </div>
