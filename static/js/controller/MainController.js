@@ -182,7 +182,7 @@ function MainController($scope, socket) {
         $scope.loved = false;
         if (data.context
             && typeof data.context[loggedInAs] !== "undefined"
-            && data.context[loggedInAs].userloved === 1) {
+            && data.context[loggedInAs].userloved === "1") {
             $scope.loved = true;
         }
 
