@@ -85,20 +85,20 @@
 
                         <p ng-hide="isLoggedIn()||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
 
-                        <div class="progress">
+                        <div class="progress" ng-show="isPlaying()||getActiveUserCount()>0">
                             <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"></div>
                         </div>
 
                         <div id="audio-player"></div>
 
-                        <div>
+                        <div ng-show="isPlaying()||getActiveUserCount()>0">
                             <i class="fa fa-headphones"></i> 
                             <span ng-repeat="contextUser in currentTrack.context">
                                 <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
                                 ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span>)<span ng-show="$last==false">,</span>
                             </span>
                         </div>
-                        <div>
+                        <div ng-show="isPlaying()||getActiveUserCount()>0">
                             <i class="fa fa-thumbs-down"></i>
                             <span class="skippers">
                                 <span class="text-muted" ng-hide="skippers.length==0">
