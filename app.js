@@ -24,7 +24,7 @@ var VotingManager = require("./lib/VotingManager.js");
 var config = require("./config.js");
 
 // DI
-var logger = new Logger();
+var logger = new Logger(config);
 var spotify = new Spotify(logger);
 var dataStore = new DataStore(logger);
 var lastfmClient = new LastfmClient(config, logger, dataStore);
