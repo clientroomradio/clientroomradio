@@ -85,7 +85,8 @@ function ChatController($scope, $element, $compile, socket) {
         } else if (data.system === "newUser") {
             $(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
         } else if (data.system === "skipSuccessful") {
-            $(".chat-inner-text", $el).text("SKIP!");
+            console.log(data.data);
+            $(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
         } else if (data.system === "spotifyRequestComplete") {
             var track = data.data;
             $(".chat-inner-text", $el).html("request ready <a href=\"" + track.identifier + "\">" + track.artists[0].name + " — " + track.name + "</a>");
