@@ -30,10 +30,11 @@
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="navbar-text">
-                <a class="twitter-follow-button" data-show-count="false" href="https://twitter.com/clientroomradio">@clientroomradio</a>
-            </div>
             <div class="collapse navbar-collapse navbar-ex1-collapse navbar-right">
+                <ul class="nav navbar-nav">
+                    <li class="navbar-text"><a class="twitter-follow-button" data-show-count="false" href="https://twitter.com/clientroomradio">@clientroomradio</a></li>
+                    <li class="navbar-text"><iframe src="https://ghbtns.com/github-btn.html?user=clientroomradio&repo=clientroomradio&type=watch&count=false&v=2" frameborder="0" scrolling="0" width="60px" height="20px"></iframe></li>
+                </ul>
                 <ul class="nav navbar-nav" ng-show="isLoggedIn()" >
                     <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
                     <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>

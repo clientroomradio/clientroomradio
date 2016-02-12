@@ -24,10 +24,13 @@ Now ssh in:
 * `vagrant ssh`
 * `cd /vagrant/`
 
-Install the node modules:
+Install the node modules and run the setup script:
 
 * `npm install`
+* `nodejs lib/Setup.js <lastfm_api_key> <lastfm_api_secret> [<spotify_username> <spotify_password>]`
+
+The Last.fm user gets all the radio scrobbled to it. The Spotify is the the source of the audio.
 
 Now run the app:
 
-* `.startForever.sh`
+* `./startForever.sh`
