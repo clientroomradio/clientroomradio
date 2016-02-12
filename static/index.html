@@ -171,9 +171,12 @@
                         </ng-pluralize>
                     </div>
                     <ul class="list-group listener-list">
-                        <li ng-repeat="(username, user) in users" class="list-group-item {{user.active&&user.allowed?'user--active':'user--inactive'}}">
-                            <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
-                            <i ng-show="user.active && user.scrobbling && user.allowed" class="icon-lastfm pull-right"></i>
+                        <li ng-repeat="(username, user) in users" class="clearfix list-group-item {{user.active&&user.allowed?'user--active':'user--inactive'}}">
+                            <span class="pull-left">
+                                <img class="icon-user img-circle" src="{{user.image?user.image:'/img/crr_40_alpha.png'}}"/>
+                                <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
+                            </span>
+                            <i ng-show="user.active && user.scrobbling && user.allowed" class="pull-right icon-lastfm"></i>
                         </li>
                     </ul>
                 </div>

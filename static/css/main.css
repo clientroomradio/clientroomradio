@@ -250,6 +250,11 @@
 	background-image: url(/img/crr_scrobble_icon_black.png);
 }
 
+.list-group-item .icon-user {
+	width: 21px;
+	height: 21px;
+}
+
 .user--inactive a {
 	color: #bbb;
 }
