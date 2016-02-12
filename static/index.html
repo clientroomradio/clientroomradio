@@ -15,36 +15,38 @@
 
         <!-- Header -->
         <nav class="navbar navbar-default" role="navigation"  ng-controller="NavController">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-show="isLoggedIn()">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="">
-                    <span><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/></span>
-                    {{radioname}}{{bingo?' - BINGO!':''}}
-                </a>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse navbar-ex1-collapse navbar-right">
-                <ul class="nav navbar-nav">
-                    <li class="navbar-text"><a class="twitter-follow-button" data-show-count="false" href="https://twitter.com/clientroomradio">@clientroomradio</a></li>
-                    <li class="navbar-text"><iframe src="https://ghbtns.com/github-btn.html?user=clientroomradio&repo=clientroomradio&type=watch&count=false&v=2" frameborder="0" scrolling="0" width="60px" height="20px"></iframe></li>
-                </ul>
-                <ul class="nav navbar-nav" ng-show="isLoggedIn()" >
-                    <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
-                    <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
-                    <li ng-show="NotificationPermissionNeeded()">
-                        <a href="javascript:void(0)" ng-click="requestNotificationPermissions();">Enable Notifications</a>
-                    </li>
-                    <li>
-                        <a href="/logout">Log out</a>
-                    </li>
-                </ul>
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-show="isLoggedIn()">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="">
+                        <span><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/></span>
+                        {{radioname}}{{bingo?' - BINGO!':''}}
+                    </a>
+                </div>
+    
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse navbar-ex1-collapse navbar-right">
+                    <ul class="nav navbar-nav">
+                        <li class="navbar-text"><a class="twitter-follow-button" data-show-count="false" href="https://twitter.com/clientroomradio">@clientroomradio</a></li>
+                        <li class="navbar-text"><iframe src="https://ghbtns.com/github-btn.html?user=clientroomradio&repo=clientroomradio&type=watch&count=false&v=2" frameborder="0" scrolling="0" width="60px" height="20px"></iframe></li>
+                    </ul>
+                    <ul class="nav navbar-nav" ng-show="isLoggedIn()" >
+                        <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
+                        <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
+                        <li ng-show="NotificationPermissionNeeded()">
+                            <a href="javascript:void(0)" ng-click="requestNotificationPermissions();">Enable Notifications</a>
+                        </li>
+                        <li>
+                            <a href="/logout">Log out</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
 
