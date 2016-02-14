@@ -10,6 +10,7 @@ var Socket = function(SOCKJS_URL) {
     this.skipCallback = $.Callbacks();
     this.skippersCallback = $.Callbacks();
     this.updateVotesCallback = $.Callbacks();
+    this.newVoteCallback = $.Callbacks();
     this.bingoCallback = $.Callbacks();
 
     var sockjs;
@@ -113,6 +114,11 @@ var Socket = function(SOCKJS_URL) {
 
             if (type === "updateVotes") {
                 that.updateVotesCallback.fire(data);
+                return;
+            }
+
+            if (type === "newVote") {
+                that.newVoteCallback.fire(data);
                 return;
             }
 

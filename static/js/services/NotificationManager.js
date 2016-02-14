@@ -3,31 +3,6 @@
 var NotificationManager = function(socket) {
     var that = this;
 
-    socket.chatCallback.add(function(data) {
-        var text = data.text;
-        if (text && text.indexOf(loggedInAs) !== -1) {
-            if (data.user && !data.backlog && data.user !== loggedInAs) {
-                notify("Mentioned by " + data.user, text);
-            }
-        }
-    });
-
-    // There"s also always one happening on pageload. Avoid that by not enabling this from start
-    setTimeout(function() {
-        // newTrack updates can happen more than once
-        var lastIdentifier = null;
-        socket.newTrackCallback.add(function(track) {
-            if (track.identifier && track.identifier != lastIdentifier) {
-                notify("New track" , track.artists[0].name + " - " + track.name, track.image);
-                lastIdentifier = track.identifier;
-            }
-        });
-
-        socket.skipCallback.add(function(skip) {
-            notify(skip.skipper.username + " skipped!", skip.skippers.join(", "), skip.skipper.image);
-        });
-    }, 3000);
-
     function notify(title, text, image) {
         if (!that.permissionNeeded()) {
             image = image || "/img/crr_128.png";
@@ -41,7 +16,6 @@ var NotificationManager = function(socket) {
             notification.onclick = function () {
                 notification.close();
                 window.focus();
-                clearTimeout(closeTimeout);
             };
 
             setTimeout(function () {
@@ -49,6 +23,45 @@ var NotificationManager = function(socket) {
             }, 3000);
         }
     }
+
+    socket.newVoteCallback.add(function(data) {
+        var text = "There's a new vote";
+
+        console.log(data);
+
+        if (data.type === "newUser") {
+            text = data.user + " wants to join. Let them?";
+        } else if (data.type === "endOfDay") {
+            text = data.user + " wants to call it a day";
+        }
+
+        notify("New Vote!", text);
+    });
+
+    socket.chatCallback.add(function(data) {
+        var text = data.text;
+        if (text && text.indexOf(loggedInAs) !== -1) {
+            if (data.user && !data.backlog && data.user !== loggedInAs) {
+                notify("Mentioned by " + data.user, text);
+            }
+        }
+    });
+
+    // There's also always one happening on pageload. Avoid that by not enabling this from start
+    setTimeout(function() {
+        // newTrack updates can happen more than once
+        var lastIdentifier = null;
+        socket.newTrackCallback.add(function(track) {
+            if (track.identifier && track.identifier !== lastIdentifier) {
+                notify("New track", track.artists[0].name + " - " + track.name, track.image);
+                lastIdentifier = track.identifier;
+            }
+        });
+
+        socket.skipCallback.add(function(skip) {
+            notify(skip.skipper.username + " skipped!", skip.skippers.join(", "), skip.skipper.image);
+        });
+    }, 3000);
 
     that.request = function() {
         window.Notification.requestPermission(function() {
