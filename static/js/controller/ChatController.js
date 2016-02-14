@@ -2,22 +2,28 @@ function ChatController($scope, $element, $compile, socket) {
     var $chatContent = $(".chat-content", $element);
     var $input = $(".chat-input", $element);
 
-    var $newTrackChatLineTemplate = $("<div class=\"chat-line chat-line--new-track\"><div class=\"chat-time\"></div><div class=\"chat-text\"><span class=\"chat-img\"></span> <span class=\"chat-inner-text\"></span></div></div>");
-    var $simpleChatLineTemplate = $("<div class=\"chat-line\"><div class=\"chat-time\"></div><div class=\"chat-text\"><span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span></div></div>");
-    var $voteChatLineTemplate = $("<div class=\"chat-line chat-line--sys chat-line--vote\" ng-controller=\"VotingController\"><div class=\"chat-time\"></div>" +
-        "<div class=\"chat-text\"><span class=\"chat-name\"></span> " +
-        "<span class=\"chat-inner-text\"></span>" +
-        "<div class=\"pull-right vote-decision vote-decision--{{decision}}\" ng-show=\"hasBeenDecided()\">{{decision === 'yes' ? 'accepted' : 'crushed'}}</div>" +
-        "<div class=\"pull-right vote-action-area\" ng-hide=\"hasBeenDecided()\">" +
-        "<div class=\"vote-remaining-time\">{{remainingSeconds}} Sec</div> " +
-        "<div class=\"btn-group\">" +
-        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='yes'?'btn-success':'btn-default'}} btn-xs\" ng-click=\"vote('yes')\">Yes</button> " +
-        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='no'?'btn-danger':'btn-default'}} btn-xs\" ng-click=\"vote('no')\">No</button>" +
-        "</div>" +
-        "</div>" +
-        "<span class=\"votes-cast\">" +
-        "<span ng-repeat=\"(username, vote) in votes track by $index\"><span class=\"{{vote==='yes'?'vote-for':'vote-against'}}\">{{username}}</span><span ng-hide=\"$last\">, </span></span>" +
-        "</span></div></div>");
+    var $newTrackChatLineTemplate = $("<div class=\"chat-line chat-line--new-track clearfix\"><span class=\"chat-time pull-left\"></span><span class=\"chat-text\"><span class=\"chat-img pull-left\"></span><span><div class=\"chat-inner-text\"></div><div class=\"chat-extra-text\"></div></span></span></div>");
+    var $simpleChatLineTemplate = $("<div class=\"chat-line\"><span class=\"chat-time\"></span><span class=\"chat-text\"><span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span></span></div>");
+    var $voteChatLineTemplate =
+        $("<div class=\"chat-line chat-line--sys chat-line--vote clearfix\" ng-controller=\"VotingController\">" +
+            "<div class=\"chat-time pull-left\"></div>" +
+            "<div class=\"chat-text pull-left\">" +
+                "<span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span>" +
+                "<div class=\"votes-cast\">" +
+                    "<span ng-repeat=\"(username, vote) in votes track by $index\"><span class=\"{{vote==='yes'?'vote-for':'vote-against'}}\">{{username}}</span><span ng-hide=\"$last\">, </span></span>" +
+                "</div>" +
+            "</div>" +
+            "<div class=\"pull-right\">" +
+                "<div class=\"vote-decision vote-decision--{{decision}}\" ng-show=\"hasBeenDecided()\">{{decision === 'yes' ? 'accepted' : 'crushed'}}</div>" +
+                "<div class=\"vote-action-area\" ng-hide=\"hasBeenDecided()\">" +
+                    "<div class=\"vote-remaining-time\">{{remainingSeconds}} Sec</div> " +
+                    "<div class=\"btn-group\">" +
+                        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='yes'?'btn-success':'btn-default'}} btn-xs\" ng-click=\"vote('yes')\">Yes</button> " +
+                        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='no'?'btn-danger':'btn-default'}} btn-xs\" ng-click=\"vote('no')\">No</button>" +
+                    "</div>" +
+                "</div>" +
+            "</div>" +
+        "</div>");
 
     function getTimeString(timestamp) {
 
@@ -97,7 +103,7 @@ function ChatController($scope, $element, $compile, socket) {
                 var vote = data.data;
                 $el = $voteChatLineTemplate.clone();
                 if (vote.type === "endOfDay") {
-                    $(".chat-inner-text", $el).text("proposes to end today\"s Client Room Radio");
+                    $(".chat-inner-text", $el).text("proposes to end today's Client Room Radio");
                 } else if (vote.type === "newUser") {
                     $(".chat-inner-text", $el).text("wants to join Client Room Radio. Allow them in?");
                 }
@@ -117,6 +123,12 @@ function ChatController($scope, $element, $compile, socket) {
             } else if (data.system === "newTrack") {
                 $el = $newTrackChatLineTemplate.clone();
                 $el.id = data.data.timestamp;
+
+                if (data.data.extension.requester) {
+                    $el.addClass("chat-line--request-track");
+                    $(".chat-extra-text", $el).text("requested by " + data.data.extension.requester);
+                }
+
                 $(".chat-img", $el).html("<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\"><img class=\"album-art media-object img-thumbnail\" src=\"" + (data.data.image ? encodeURI(data.data.image.replace("http://img2-ak.lst.fm/", "https://secure-img2.last.fm/")) : "/img/crr_128.png") + "\"/></a>");
                 $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a>" + " – " + "<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
             } else {

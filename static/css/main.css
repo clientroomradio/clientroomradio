@@ -120,16 +120,12 @@
 	padding-right: 5px;
 }
 
-.chat-line {
-	clear:left;
-}
-
 .chat-content .chat-time {
 	color: #888;
-	float: left;
 	font-size: 10px;
 	padding: 4px 0px 0px 5px;
 	height: 100;
+	margin-right: 6px;
 }
 
 .chat-content .chat-name {
@@ -140,10 +136,6 @@
 	font-weight: bold;
 	color: #222;
 }
-
-.chat-content .chat-text {
-	margin-left: 55px;
-} 
 
 .chat-line--me,
 .chat-line--sys {
@@ -167,6 +159,10 @@
 
 .chat-line--sys .chat-name {
 	color: #bbb;
+}
+
+.chat-line--request-track .chat-extra-text {
+    color: #666;
 }
 
 .vote-action-area {
@@ -195,6 +191,10 @@
 	margin: 1px 0px;
 	font-style: normal;
 	padding: 5px 0px;
+}
+
+.chat-line--request-track {
+	background: #ddc895;
 }
 
 .chat-line--vote {
