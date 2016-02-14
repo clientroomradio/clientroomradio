@@ -10,7 +10,7 @@ if not File.exist?("/etc/clientroomradio/crr.pem")
     end
 end
 
-if not File.exist?("/etc/clientroomradio//spotify_appkey.key")
+if not File.exist?("/etc/clientroomradio/spotify_appkey.key")
     file "/etc/clientroomradio/spotify_appkey.key" do
         owner "root"
         group "root"
