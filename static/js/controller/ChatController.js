@@ -3,18 +3,20 @@ function ChatController($scope, $element, $compile, socket) {
     var $input = $(".chat-input", $element);
 
     var $newTrackChatLineTemplate = $("<div class=\"chat-line chat-line--new-track clearfix\"><span class=\"chat-time pull-left\"></span><span class=\"chat-text\"><span class=\"chat-img pull-left\"></span><span><div class=\"chat-inner-text\"></div><div class=\"chat-extra-text\"></div></span></span></div>");
-    var $simpleChatLineTemplate = $("<div class=\"chat-line\"><span class=\"chat-time\"></span><span class=\"chat-text\"><span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span></span></div>");
+    var $simpleChatLineTemplate = $("<div class=\"chat-line chat-line--text\"><span class=\"chat-time\"></span><span class=\"chat-text\"><span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span></span></div>");
     var $voteChatLineTemplate =
         $("<div class=\"chat-line chat-line--sys chat-line--vote clearfix\" ng-controller=\"VotingController\">" +
-            "<div class=\"chat-time pull-left\"></div>" +
-            "<div class=\"chat-text pull-left\">" +
-                "<span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span>" +
-                "<div class=\"votes-cast\">" +
-                    "<span ng-repeat=\"(username, vote) in votes track by $index\"><span class=\"{{vote==='yes'?'vote-for':'vote-against'}}\">{{username}}</span><span ng-hide=\"$last\">, </span></span>" +
-                "</div>" +
+            "<div class=\"pull-left\">" +
+                "<span class=\"chat-time\"></span>" +
+                "<span class=\"chat-text\">" +
+                    "<span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span> " +
+                    "<span ng-show=\"votes\" class=\"votes-cast\">" +
+                        "<span ng-repeat=\"(username, vote) in votes track by $index\"><span class=\"badge {{vote==='yes'?'vote-for':'vote-against'}}\">{{username}}</span><span ng-hide=\"$last\"> </span></span>" +
+                    "</span>" +
+                "</span>" +
             "</div>" +
-            "<div class=\"pull-right\">" +
-                "<div class=\"vote-decision vote-decision--{{decision}}\" ng-show=\"hasBeenDecided()\">{{decision === 'yes' ? 'accepted' : 'crushed'}}</div>" +
+            "<div ng-show=\"votes\" class=\"pull-right\">" +
+                "<span class=\"badge vote-decision vote-decision--{{decision}}\" ng-show=\"hasBeenDecided()\">{{decision === 'yes' ? 'accepted' : 'crushed'}}</span>" +
                 "<div class=\"vote-action-area\" ng-hide=\"hasBeenDecided()\">" +
                     "<div class=\"vote-remaining-time\">{{remainingSeconds}} Sec</div> " +
                     "<div class=\"btn-group\">" +
@@ -48,6 +50,9 @@ function ChatController($scope, $element, $compile, socket) {
 
     socket.chatCallback.add(function (data) {
         var isScrolledDown = ($chatContent.scrollTop() + $chatContent.innerHeight() === $chatContent[0].scrollHeight);
+
+        console.log("is scrolled down?", isScrolledDown, $chatContent.scrollTop(), $chatContent.innerHeight(), $chatContent[0].scrollHeight);
+
         var $el = $simpleChatLineTemplate.clone();
 
         if (data.text && data.text.indexOf("/me ") === 0) {
@@ -103,9 +108,9 @@ function ChatController($scope, $element, $compile, socket) {
                 var vote = data.data;
                 $el = $voteChatLineTemplate.clone();
                 if (vote.type === "endOfDay") {
-                    $(".chat-inner-text", $el).text("proposes to end today's Client Room Radio");
+                    $(".chat-inner-text", $el).text("wants to call it a day.");
                 } else if (vote.type === "newUser") {
-                    $(".chat-inner-text", $el).text("wants to join Client Room Radio. Allow them in?");
+                    $(".chat-inner-text", $el).text("wants to join.");
                 }
                 $el.attr("ng-init", "init(\"" + vote.id + "\")");
             } else if (data.system === "becomesInactive") {
@@ -155,6 +160,10 @@ function ChatController($scope, $element, $compile, socket) {
                 scrollDown();
             }
         }
+    });
+
+    $element.bind("resize", function(){
+        console.log("resized");
     });
 
     $input.keyup(function(e){

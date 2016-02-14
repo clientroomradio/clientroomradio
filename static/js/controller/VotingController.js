@@ -1,6 +1,6 @@
 function VotingController($scope, socket) {
     $scope.id = null;
-    $scope.votes = {};
+    $scope.votes = null;
     $scope.remainingSeconds = "";
     $scope.decision = null;
 
