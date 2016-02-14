@@ -27,7 +27,7 @@ Now ssh in:
 Install the node modules and run the setup script:
 
 * `npm install`
-* `nodejs lib/Setup.js <lastfm_api_key> <lastfm_api_secret> [<spotify_username> <spotify_password>]`
+* `nodejs bin/setup.js <lastfm_api_key> <lastfm_api_secret> [<spotify_username> <spotify_password>]`
 
 The Last.fm user gets all the radio scrobbled to it. The Spotify is the the source of the audio.
 

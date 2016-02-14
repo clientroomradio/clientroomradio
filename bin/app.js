@@ -1,26 +1,29 @@
+#!/usr/bin/env node
+"use strict";
+
 // Classes
-var Backend = require("./lib/Backend.js");
-var Chat = require("./lib/Chat.js");
-var CurrentTrackManager = require("./lib/CurrentTrackManager.js");
-var DataStore = require("./lib/DataStore.js");
-var EndOfDayRequestManager = require("./lib/EndOfDayRequestManager.js");
-var ExpressExternal = require("./lib/ExpressExternal.js");
-var ExternalHttpServer = require("./lib/ExternalHttpServer.js");
-var FrontendUpdater = require("./lib/FrontendUpdater.js");
-var LastfmClient = require("./lib/LastfmClient.js");
-var Logger = require("./lib/Logger.js");
-var LoveManager = require("./lib/LoveManager.js");
-var PermissionManager = require("./lib/PermissionManager.js");
-var ScrobblingManager = require("./lib/ScrobblingManager.js");
-var SkipManager = require("./lib/SkipManager.js");
-var Socket = require("./lib/Socket.js");
-var Spotify = require("./lib/Spotify.js");
-var UserActivityFlagManager = require("./lib/UserActivityFlagManager.js");
-var UserDao = require("./lib/UserDao.js");
-var VotingManager = require("./lib/VotingManager.js");
+var Backend = require("../lib/Backend.js");
+var Chat = require("../lib/Chat.js");
+var CurrentTrackManager = require("../lib/CurrentTrackManager.js");
+var DataStore = require("../lib/DataStore.js");
+var EndOfDayRequestManager = require("../lib/EndOfDayRequestManager.js");
+var ExpressExternal = require("../lib/ExpressExternal.js");
+var ExternalHttpServer = require("../lib/ExternalHttpServer.js");
+var FrontendUpdater = require("../lib/FrontendUpdater.js");
+var LastfmClient = require("../lib/LastfmClient.js");
+var Logger = require("../lib/Logger.js");
+var LoveManager = require("../lib/LoveManager.js");
+var PermissionManager = require("../lib/PermissionManager.js");
+var ScrobblingManager = require("../lib/ScrobblingManager.js");
+var SkipManager = require("../lib/SkipManager.js");
+var Socket = require("../lib/Socket.js");
+var Spotify = require("../lib/Spotify.js");
+var UserActivityFlagManager = require("../lib/UserActivityFlagManager.js");
+var UserDao = require("../lib/UserDao.js");
+var VotingManager = require("../lib/VotingManager.js");
 
 // Instances
-var config = require("./config.js");
+var config = require("../config/config.js");
 
 // DI
 var logger = new Logger(config);

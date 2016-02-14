@@ -6,7 +6,7 @@ var config = {
     "host": "localhost",
     "chatBacklogLength": 100,
     "port": 3000,
-    "logFile": "crr.winston.log",
+    "logFile": "logs/crr.winston.log",
     "external": {
         "api_key": "<API_KEY>",
         "name": "Client Room Radio",

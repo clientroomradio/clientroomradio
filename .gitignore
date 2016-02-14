@@ -1,6 +1,6 @@
 node_modules
-config.js
-spotify_appkey.key
+/config/config.js
+/config/spotify_appkey.key
 .DS_Store
 *.dat
 .vagrant
