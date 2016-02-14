@@ -7,7 +7,6 @@ var EndOfDayRequestManager = require("./lib/EndOfDayRequestManager.js");
 var ExpressExternal = require("./lib/ExpressExternal.js");
 var ExternalHttpServer = require("./lib/ExternalHttpServer.js");
 var FrontendUpdater = require("./lib/FrontendUpdater.js");
-var HeartbeatManager = require("./lib/HeartbeatManager.js");
 var LastfmClient = require("./lib/LastfmClient.js");
 var Logger = require("./lib/Logger.js");
 var LoveManager = require("./lib/LoveManager.js");
@@ -28,19 +27,17 @@ var logger = new Logger(config);
 var spotify = new Spotify(logger);
 var dataStore = new DataStore(logger);
 var lastfmClient = new LastfmClient(config, logger, dataStore);
-var userDao = new UserDao(dataStore, lastfmClient, logger);
-var socket = new Socket(userDao, logger);
-var chat = new Chat(socket, config);
-var heartbeatManager = new HeartbeatManager(socket, chat, userDao);
-var votingManager = new VotingManager(chat, socket);
-var permissionManager = new PermissionManager(socket, dataStore, userDao, votingManager, chat, logger);
+var socket = new Socket(logger);
+var userDao = new UserDao(dataStore, lastfmClient, socket, logger);
+var chat = new Chat(socket, userDao, config);
+var votingManager = new VotingManager(chat, socket, userDao);
+var permissionManager = new PermissionManager(dataStore, userDao, votingManager, chat, logger);
 var currentTrackManager = new CurrentTrackManager(socket, chat, logger);
 var skipManager = new SkipManager(socket, chat);
 var expressExternal = new ExpressExternal(config, lastfmClient, userDao, chat, permissionManager, logger);
 var externalHttpServer = new ExternalHttpServer(expressExternal, socket, config, logger);
 
 // Nothing depends on those:
-
 new Backend(userDao, currentTrackManager, lastfmClient, spotify, skipManager, socket, chat, logger);
 new FrontendUpdater(socket, userDao, currentTrackManager, skipManager);
 new ScrobblingManager(socket, userDao);
@@ -51,4 +48,3 @@ new UserActivityFlagManager(userDao, chat, socket);
 // Start
 expressExternal.start();
 externalHttpServer.start();
-heartbeatManager.start();

@@ -131,7 +131,7 @@ var Socket = function(SOCKJS_URL) {
             if (session === undefined) {
                 session = "";
             }
-            sockjs.send(session);
+            send("login", {"session": session});
 
             if (reconnectTimeout != null) {
                 reconnectTimeout = null;

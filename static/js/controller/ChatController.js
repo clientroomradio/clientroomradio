@@ -53,91 +53,95 @@ function ChatController($scope, $element, $compile, socket) {
             $el.addClass("chat-line--sys").addClass("chat-line--" + data.type);
         }
 
-        if (data.system === "skip") {
-            if (data.text) {
-                $(".chat-inner-text", $el).text("skipped: \"" + data.text + "\"");
-            } else {
-                $(".chat-inner-text", $el).text("skipped");
-            }
-        } else if (data.system === "spotifyRequest") {
-            var track = data.data;
-            if (track.href && track.artists && track.name) {
-                $(".chat-inner-text", $el).html("requested <a href=\"" + track.href + "\">" + track.artists[0].name + " — " + track.name + "</a>");
-            }
-        } else if (data.system === "alreadySkipped") {
-            $(".chat-inner-text", $el).text("has already skipped, but tried anyway.");
-        } else if (data.system === "inactiveUserWantsToSkip") {
-            $(".chat-inner-text", $el).text("tried to skip whilst sitting out. Not in here you don't!");
-        } else if (data.system === "love") {
-            $(".chat-inner-text", $el).text("just loved this track");
-        } else if (data.system === "unlove") {
-            $(".chat-inner-text", $el).text("just un-loved this track");
-        } else if (data.system === "scrobbleOff") {
-            $(".chat-inner-text", $el).text("turned scrobbling off");
-        } else if (data.system === "scrobbleOn") {
-            $(".chat-inner-text", $el).text("turned scrobbling on");
-        } else if (data.system === "timedOut") {
-            $(".chat-inner-text", $el).text("has lost their connection and has been removed from the radio");
-        } else if (data.system === "left") {
-            $(".chat-inner-text", $el).text("left");
-        } else if (data.system === "join") {
-            $(".chat-inner-text", $el).text("joined");
-        } else if (data.system === "newUser") {
-            $(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
-        } else if (data.system === "skipSuccessful") {
-            console.log(data.data);
-            $(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
-        } else if (data.system === "spotifyRequestComplete") {
-            var track = data.data;
-            $(".chat-inner-text", $el).html("request ready <a href=\"" + track.identifier + "\">" + track.artists[0].name + " — " + track.name + "</a>");
-        } else if (data.system === "startVoting") {
-            var vote = data.data;
-            $el = $voteChatLineTemplate.clone();
-            if (vote.type === "endOfDay") {
-                $(".chat-inner-text", $el).text("proposes to end today\"s Client Room Radio");
-            } else if (vote.type === "newUser") {
-                $(".chat-inner-text", $el).text("wants to join Client Room Radio. Allow them in?");
-            }
-            $el.attr("ng-init", "init(\"" + vote.id + "\")");
-        } else if (data.system === "becomesInactive") {
-            if (data.text) {
-                $(".chat-inner-text", $el).text("sat out: \"" + data.text + "\"");
-            } else {
-                $(".chat-inner-text", $el).text("sat out");
-            }
-        } else if (data.system === "becomesActive") {
-            if (data.text) {
-                $(".chat-inner-text", $el).text("rejoined: \"" + data.text + "\"");
-            } else {
-                $(".chat-inner-text", $el).text("rejoined");
-            }
-        } else if (data.system === "newTrack") {
-            $el = $newTrackChatLineTemplate.clone();
-            $el.id = data.data.timestamp;
-            $(".chat-img", $el).html("<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\"><img class=\"album-art media-object img-thumbnail\" src=\"" + (data.data.image ? encodeURI(data.data.image.replace("http://img2-ak.lst.fm/", "https://secure-img2.last.fm/")) : "/img/crr_128.png") + "\"/></a>");
-            $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a>" + " – " + "<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
+        if (data.system === "clear") {
+            $(".chat-content").empty();
         } else {
-            $(".chat-inner-text", $el).html(linkify(data.text));
-        }
+            if (data.system === "skip") {
+                if (data.text) {
+                    $(".chat-inner-text", $el).text("skipped: \"" + data.text + "\"");
+                } else {
+                    $(".chat-inner-text", $el).text("skipped");
+                }
+            } else if (data.system === "spotifyRequest") {
+                var track = data.data;
+                if (track.href && track.artists && track.name) {
+                    $(".chat-inner-text", $el).html("requested <a href=\"" + track.href + "\">" + track.artists[0].name + " — " + track.name + "</a>");
+                }
+            } else if (data.system === "alreadySkipped") {
+                $(".chat-inner-text", $el).text("has already skipped, but tried anyway.");
+            } else if (data.system === "inactiveUserWantsToSkip") {
+                $(".chat-inner-text", $el).text("tried to skip whilst sitting out. Not in here you don't!");
+            } else if (data.system === "love") {
+                $(".chat-inner-text", $el).text("just loved this track");
+            } else if (data.system === "unlove") {
+                $(".chat-inner-text", $el).text("just un-loved this track");
+            } else if (data.system === "scrobbleOff") {
+                $(".chat-inner-text", $el).text("turned scrobbling off");
+            } else if (data.system === "scrobbleOn") {
+                $(".chat-inner-text", $el).text("turned scrobbling on");
+            } else if (data.system === "timedOut") {
+                $(".chat-inner-text", $el).text("has lost their connection and has been removed from the radio");
+            } else if (data.system === "left") {
+                $(".chat-inner-text", $el).text("left");
+            } else if (data.system === "join") {
+                $(".chat-inner-text", $el).text("joined");
+            } else if (data.system === "newUser") {
+                $(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
+            } else if (data.system === "skipSuccessful") {
+                console.log(data.data);
+                $(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
+            } else if (data.system === "spotifyRequestComplete") {
+                var track = data.data;
+                $(".chat-inner-text", $el).html("request ready <a href=\"" + track.identifier + "\">" + track.artists[0].name + " — " + track.name + "</a>");
+            } else if (data.system === "startVoting") {
+                var vote = data.data;
+                $el = $voteChatLineTemplate.clone();
+                if (vote.type === "endOfDay") {
+                    $(".chat-inner-text", $el).text("proposes to end today\"s Client Room Radio");
+                } else if (vote.type === "newUser") {
+                    $(".chat-inner-text", $el).text("wants to join Client Room Radio. Allow them in?");
+                }
+                $el.attr("ng-init", "init(\"" + vote.id + "\")");
+            } else if (data.system === "becomesInactive") {
+                if (data.text) {
+                    $(".chat-inner-text", $el).text("sat out: \"" + data.text + "\"");
+                } else {
+                    $(".chat-inner-text", $el).text("sat out");
+                }
+            } else if (data.system === "becomesActive") {
+                if (data.text) {
+                    $(".chat-inner-text", $el).text("rejoined: \"" + data.text + "\"");
+                } else {
+                    $(".chat-inner-text", $el).text("rejoined");
+                }
+            } else if (data.system === "newTrack") {
+                $el = $newTrackChatLineTemplate.clone();
+                $el.id = data.data.timestamp;
+                $(".chat-img", $el).html("<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\"><img class=\"album-art media-object img-thumbnail\" src=\"" + (data.data.image ? encodeURI(data.data.image.replace("http://img2-ak.lst.fm/", "https://secure-img2.last.fm/")) : "/img/crr_128.png") + "\"/></a>");
+                $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a>" + " – " + "<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
+            } else {
+                $(".chat-inner-text", $el).html(linkify(data.text));
+            }
 
-        if (data.user) {
-            $(".chat-name", $el).text(data.user);
-        } else if (data.data.hasOwnProperty("data")) {
-            $(".chat-name", $el).text(data.data.data.username);
-        } else {
-            $(".chat-name", $el).text(config.name);
-        }
+            if (data.user) {
+                $(".chat-name", $el).text(data.user);
+            } else if (data.data.hasOwnProperty("data")) {
+                $(".chat-name", $el).text(data.data.data.username);
+            } else {
+                $(".chat-name", $el).text(config.name);
+            }
 
-        $(".chat-time", $el).text(getTimeString(data.timestamp));
+            $(".chat-time", $el).text(getTimeString(data.timestamp));
 
-        if (data.system === "startVoting") {
-            $chatContent.append($compile($el)($scope));
-        } else {
-            $chatContent.append($el);
-        }
+            if (data.system === "startVoting") {
+                $chatContent.append($compile($el)($scope));
+            } else {
+                $chatContent.append($el);
+            }
 
-        if (isScrolledDown) {
-            scrollDown();
+            if (isScrolledDown) {
+                scrollDown();
+            }
         }
     });
 
