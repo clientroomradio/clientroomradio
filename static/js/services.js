@@ -1,5 +1,5 @@
 function initClientRoomRadio(socketUrl) {
-    blackjackAttackAngular = angular.module("crrAngular", [])
+    angular.module("crrAngular", [])
     .service("socket", Socket)
     .service("notificationManager", NotificationManager)
 
@@ -7,6 +7,5 @@ function initClientRoomRadio(socketUrl) {
 
     // This is terrible, but it's needed to load the notifications module
     .run(["notificationManager", function (NotificationManager) {}] );
-
 }
 

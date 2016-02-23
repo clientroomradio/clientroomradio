@@ -2,7 +2,7 @@
 <html ng-controller="MainController" ng-app="crrAngular" id="clientroomradio-com">
     <head>
         <meta charset="UTF-8" />
-        <title ng:bind-template="{{isPlaying()?currentTrack.artists[0].name+' – '+currentTrack.name+' | ':''}}{{radioname}}">Client Room Radio</title>
+        <title ng:bind-template="{{isPlaying()?currentTrack.artists[0].name+' – '+currentTrack.name+' | ':''}}{{getRadioName()}}">Client Room Radio</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
@@ -40,10 +40,10 @@
         <link rel="icon" href="favicon/favicon-32.png" sizes="32x32">
 
     </head>
-    <body ng-cloak class="{{active?'active':'inactive'}}{{bingo?' bingo':''}}">
+    <body ng-cloak class="{{isActive()?'active':'inactive'}}{{bingo?' bingo':''}}">
 
         <!-- Header -->
-        <nav class="navbar navbar-default" role="navigation"  ng-controller="NavController">
+        <nav class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
@@ -55,7 +55,7 @@
                     </button>
                     <a class="navbar-brand" href="">
                         <span><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/></span>
-                        {{radioname}}{{bingo?' - BINGO!':''}}
+                        {{getRadioName()}}{{bingo?' - BINGO!':''}}
                     </a>
                 </div>
     
@@ -72,7 +72,7 @@
                             <a href="javascript:void(0)" ng-click="requestNotificationPermissions();">Enable Notifications</a>
                         </li>
                         <li>
-                            <a href="/logout">Log out</a>
+                            <a href="javascript:void(0)" ng-click="logout();">Log out</a>
                         </li>
                     </ul>
                 </div>
@@ -80,11 +80,12 @@
         </nav>
 
         <!-- Main area -->
-        <div ng-cloak ng-show="initialised">
+        <!-- do something with the socket ready state e.g. ng-show="getSocketReadyState()===1" -->
+        <div ng-cloak ng-show="config">
             <div class="col-sm-12">
                 <div class="well" ng-hide="isLoggedIn()">
                     <div ng-controller="VotingController" ng-init="initWithSession()">
-                        <div ng-show="id">
+                        <div ng-show="isVoting()">
                             <div ng-hide="hasBeenDecided()">
                                 <h1>They're voting, voting…</h1>
                                 <span>Will current users let you in? You'll know in {{remainingSeconds}} seconds...</span>
@@ -94,7 +95,7 @@
                                 <span >You weren't allowed in this time. Don't feel bad. Maybe no one saw. Try again?</span>
                             </div>
                         </div>
-                        <div ng-hide="id">
+                        <div ng-hide="isVoting()">
                             <h1>It’s Friday, Friday…</h1>
                         </div>               
                     </div>
@@ -143,8 +144,8 @@
 
                     <div class="clearfix">
                         <div class="pull-left current-track-buttons">
-                            <button class="btn btn-primary" ng-hide="isLoggedIn()" ng-click="login()">Login via Last.fm</button>
-                            <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!active || skipped" ng-show="isLoggedIn()" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
+                            <button class="btn btn-primary" ng-hide="isLoggedIn()" ng-disabled="!config" ng-click="login()">Login via Last.fm</button>
+                            <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!isActive() || skipped" ng-show="isLoggedIn()" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
                                 <i class="fa fa-thumbs-down"></i> Skip
                             </button>
                             <button type="button" class="btn btn-danger btn-tooltip" ng-show="isLoggedIn()&&loved" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
@@ -156,15 +157,15 @@
                         </div>
 
                         <div class="pull-right" ng-show="isLoggedIn()">
-                            <button type="button" class="btn btn-default {{active?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!active)" data-toggle="tooltip" title="Sit out / in">
-                                <i class="{{active?'fa fa-sign-out':'fa fa-sign-in'}}"></i>
+                            <button type="button" class="btn btn-default {{isActive()?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!isActive())" data-toggle="tooltip" title="Sit out / in">
+                                <i class="{{isActive()?'fa fa-sign-out':'fa fa-sign-in'}}"></i>
                             </button>
 
-                            <button type="button" ng-show="scrobbling" class="btn btn-default btn-success btn-tooltip" ng-click="setScrobbling(false)" ng-disabled="!active" data-toggle="tooltip" title="Turn scrobbling off">
+                            <button type="button" ng-show="isScrobbling()" class="btn btn-default btn-success btn-tooltip" ng-click="setScrobbling(false)" ng-disabled="!isActive()" data-toggle="tooltip" title="Turn scrobbling off">
                                 <i class="fa icon-lastfm"></i>
                             </button>
 
-                            <button type="button" ng-hide="scrobbling" class="btn btn-default btn-danger btn-tooltip" ng-click="setScrobbling(true)" ng-disabled="!active" data-toggle="tooltip" title="Turn scrobbling on">
+                            <button type="button" ng-hide="isScrobbling()" class="btn btn-default btn-danger btn-tooltip" ng-click="setScrobbling(true)" ng-disabled="!isActive()" data-toggle="tooltip" title="Turn scrobbling on">
                                 <i class="fa icon-lastfm"></i>
                             </button>
 
@@ -259,13 +260,9 @@
         <script src="/js/lib/WebNotification.js"></script>
         <script src="/js/lib/twitter.widgets.js"></script>
 
-        <!-- Javascript - Config -->
-        <script src="/config.js"></script>
-
         <!-- Javascript - Controllers -->
         <script src="/js/controller/MainController.js"></script>
         <script src="/js/controller/ChatController.js"></script>
-        <script src="/js/controller/NavController.js"></script>
         <script src="/js/controller/VotingController.js"></script>
         <script src="/js/controller/SpotifySearchController.js"></script>
 

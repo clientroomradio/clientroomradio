@@ -1,6 +1,6 @@
 {
   "name": "clientroomradio",
-  "description": "",
+  "description": "A collaborative radio experience for hearts and minds",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -20,10 +20,8 @@
     "argparse": "1.0.6",
     "cli-interact": "0.1.9"
   },
-  "eslintConfig": {
-    "env": {
-      "browser": false,
-      "node": true
-    }
+  "bin": {
+    "crr-run": "./bin/app.js",
+    "crr-setup": "./bin/setup.js"
   }
 }

@@ -3,6 +3,7 @@ function VotingController($scope, socket) {
     $scope.votes = null;
     $scope.remainingSeconds = "";
     $scope.decision = null;
+    $scope.config = null;
 
     $scope.vote = function(vote) {
         socket.castVote($scope.id, vote);
@@ -14,21 +15,17 @@ function VotingController($scope, socket) {
     };
 
     $scope.initWithSession = function() {
-        socket.openCallback.add(function () {
-            if (!$scope.id) {
-                var session = $.cookie("session");
-                if (typeof session !== "undefined") {
-                    $scope.id = session;
-                    socket.requestVotingUpdate($scope.id);
-                }
-                $scope.$apply();
-            }
+        socket.configCallback.add(function (data) {
+            // the user is not allowed so there's probably a vote going on
+            $scope.id = data.session;
+            socket.requestVotingUpdate($scope.id);
+            $scope.$apply();
         });
     };
 
     $scope.userHasVoted = function() {
         for (var username in $scope.votes) {
-            if (username === loggedInAs) {
+            if (username === $scope.config.loggedInAs) {
                 return $scope.votes[username];
             }
         }
@@ -37,6 +34,16 @@ function VotingController($scope, socket) {
     $scope.hasBeenDecided = function() {
         return $scope.decision !== null;
     };
+
+    $scope.isVoting = function() {
+        // there are votes and it hasn't been decided
+        return $scope.votes && !$scope.hasBeenDecided();
+    }
+
+    socket.configCallback.add(function (data) {
+        $scope.config = data;
+        $scope.$apply();
+    });
 
     socket.updateVotesCallback.add(function (voting) {
         if (voting.id === $scope.id) {

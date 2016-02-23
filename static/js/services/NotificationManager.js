@@ -2,6 +2,7 @@
 
 var NotificationManager = function(socket) {
     var that = this;
+    var config = null;
 
     function notify(title, text, image) {
         if (!that.permissionNeeded()) {
@@ -38,10 +39,14 @@ var NotificationManager = function(socket) {
         notify("New Vote!", text);
     });
 
+    socket.configCallback.add(function(data) {
+        config = data;
+    });
+
     socket.chatCallback.add(function(data) {
         var text = data.text;
-        if (text && text.indexOf(loggedInAs) !== -1) {
-            if (data.user && !data.backlog && data.user !== loggedInAs) {
+        if (text && config && text.indexOf(config.username) !== -1) {
+            if (data.user && !data.backlog && data.user !== config.username) {
                 notify("Mentioned by " + data.user, text);
             }
         }

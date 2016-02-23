@@ -40,7 +40,7 @@ lastfm.request("auth.getToken", {
         success: function(getTokenData) {
             var token = getTokenData.token;
             var prompt = "Please go to this URL and authorize the app: " +
-                            "http://www.last.fm/api/auth/?api_key=" + args.lfmApiKey + "&token=" + token + "\n" +
+                            "http://www.last.fm/api/auth?api_key=" + args.lfmApiKey + "&token=" + token + "\n" +
                             "Afterwards please check this terminal again...";
 
             // wait for the user to press a button, the token will expire if we check prematurely
@@ -57,7 +57,8 @@ lastfm.request("auth.getToken", {
                         config = config.replace(/<API_KEY>/g, args.lfmApiKey)
                             .replace(/<SECRET>/g, args.lfmApiSecret)
                             .replace(/<SK>/g, sk);
-                        fs.writeFileSync(path.join(__dirname, "../config/config.js"), config);
+
+                        fs.writeFileSync("/etc/crr/config.js", config);
 
                         console.log("Done - config file written");
                     },

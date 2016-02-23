@@ -1,6 +1,5 @@
 var Socket = function(SOCKJS_URL) {
     var that = this;
-    this.openCallback = $.Callbacks();
     this.closeCallback = $.Callbacks();
     this.chatCallback = $.Callbacks();
     this.sysCallback = $.Callbacks();
@@ -12,8 +11,10 @@ var Socket = function(SOCKJS_URL) {
     this.updateVotesCallback = $.Callbacks();
     this.newVoteCallback = $.Callbacks();
     this.bingoCallback = $.Callbacks();
+    this.configCallback = $.Callbacks();
+    this.disconnectedCallback = $.Callbacks();
 
-    var sockjs;
+    that.sockjs = null;
     var reconnectTimeout = null;
 
     function send(type, data) {
@@ -21,7 +22,7 @@ var Socket = function(SOCKJS_URL) {
             "type": type,
             "data": data
         };
-        sockjs.send(JSON.stringify(payload));
+        that.sockjs.send(JSON.stringify(payload));
     }
 
     that.sendChatMessage = function(message) {
@@ -42,6 +43,10 @@ var Socket = function(SOCKJS_URL) {
 
     that.sendActiveStatus = function(status, message) {
         send("activeStatus", {"status": status, "message": message});
+    };
+
+    that.logout = function() {
+        send("logout", {});
     };
 
     that.love = function() {
@@ -65,15 +70,20 @@ var Socket = function(SOCKJS_URL) {
     };
 
     function connect () {
-        sockjs = new SockJS(SOCKJS_URL);
+        that.sockjs = new SockJS(SOCKJS_URL);
 
-        sockjs.onmessage = function(payload) {
+        that.sockjs.onmessage = function(payload) {
             payload = $.parseJSON(payload.data);
             var type = payload.type;
             var data = payload.data;
 
             if (type === "disconnected") {
-                location.href = "/logout";
+                that.disconnectedCallback.fire(data);
+                return;
+            }
+
+            if (type === "config") {
+                that.configCallback.fire(data);
                 return;
             }
 
@@ -132,7 +142,7 @@ var Socket = function(SOCKJS_URL) {
 
         var heartbeat = null;
 
-        sockjs.onopen = function() {
+        that.sockjs.onopen = function() {
             var session = $.cookie("session");
             if (session === undefined) {
                 session = "";
@@ -143,13 +153,12 @@ var Socket = function(SOCKJS_URL) {
                 reconnectTimeout = null;
                 clearTimeout(reconnectTimeout);
             }
-            that.openCallback.fire();
 
             heartbeat = setInterval(function() {
                 send("heartbeat", null);
             }, 2000);
         };
-        sockjs.onclose = function() {
+        that.sockjs.onclose = function() {
             that.closeCallback.fire();
             reconnectTimeout = setTimeout(connect, 1000);
             clearInterval(heartbeat);

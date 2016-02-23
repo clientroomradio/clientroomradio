@@ -1,4 +1,6 @@
 function ChatController($scope, $element, $compile, socket) {
+    $scope.config = null;
+
     var $chatContent = $(".chat-content", $element);
     var $input = $(".chat-input", $element);
 
@@ -27,6 +29,11 @@ function ChatController($scope, $element, $compile, socket) {
             "</div>" +
         "</div>");
 
+    socket.configCallback.add(function (data) {
+        $scope.config = data;
+        $scope.$apply();
+    });
+
     function getTimeString(timestamp) {
 
         var currentTime = new Date(timestamp);
@@ -50,9 +57,6 @@ function ChatController($scope, $element, $compile, socket) {
 
     socket.chatCallback.add(function (data) {
         var isScrolledDown = ($chatContent.scrollTop() + $chatContent.innerHeight() === $chatContent[0].scrollHeight);
-
-        console.log("is scrolled down?", isScrolledDown, $chatContent.scrollTop(), $chatContent.innerHeight(), $chatContent[0].scrollHeight);
-
         var $el = $simpleChatLineTemplate.clone();
 
         if (data.text && data.text.indexOf("/me ") === 0) {
@@ -99,7 +103,6 @@ function ChatController($scope, $element, $compile, socket) {
             } else if (data.system === "newUser") {
                 $(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
             } else if (data.system === "skipSuccessful") {
-                console.log(data.data);
                 $(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
             } else if (data.system === "spotifyRequestComplete") {
                 var track = data.data;
@@ -145,7 +148,7 @@ function ChatController($scope, $element, $compile, socket) {
             } else if (data.data.hasOwnProperty("data")) {
                 $(".chat-name", $el).text(data.data.data.username);
             } else {
-                $(".chat-name", $el).text(config.name);
+                $(".chat-name", $el).text($scope.config.name);
             }
 
             $(".chat-time", $el).text(getTimeString(data.timestamp));
@@ -194,7 +197,7 @@ function ChatController($scope, $element, $compile, socket) {
                 inputText = inputText.substring(8);
                 socket.sendActiveStatus(true, inputText);
             } else {
-                socket.sendChatMessage({"user": loggedInAs, "text": inputText});
+                socket.sendChatMessage({"user": $scope.config.loggedInAs, "text": inputText});
             }
             $input.val("");
         }

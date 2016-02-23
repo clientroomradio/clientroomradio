@@ -18,8 +18,14 @@
         ]
     },
     "env": {
-        "browser": true,
-        "jquery": true,
-        "underscore": true
+        "node": true,
+        "browser": false
+    },
+    "globals": {
+        "_": flase
+    },
+    "rules": {
+        "no-console": false,
+        "strict": 0
     }
 }

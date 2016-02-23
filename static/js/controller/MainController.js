@@ -1,25 +1,44 @@
 "use strict";
 
-function MainController($scope, socket) {
-    $scope.username = loggedInAs;
-    $scope.radioname = config.name;
+function MainController($scope, socket, notificationManager) {
+    $scope.config = null;
     $scope.currentTrack = {};
     $scope.users = {};
     $scope.skippers = [];
     $scope.currentPositionInTrack = 0;
     $scope.loved = false;
     $scope.skipped = false;
-    $scope.scrobbling = true;
-    $scope.active = true;
-    $scope.allowed = false;
-    $scope.stream = config.stream;
     $scope.muted = false;
     $scope.bingo = false;
-    $scope.initialised = false;
 
     $scope.login = function() {
-        location.href = "http://www.last.fm/api/auth/?api_key=" + config.api_key + "&cb=" + $(location).attr("href") + "login";
+        location.href = "http://www.last.fm/api/auth/?api_key=" + $scope.config.api_key + "&cb=" + $(location).attr("href") + "login.html";
     };
+
+    function logout() {
+        // clear our session so a refresh won't log them back in
+        $.cookie("session", "");
+
+        // clear the config so they think they're logged out
+        $scope.config.loggedInAs = null;
+        $scope.config.active = false;
+        $scope.config.allowed = false;
+        // clear everything else just in case
+        $scope.loved = false;
+        $scope.skipped = false;
+        $scope.muted = false;
+        $scope.bingo = false;
+        $scope.$apply();
+    }
+
+    $scope.logout = function() {
+        // they clicked logout so tell the backend
+        socket.logout(); 
+    };
+
+    socket.disconnectedCallback.add(function (data) {
+        logout();
+    });
 
     $scope.love = function() {
         $scope.loved = true;
@@ -32,11 +51,19 @@ function MainController($scope, socket) {
     };
 
     $scope.isLoggedIn = function() {
-        return $scope.username !== null && $scope.allowed;
+        return $scope.config && $scope.config.loggedInAs !== null && $scope.config.allowed;
     };
 
     $scope.isPlaying = function() {
         return $scope.currentTrack.artists ? true : false;
+    };
+
+    $scope.isActive = function() {
+        return $scope.config ? $scope.config.active : false;
+    };
+
+    $scope.isScrobbling = function() {
+        return $scope.config ? $scope.config.scrobbling : false;
     };
 
     $scope.skip = function(message) {
@@ -45,18 +72,26 @@ function MainController($scope, socket) {
     };
 
     $scope.setScrobbling = function(value) {
-        $scope.scrobbling = value;
+        $scope.config.scrobbling = value;
         socket.sendScrobbleStatus(value);
     };
 
     $scope.setActive = function(value) {
-        $scope.active = value;
+        $scope.config.active = value;
         socket.sendActiveStatus(value);
     };
 
     // Some helper functions
     $scope.skippersNeeded = function() {
         return Math.ceil($scope.getActiveUserCount() / 2);
+    };
+
+    $scope.getRadioName = function() {
+        return $scope.config ? $scope.config.radioname : "Client Room Radio";
+    };
+
+    $scope.getSocketReadyState = function() {
+        return socket.sockjs.readyState;
     };
 
     $scope.getActiveUserCount = function() {
@@ -69,80 +104,90 @@ function MainController($scope, socket) {
         return count;
     };
 
-    // Music
-    if (loggedInAs) {
-        $(document).ready(function() {
-            var volume = $.cookie("volume");
-            if (volume === undefined) {
-                volume = 1;
-            }
+    $scope.requestNotificationPermissions = function() {
+        notificationManager.request();
+    };
 
-            var state = "stopped";
+    $scope.NotificationPermissionNeeded = function() {
+        return notificationManager.permissionNeeded();
+    };
 
-            function restart(player) {
-                state = "starting";
+    $scope.endOfDayRequest = function() {
+        socket.endOfDayRequest();
+    };
 
-                player.jPlayer("setMedia", {
-                    mp3: config.stream
-                });
-                player.jPlayer("play");
-            }
+    $(document).ready(function() {
+        var volume = $.cookie("volume");
+        if (volume === undefined) {
+            volume = 1;
+        }
 
-            $("#audio-player").jPlayer({
-                playing: function(event) {
-                    console.log("started", event);
-                    state = "playing";
-                },
-                ended: function(event) {
-                    console.log("ended", event);
-                    state = "stopped";
-                },
-                error: function(error) {
-                    console.log("there was an error", error);
-                    state = "stopped";
-                },
-                ready: function () {
-                    var player = $(this);
-                    restart(player);
+        var state = "stopped";
 
-                    function updateMute() {
-                        if ($scope.muted || !$scope.active || !$scope.allowed) {
-                            // muted
-                            state = "muted";
-                            player.jPlayer("clearMedia");
-                        } else {
-                            // restart playback
-                            restart(player);
-                        }
-                    }
+        function restart(player) {
+            state = "starting";
 
-                    function checkPlaying(time) {
-                        if (time !== 0 && state === "stopped") {
-                            restart(player);
-                        }
-                    }
-
-                    $scope.$watch("muted", updateMute);
-                    $scope.$watch("active", updateMute);
-                    $scope.$watch("allowed", updateMute);
-                    $scope.$watch("currentPositionInTrack", checkPlaying);
-
-                    $(".volume-slider-init").on("slide", function(ev){
-                        volume = 1 - ev.value;
-                        console.log(volume);
-                        $.cookie("volume", volume);
-                        player.jPlayer("volume", volume);
-                    });
-
-                    player.jPlayer("volume", volume);
-                },
-                swfPath: "/js",
-                supplied: "mp3"
+            player.jPlayer("setMedia", {
+                mp3: "/stream.mp3"
             });
+            player.jPlayer("play");
+        }
 
-            $(".volume-slider-init").slider().slider("setValue", 1 - volume);
+        $("#audio-player").jPlayer({
+            playing: function(event) {
+                console.log("started", event);
+                state = "playing";
+            },
+            ended: function(event) {
+                console.log("ended", event);
+                state = "stopped";
+            },
+            error: function(error) {
+                console.log("there was an error", error);
+                state = "stopped";
+            },
+            ready: function () {
+                var player = $(this);
+                restart(player);
+
+                function updateMute() {
+                    if ($scope.muted || !$scope.config || !$scope.config.active || !$scope.config.allowed) {
+                        // muted
+                        state = "muted";
+                        player.jPlayer("clearMedia");
+                    } else {
+                        // restart playback
+                        console.log("restarting audio");
+                        restart(player);
+                    }
+                }
+
+                function checkPlaying(time) {
+                    if (time !== 0 && state === "stopped") {
+                        restart(player);
+                    }
+                }
+
+                $scope.$watch("muted", updateMute);
+                $scope.$watch("config.active", updateMute);
+                $scope.$watch("config.allowed", updateMute);
+                $scope.$watch("currentPositionInTrack", checkPlaying);
+
+                $(".volume-slider-init").on("slide", function(ev){
+                    volume = 1 - ev.value;
+                    console.log(volume);
+                    $.cookie("volume", volume);
+                    player.jPlayer("volume", volume);
+                });
+
+                player.jPlayer("volume", volume);
+            },
+            swfPath: "/js",
+            supplied: "mp3"
         });
-    }
+
+        $(".volume-slider-init").slider().slider("setValue", 1 - volume);
+    });
 
 
     $(".btn-tooltip").tooltip({
@@ -157,7 +202,6 @@ function MainController($scope, socket) {
     };
 
     // Update progress bar
-
     $scope.progressBarStyle = function() {
         return {"width": ($scope.currentPositionInTrack / ($scope.currentTrack.duration * 10)) + "%"};
     };
@@ -171,6 +215,11 @@ function MainController($scope, socket) {
         return minutes + ":" + remainder;
     };
 
+    socket.configCallback.add(function (data) {
+        $scope.config = data;
+        $scope.$apply();
+    });
+
     socket.newTrackCallback.add(function (data) {
         if (Object.keys($scope.currentTrack) === 0) {
             // this is a new track so set the position to 0
@@ -181,8 +230,8 @@ function MainController($scope, socket) {
 
         $scope.loved = false;
         if (data.context
-            && typeof data.context[loggedInAs] !== "undefined"
-            && data.context[loggedInAs].userloved === "1") {
+            && typeof data.context[$scope.config.loggedInAs] !== "undefined"
+            && data.context[$scope.config.loggedInAs].userloved === "1") {
             $scope.loved = true;
         }
 
@@ -202,27 +251,19 @@ function MainController($scope, socket) {
     });
 
     socket.usersCallback.add(function (data) {
-        Object.keys(data).forEach(function (username) {
-            if (username === loggedInAs) {
-                $scope.active = data[username].active;
-                $scope.scrobbling = data[username].scrobbling;
-                $scope.allowed = data[username].allowed;
-            }
-        });
         $scope.users = data;
-        $scope.initialised = true;
         $scope.$apply();
     });
 
     socket.skippersCallback.add(function (data) {
         $scope.skippers = data;
         $scope.skipped = false;
-        for(var i = 0, len = data.length; i < len; i++){
-            var user = data[i];
-            if (user === loggedInAs) {
+
+        $scope.skippers.forEach(function (skipper) {
+            if (skipper === $scope.config.loggedInAs) {
                 $scope.skipped = true;
             }
-        }
+        });
         $scope.$apply();
     });
 
