@@ -40,7 +40,7 @@
         <link rel="icon" href="favicon/favicon-32.png" sizes="32x32">
 
     </head>
-    <body ng-cloak class="{{isActive()?'active':'inactive'}}{{bingo?' bingo':''}}">
+    <body ng-cloak class="{{isLoggedIn()?(isActive()?'active':'inactive'):''}}{{bingo?' bingo':''}}">
 
         <!-- Header -->
         <nav class="navbar navbar-default" role="navigation">
