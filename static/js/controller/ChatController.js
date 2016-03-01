@@ -197,7 +197,7 @@ function ChatController($scope, $element, $compile, socket) {
                 inputText = inputText.substring(8);
                 socket.sendActiveStatus(true, inputText);
             } else {
-                socket.sendChatMessage({"user": $scope.config.loggedInAs, "text": inputText});
+                socket.sendChatMessage({"user": $scope.config.username, "text": inputText});
             }
             $input.val("");
         }

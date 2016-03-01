@@ -25,7 +25,7 @@ function VotingController($scope, socket) {
 
     $scope.userHasVoted = function() {
         for (var username in $scope.votes) {
-            if (username === $scope.config.loggedInAs) {
+            if (username === $scope.config.username) {
                 return $scope.votes[username];
             }
         }

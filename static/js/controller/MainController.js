@@ -20,7 +20,7 @@ function MainController($scope, socket, notificationManager) {
         $.cookie("session", "");
 
         // clear the config so they think they're logged out
-        $scope.config.loggedInAs = null;
+        $scope.config.username = null;
         $scope.config.active = false;
         $scope.config.allowed = false;
         // clear everything else just in case
@@ -51,7 +51,7 @@ function MainController($scope, socket, notificationManager) {
     };
 
     $scope.isLoggedIn = function() {
-        return $scope.config && $scope.config.loggedInAs !== null && $scope.config.allowed;
+        return $scope.config && $scope.config.username !== null && $scope.config.allowed;
     };
 
     $scope.isPlaying = function() {
@@ -230,8 +230,8 @@ function MainController($scope, socket, notificationManager) {
 
         $scope.loved = false;
         if (data.context
-            && typeof data.context[$scope.config.loggedInAs] !== "undefined"
-            && data.context[$scope.config.loggedInAs].userloved === "1") {
+            && typeof data.context[$scope.config.username] !== "undefined"
+            && data.context[$scope.config.username].userloved === "1") {
             $scope.loved = true;
         }
 
@@ -260,7 +260,7 @@ function MainController($scope, socket, notificationManager) {
         $scope.skipped = false;
 
         $scope.skippers.forEach(function (skipper) {
-            if (skipper === $scope.config.loggedInAs) {
+            if (skipper === $scope.config.username) {
                 $scope.skipped = true;
             }
         });
