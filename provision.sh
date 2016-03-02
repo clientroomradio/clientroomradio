@@ -1,32 +1,28 @@
 # update repo and install out dependencies
 sudo apt-get update
-sudo apt-get install -y apache2 nodejs npm libmp3lame-dev libvlc-dev vlc
+sudo apt-get install -y apache2 build-essential libmp3lame-dev libvlc-dev vlc
 
-# fix node
-sudo ln -fs `which nodejs` /usr/bin/node
-
-# can't get libspotify on apt-get so install it ourself
-wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz
-tar xzf libspotify-12.1.51-Linux-x86_64-release.tar.gz
-(cd libspotify-12.1.51-Linux-x86_64-release && sudo make install prefix=/usr/local)
+# install node 5.7.1 binaries
+wget https://nodejs.org/dist/v5.7.1/node-v5.7.1.tar.gz
+tar xzf node-v5.7.1.tar.gz
+(cd node-v5.7.1 && ./configure && sudo make install)
 
 # create our hidden home dir dirs
 sudo mkdir /var/crr
 sudo mkdir /var/crr/data
 
-# install Cleint Room Radio as a node package
-sudo npm install -g /vagrant
+# install Client Room Radio as a node package
+(cd /vagrant && sudo rm -rf node_modules && sudo npm install)
 
 # put our keys in place so we can run the setup and crr itself
 sudo mkdir -p /etc/crr
-sudo ln -fs /home/vagrant/dropbox/spotify_appkey.key /etc/crr/spotify_appkey.key
 sudo ln -fs /home/vagrant/dropbox/crr.pem /etc/crr/crr.pem
 
 # link the installed files into the correct places  
-sudo ln -s /usr/local/lib/node_modules/clientroomradio/config/apache2.conf /etc/apache2/sites-available/clientroomradio.conf
-sudo ln -s /usr/local/lib/node_modules/clientroomradio/config/upstart.conf /etc/init/crr.conf
+sudo ln -fs /vagrant/config/apache2.conf /etc/apache2/sites-available/clientroomradio.conf
+sudo ln -fs /vagrant/config/upstart.conf /etc/init/crr.conf
 sudo mkdir -p /var/www/clientroomradio
-sudo ln -s /usr/local/lib/node_modules/clientroomradio/static /var/www/clientroomradio/html
+sudo ln -fs /vagrant/static /var/www/clientroomradio/html
 
 # make sure upstart sees our config file
 sudo initctl reload-configuration
