@@ -38,7 +38,7 @@ var currentTrackManager = new CurrentTrackManager(socket, chat, logger);
 var skipManager = new SkipManager(socket, chat);
 
 // Nothing depends on those:
-new PermissionManager(dataStore, userDao, votingManager, chat, socket, lastfmClient, logger);
+new PermissionManager(dataStore, userDao, votingManager, chat, socket, lastfmClient, config, logger);
 new Backend(userDao, currentTrackManager, lastfmClient, spotify, skipManager, socket, chat, logger);
 new FrontendUpdater(socket, userDao, currentTrackManager, skipManager, chat);
 new ScrobblingManager(socket, userDao);
