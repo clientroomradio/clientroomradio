@@ -26,7 +26,7 @@ var config = require("/etc/crr/config.js");
 
 // DI
 var logger = new Logger(config);
-var spotify = new Spotify(logger);
+var spotify = new Spotify(config, logger);
 var dataStore = new DataStore(logger);
 var lastfmClient = new LastfmClient(config, logger, dataStore);
 var socket = new Socket(logger);

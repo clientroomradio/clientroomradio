@@ -15,21 +15,6 @@ parser.addArgument(["spUsername"], {"help": "The Spotify Premium account usernam
 parser.addArgument(["spPassword"], {"help": "The Spotify Premium account password for audio"});
 var args = parser.parseArgs();
 
-// spotify details have been provided
-var Spotify = require("../lib/Spotify.js");
-var spotify = new Spotify(console);
-
-spotify.login(args.spUsername, args.spPassword);
-spotify.once("login", function (loginErr) {
-    console.info("recieved login", loginErr);
-
-    spotify.logout();
-    spotify.once("logout", function (logoutErr) {
-        // Don't do anything, we just needed to wait for it to happen
-        console.log("Recieved logout", logoutErr);
-    });
-});
-
 var lastfm = new LastFmNode({
     "api_key": args.lfmApiKey,
     "secret": args.lfmApiSecret
@@ -56,7 +41,9 @@ lastfm.request("auth.getToken", {
                         var config = fs.readFileSync(path.join(__dirname, "../config/config.default.js")).toString();
                         config = config.replace(/<API_KEY>/g, args.lfmApiKey)
                             .replace(/<SECRET>/g, args.lfmApiSecret)
-                            .replace(/<SK>/g, sk);
+                            .replace(/<SK>/g, sk)
+                            .replace(/<SPOTIFY_USERNAME>/g, args.spUsername)
+                            .replace(/<SPOTIFY_PASSWORD>/g, args.spPassword);
 
                         fs.writeFileSync("/etc/crr/config.js", config);
 

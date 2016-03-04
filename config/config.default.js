@@ -5,6 +5,8 @@ var config = {
     "api_key": "<API_KEY>",
     "secret": "<SECRET>",
     "sk": "<SK>",
+    "spotify_username": "<SPOTIFY_USERNAME>",
+    "spotify_password": "<SPOTIFY_PASSWORD>",
     "host": "localhost",
     "chatBacklogLength": 100,
     "port": 3000
