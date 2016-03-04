@@ -1,16 +1,14 @@
 var config = {
     "radioname": "Client Room Radio",
     "scrobbleToHost": false,
-    "whitelist": false,
+    "whitelist": true,
     "lfm": {
         "api_key": "<API_KEY>",
         "secret": "<SECRET>",
-        "sk": "<SK>"
-    },
+        "sk": "<SK>"},
     "spotify": {
         "username": "<SPOTIFY_USERNAME>",
-        "password": "<SPOTIFY_PASSWORD>"
-    },
+        "password": "<SPOTIFY_PASSWORD>"},
     "host": "localhost",
     "chatBacklogLength": 100,
     "port": 3000,
