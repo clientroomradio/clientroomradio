@@ -20,10 +20,12 @@ function MainController($scope, socket, notificationManager) {
         // clear our session so a refresh won't log them back in
         $.cookie("session", "");
 
-        // clear the config so they think they're logged out
-        $scope.config.username = null;
-        $scope.config.active = false;
-        $scope.config.allowed = false;
+        if ($scope.config) {
+            // clear the config so they think they're logged out
+            $scope.config.username = null;
+            $scope.config.active = false;
+            $scope.config.allowed = false;
+        }
         // clear everything else just in case
         $scope.loved = false;
         $scope.skipped = false;
