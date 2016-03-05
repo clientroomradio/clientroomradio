@@ -83,7 +83,7 @@
         <div ng-cloak ng-show="getState()!='loading'" class="container main-area">
 
             <!-- The logged out info area -->
-            <div class="col-xs-12" ng-hide="isLoggedIn()" ng-controller="VotingController" ng-init="initWithSession()">
+            <div class="col-sm-12" ng-hide="isLoggedIn()" ng-controller="VotingController" ng-init="initWithSession()">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h1 ng-show="!isVoting()">It’s Friday, Friday…</h1>
@@ -211,7 +211,7 @@
             </div>
 
             <!-- The chat area -->
-            <div ng-show="isLoggedIn()" class="col-xs-12">
+            <div ng-show="isLoggedIn()" class="col-sm-12">
                 <div class="panel panel-default chat-area" ng-controller="ChatController">
                     <div class="panel-body chat-content"></div>
                     <div class="panel-footer">
