@@ -1,35 +1,38 @@
 function VotingController($scope, socket) {
-    $scope.id = null;
+    var id = null;
+    var useSessionId = false;
+    
     $scope.votes = null;
     $scope.remainingSeconds = "";
     $scope.decision = null;
-    $scope.config = null;
 
     $scope.vote = function(vote) {
-        socket.castVote($scope.id, vote);
+        socket.castVote($scope.getId(), vote);
     };
 
-    $scope.init = function(id) {
-        $scope.id = id;
+    $scope.init = function(initId) {
+        id = initId;
         socket.requestVotingUpdate(id);
     };
 
     $scope.initWithSession = function() {
+        useSessionId = true;
         socket.configCallback.add(function (data) {
-            // the user is not allowed so there's probably a vote going on
-            $scope.id = data.session;
-            socket.requestVotingUpdate($scope.id);
-            $scope.$apply();
+            if (!$scope.votes) {
+                socket.requestVotingUpdate($scope.getId());
+            }
         });
     };
 
+    $scope.getId = function() {
+        return useSessionId ? $scope.config.session : id;
+    } 
+
     $scope.userHasVoted = function() {
-        for (var username in $scope.votes) {
-            if (username === $scope.config.username) {
-                return $scope.votes[username];
-            }
+        if ($scope.votes && $scope.votes.hasOwnProperty($scope.config.username)) {
+            return $scope.votes[$scope.config.username];
         }
-    };
+    }
 
     $scope.hasBeenDecided = function() {
         return $scope.decision !== null;
@@ -40,15 +43,10 @@ function VotingController($scope, socket) {
         return $scope.votes && !$scope.hasBeenDecided();
     }
 
-    socket.configCallback.add(function (data) {
-        $scope.config = data;
-        $scope.$apply();
-    });
-
     socket.updateVotesCallback.add(function (voting) {
-        if (voting.id === $scope.id) {
+        if (voting.id === $scope.getId()) {
             $scope.votes = voting.votes;
-            $scope.remainingSeconds = Math.round(voting.remainingTime / 1000);
+            $scope.remainingSeconds = Math.ceil(voting.remainingTime / 1000);
             $scope.decision = voting.decision;
             $scope.$apply();
         }

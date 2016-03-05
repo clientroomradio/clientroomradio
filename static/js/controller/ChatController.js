@@ -1,6 +1,4 @@
 function ChatController($scope, $element, $compile, socket) {
-    $scope.config = null;
-
     var $chatContent = $(".chat-content", $element);
     var $input = $(".chat-input", $element);
 
@@ -22,17 +20,12 @@ function ChatController($scope, $element, $compile, socket) {
                 "<div class=\"vote-action-area\" ng-hide=\"hasBeenDecided()\">" +
                     "<div class=\"vote-remaining-time\">{{remainingSeconds}} Sec</div> " +
                     "<div class=\"btn-group\">" +
-                        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='yes'?'btn-success':'btn-default'}} btn-xs\" ng-click=\"vote('yes')\">Yes</button> " +
-                        "<button type=\"button\" ng-sdisabled=\"userHasVoted()\" class=\"btn {{userHasVoted()==='no'?'btn-danger':'btn-default'}} btn-xs\" ng-click=\"vote('no')\">No</button>" +
+                        "<button type=\"button\" class=\"btn {{userHasVoted()==='yes'?'btn-success':'btn-default'}} btn-xs\" ng-click=\"vote('yes')\">Yes</button> " +
+                        "<button type=\"button\" class=\"btn {{userHasVoted()==='no'?'btn-danger':'btn-default'}} btn-xs\" ng-click=\"vote('no')\">No</button>" +
                     "</div>" +
                 "</div>" +
             "</div>" +
         "</div>");
-
-    socket.configCallback.add(function (data) {
-        $scope.config = data;
-        $scope.$apply();
-    });
 
     function getTimeString(timestamp) {
 
