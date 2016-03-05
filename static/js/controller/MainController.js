@@ -10,6 +10,7 @@ function MainController($scope, socket, notificationManager) {
     $scope.skipped = false;
     $scope.muted = false;
     $scope.bingo = false;
+    $scope.state = "loading";
 
     $scope.login = function() {
         location.href = "http://www.last.fm/api/auth/?api_key=" + $scope.config.api_key + "&cb=" + $(location).attr("href") + "login.html";
@@ -90,8 +91,8 @@ function MainController($scope, socket, notificationManager) {
         return $scope.config ? $scope.config.radioname : "Client Room Radio";
     };
 
-    $scope.getSocketReadyState = function() {
-        return socket.sockjs.readyState;
+    $scope.getState = function() {
+        return $scope.state;
     };
 
     $scope.getActiveUserCount = function() {
@@ -189,16 +190,18 @@ function MainController($scope, socket, notificationManager) {
         $(".volume-slider-init").slider().slider("setValue", 1 - volume);
     });
 
-
-    $(".btn-tooltip").tooltip({
-        container: "body"
-    });
+    $scope.toggleMuted = function() {
+        $scope.muted = !$scope.muted;
+        socket.sendMutedStatus($scope.muted);
+    };
 
     $scope.clickOnVolumeBar = function(e) {
         var event = e || window.event;
         console.log(event);
         event.stopPropagation();
+
         $scope.muted = false;
+        socket.sendMutedStatus(false);
     };
 
     // Update progress bar
@@ -215,7 +218,40 @@ function MainController($scope, socket, notificationManager) {
         return minutes + ":" + remainder;
     };
 
+    socket.readyStateCallback.add(function (data) {
+        console.log("ready state changed", data);
+
+        // ignore open and connecting in the loading state
+        // in this case we wait until we've recieved our first config
+        switch (data) {
+            case SockJS.OPEN:
+                if ($scope.state !== "loading") {
+                    $scope.state = "open";
+                }
+                break;
+            case SockJS.CONNECTING:
+                if ($scope.state !== "loading") {
+                    $scope.state = "connecting";
+                }
+                break;
+            case SockJS.CLOSING:
+            case SockJS.CLOSED:
+            default:
+                $scope.state = "offline";
+                break;
+        }
+
+        $scope.$apply();
+    });
+
     socket.configCallback.add(function (data) {
+        if ($scope.state === "loading") {
+            // we're in the loading state and have recieved our first config
+            // so go into the open state
+            // we never go back to the loading state so this can't happen twice
+            $scope.state = "open"
+        }
+
         $scope.config = data;
         $scope.$apply();
     });

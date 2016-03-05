@@ -14,6 +14,9 @@ var Socket = function(SOCKJS_URL) {
     this.configCallback = $.Callbacks();
     this.disconnectedCallback = $.Callbacks();
 
+    this.readyStateCallback = $.Callbacks();
+
+
     that.sockjs = null;
     var reconnectTimeout = null;
 
@@ -49,6 +52,10 @@ var Socket = function(SOCKJS_URL) {
         send("logout", {});
     };
 
+    that.sendMutedStatus = function(status) {
+        send("mutedStatus", {"status": status});
+    };
+
     that.love = function() {
         send("love", {});
     };
@@ -71,6 +78,8 @@ var Socket = function(SOCKJS_URL) {
 
     function connect () {
         that.sockjs = new SockJS(SOCKJS_URL);
+
+        that.readyStateCallback.fire(that.sockjs.readyState);
 
         that.sockjs.onmessage = function(payload) {
             payload = $.parseJSON(payload.data);
@@ -157,11 +166,15 @@ var Socket = function(SOCKJS_URL) {
             heartbeat = setInterval(function() {
                 send("heartbeat", null);
             }, 2000);
+
+            that.readyStateCallback.fire(that.sockjs.readyState);
         };
         that.sockjs.onclose = function() {
             that.closeCallback.fire();
             reconnectTimeout = setTimeout(connect, 1000);
             clearInterval(heartbeat);
+
+            that.readyStateCallback.fire(that.sockjs.readyState);
         };
     }
 

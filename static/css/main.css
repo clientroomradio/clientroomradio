@@ -1,44 +1,33 @@
-/*
-	crr-red: #c49db3;
-	crr-blue-green: #a1d2d4;
-	crr-yellow: #ddc89f;
-*/
-
-.progress {
-	background-color: #B0D1EC;
-	margin-bottom: 10px;
-}
-
 /* This slider module is a piece of shit */
 .slider .slider-track {
-	background: #B0D1EC;
+    background: #B0D1EC;
 }
 
 .slider .slider-selection {
-	background: #428bca;
+    background: #428bca;
 }
 
 .slider.slider-vertical .slider-handle {
-	margin-left: -1px;
-	margin-top: -5px;
+    margin-left: -1px;
+    margin-top: -5px;
 }
 
 .slider-handle {
-	width: 12px;
-	height: 12px;
-	opacity: 1;
+    width: 12px;
+    height: 12px;
+    opacity: 1;
 }
 
 .volume-inline-block {
-	display: inline-block;
-	height: 20px;
-	padding-left: 7px;
-	opacity: 0;
-	position: absolute;
-	bottom: 65px;
-	left: 1px;
+    display: inline-block;
+    height: 20px;
+    padding-left: 7px;
+    opacity: 0;
+    position: absolute;
+    bottom: 65px;
+    left: 1px;
 
-	-moz-transition-property: all;
+    -moz-transition-property: all;
     -moz-transition-duration: 0.3s;
     -webkit-transition-property: all;
     -webkit-transition-duration: 0.3s;
@@ -49,11 +38,11 @@
 }
 
 .btn-volume {
-	overflow: hidden;
-	height: 34px;
-	width: 38px;
+    overflow: hidden;
+    height: 34px;
+    width: 38px;
 
-	-moz-transition-property: all;
+    -moz-transition-property: all;
     -moz-transition-duration: 0.3s;
     -webkit-transition-property: all;
     -webkit-transition-duration: 0.3s;
@@ -69,205 +58,230 @@
 }
 
 .btn-volume:hover .volume-inline-block {
-	opacity: 1;
+    opacity: 1;
 }
 
 .btn-volume:hover {
-	height: 105px;
-	margin-top: -72px;
+    height: 105px;
+    margin-top: -72px;
 }
 
 .btn-volume i {
-	position: absolute;
-	bottom: 10px;
+    position: absolute;
+    bottom: 10px;
 }
 
 .volume {
-	padding-left: 0px;
-	padding-right: 7px;
+    padding-left: 0px;
+    padding-right: 7px;
 }
 
 .volume .slider {
-	height: 53px !important;
+    height: 53px !important;
 }
-
 
 /* END Slider */
 
-.btn-skip {
-	width: 100px;
+/* crr-red: #c59eb3; crr-blue-green: #a3d2d4; crr-yellow: #ddc8a0; */
+
+.listeners {
+    overflow: scroll;
+    height: 145px;
 }
 
-.current-track img {
-	height: 100px;
-	width: 100px;
-	margin-right: 20px;
+.listeners a,
+.context-user a,
+.skipper a {
+    text-decoration: none;
+}
+
+.text-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.progress {
+    background-color: #B0D1EC;
+    margin-bottom: 10px;
 }
 
 .current-track-info {
-	margin-bottom: 20px;
+    background-color: #f5f5f5;
+}
+
+.current-track img {
+    height: 100px;
+    width: 100px;
+    margin-right: 20px;
 }
 
 .chat-line--text {
-	padding-left: 5px;
+    padding-left: 5px;
 }
 
 .chat-line--new-track,
 .chat-line--vote {
-	margin: 3px 0px;
-	padding: 5px;
+    margin: 3px 0px;
+    padding: 5px;
 }
 
 .current-track h4 a,
 .chat-line h4 a  {
-	color: #333333;
+    color: #333333;
 }
 
 .chat-line h4  {
-	display: inline;
-	vertical-align: top;
+    display: inline;
+    vertical-align: top;
 }
 
 /* Chat */
 .chat-content {
-	overflow-y: scroll;
+    overflow-y: scroll;
+    height: 300px;
 }
 
 .chat-content .chat-time {
-	color: #888;
-	font-size: 10px;
-	margin-right: 6px;
+    color: #888;
+    font-size: 10px;
+    margin-right: 6px;
 }
 
 .chat-content .chat-name {
-	font-weight: bold;
-	
+    font-weight: bold;
+    
 }
 .chat-content .chat-name {
-	font-weight: bold;
-	color: #222;
+    font-weight: bold;
+    color: #222;
 }
 
 .chat-line--me,
 .chat-line--sys {
-	font-style: italic;
+    font-style: italic;
 }
 
 .chat-line--me .chat-time,
 .chat-line--sys .chat-time {
-	font-style: normal;
+    font-style: normal;
 }
 
 .chat-line--me .chat-name:before {
-	content:"— ";
-	color: #888;
-	font-weight: normal;
+    content:"— ";
+    color: #888;
+    font-weight: normal;
 }
 
 .chat-line--sys {
-	color: #bbb;
+    color: #bbb;
 }
 
 .chat-line--sys .chat-name {
-	color: #bbb;
+    color: #bbb;
 }
 
 .chat-line--request-track .chat-extra-text {
     color: #666;
 }
 
+.user {
+    white-space: nowrap;
+}
+
 .vote-decision {
-	text-transform:uppercase;
+    text-transform:uppercase;
 }
 
 .vote-decision--no,
 .vote-against,
 .chat-line--vote .btn-danger,
 .chat-line--vote .btn-danger:hover,
-.chat-line--vote .btn-danger:focus {
-	border-color: #c49db3;
-	background-color: #c49db3;
+.chat-line--vote .btn-danger:focus,
+.user--inactive .badge,
+.skipper .badge {
+    border-color: #c59eb3;
+    background-color: #c59eb3;
 }
 
 .vote-decision--yes,
 .vote-for,
 .chat-line--vote .btn-success,
 .chat-line--vote .btn-success:hover,
-.chat-line--vote .btn-success:focus {
-	border-color: #a1d2d4;
-	background-color: #a1d2d4;
+.chat-line--vote .btn-success:focus,
+.user--active .badge,
+.context-user .badge {
+    border-color: #a3d2d4;
+    background-color: #a3d2d4;
 }
 
 .chat-line--vote,
 .chat-line--new-track {
-	border: 1px solid #e3e3e3;
-	border-radius: 5px;
-	background: #f5f5f5;
-	font-style: normal;
+    border: 1px solid #e3e3e3;
+    border-radius: 5px;
+    background: #f5f5f5;
+    font-style: normal;
 }
 
 .chat-line--request-track {
-	background: #ddc895;
+    background: #ddc895;
 }
 
 .vote-remaining-time {
-	position: relative;
-	display: inline-block;
-	vertical-align: middle;
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 /* New Track */
 .chat-line .chat-img .album-art {
-	height: 64px;
-	width: 64px;
-	display: inline;
-	margin-right: 6px;
+    height: 64px;
+    width: 64px;
+    display: inline;
+    margin-right: 6px;
 }
 
 /* Last.fm icon */
 .icon-lastfm {
-	display: inline-block;
-	background-image: url(/img/crr_scrobble_icon_white.png);
-	background-repeat: no-repeat;
-	background-size: 21px 12px;
-	width: 21px;
-	height: 12px;
-	position:relative;
-	margin-top: 4px;
+    display: inline-block;
+    background-image: url(/img/crr_scrobble_icon_white.png);
+    background-repeat: no-repeat;
+    background-size: 21px 12px;
+    width: 21px;
+    height: 12px;
+    position:relative;
+    margin-top: 4px;
 }
 
-.list-group-item .icon-lastfm {
-	background-image: url(/img/crr_scrobble_icon_black.png);
+.icon-user {
+    width: 21px;
+    height: 21px;
 }
 
-.list-group-item .icon-user {
-	width: 21px;
-	height: 21px;
-}
-
-.user--inactive a {
-	color: #bbb;
+.active {
+    background-color: #a3d2d4;
 }
 
 .bingo {
-	background-image: url(/img/kip_bingo.png);
-	background-size: 100px 100px;
+    background-image: url(/img/kip_bingo.png);
+    background-color: #ddc8a0;
+    background-size: 100px 100px;
 }
 
 .inactive {
-	background-image: none;
-	background-color: #c49db3;
+    background-image: none;
+    background-color: #c59eb3;
 }
 
 #spotifySearch .list-group {
-	height: 200px;
-	overflow-y: scroll;
+    height: 200px;
+    overflow-y: scroll;
 }
 
 #spotifySearch input {
-	margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
-  display: none !important;
+    display: none !important;
 }

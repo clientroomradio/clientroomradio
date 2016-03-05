@@ -3,7 +3,9 @@
     <head>
         <meta charset="UTF-8" />
         <title ng:bind-template="{{isPlaying()?currentTrack.artists[0].name+' – '+currentTrack.name+' | ':''}}{{getRadioName()}}">Client Room Radio</title>
+
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
 
@@ -44,7 +46,7 @@
 
         <!-- Header -->
         <nav class="navbar navbar-default" role="navigation">
-            <div class="container-fluid">
+            <div class="container">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse" ng-show="isLoggedIn()">
@@ -55,16 +57,14 @@
                     </button>
                     <a class="navbar-brand" href="">
                         <span><img alt="CRR" src="/img/crr_40_alpha.png" width="20" height="20"/></span>
-                        {{getRadioName()}}{{bingo?' - BINGO!':''}}
+                        <span>{{getRadioName()}}</span>
+                        <span ng-show="getState()!='open'"> - Connecting <i class="fa fa-spinner fa-pulse"></i></span>
+                        <span ng-show="bingo"> - BINGO!</span>
                     </a>
                 </div>
     
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse navbar-ex1-collapse navbar-right">
-                    <ul class="nav navbar-nav">
-                        <li class="navbar-text"><a class="twitter-follow-button" data-show-count="false" href="https://twitter.com/clientroomradio">@clientroomradio</a></li>
-                        <li class="navbar-text"><iframe src="https://ghbtns.com/github-btn.html?user=clientroomradio&repo=clientroomradio&type=watch&count=false&v=2" frameborder="0" scrolling="0" width="60px" height="20px"></iframe></li>
-                    </ul>
                     <ul class="nav navbar-nav" ng-show="isLoggedIn()" >
                         <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
                         <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
@@ -79,32 +79,31 @@
             </div>
         </nav>
 
-        <!-- Main area -->
-        <!-- do something with the socket ready state e.g. ng-show="getSocketReadyState()===1" -->
-        <div ng-cloak ng-show="config">
-            <div class="col-sm-12">
-                <div class="well" ng-hide="isLoggedIn()">
-                    <div ng-controller="VotingController" ng-init="initWithSession()">
-                        <div ng-show="isVoting()">
-                            <div ng-hide="hasBeenDecided()">
-                                <h1>They're voting, voting…</h1>
-                                <span>Will current users let you in? You'll know in {{remainingSeconds}} seconds...</span>
-                            </div>
-                            <div ng-show="hasBeenDecided()&&decision==='no'">
-                                <h1>They voted, voted…</h1>
-                                <span >You weren't allowed in this time. Don't feel bad. Maybe no one saw. Try again?</span>
-                            </div>
-                        </div>
-                        <div ng-hide="isVoting()">
-                            <h1>It’s Friday, Friday…</h1>
-                        </div>               
+        <!-- Main area -->             
+        <div ng-cloak ng-show="getState()!='loading'" class="container main-area">
+
+            <!-- The logged out info area -->
+            <div class="col-xs-12" ng-hide="isLoggedIn()" ng-controller="VotingController" ng-init="initWithSession()">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h1 ng-show="!isVoting()">It’s Friday, Friday…</h1>
+                        <h1 ng-show="isVoting()&&!hasBeenDecided()">They're voting, voting…</h1>
+                        <h1 ng-show="isVoting()&&hasBeenDecided()&&decision==='no'">They voted, voted…</h1>
+                    </div>  
+                    <div class="panel-body" ng-show="isVoting()">
+                        <span ng-hide="hasBeenDecided()">Will current users let you in? You'll know in {{remainingSeconds}} seconds...</span>
+                        <span ng-show="hasBeenDecided()&&decision==='no'">You weren't allowed in this time. Don't feel bad. Maybe no one saw. Try again?</span>
                     </div>
                 </div>
-                <div class="well current-track">
-                    <div class="current-track-info clearfix">
+            </div>
+
+            <!-- The track info area (both logged in and logged out see this. needs to always be 12 for logged out) -->
+            <div class="current-track {{isLoggedIn()?'col-sm-8':'col-sm-12'}}">
+                <div class="panel panel-default">
+                    <div class="panel-body current-track-info"> 
                         <img class="pull-left img-thumbnail" ng-src="{{(isPlaying()&&currentTrack.image)?currentTrack.image.replace('http://img2-ak.lst.fm/', 'https://secure-img2.last.fm/'):'/img/crr_128.png'}}" alt="{{currentTrack.artists[0].name}} – {{currentTrack.name}}">
 
-                        <h4 class="media-heading" ng-show="isPlaying()">
+                        <h4 class="media-heading text-overflow" ng-show="isPlaying()">
                             <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.artists[0].name}}</a>
                             –
                             <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.name}}</a>
@@ -124,52 +123,60 @@
 
                         <div id="audio-player"></div>
 
-                        <div ng-show="isPlaying()||getActiveUserCount()>0">
+                        <div class="context-users" ng-show="isPlaying()||getActiveUserCount()>0">
                             <i class="fa fa-headphones"></i> 
                             <span ng-repeat="contextUser in currentTrack.context">
-                                <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">{{contextUser.username}}</a>
-                                ({{contextUser.userplaycount}}<span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span>)<span ng-show="$last==false">,</span>
+                                <span class="context-user">
+                                    <a href="http://www.last.fm/user/{{contextUser.username}}/library/music/{{currentTrack.artists[0].name}}/_/{{currentTrack.name}}" target="_blank">
+                                        <span class="badge">{{contextUser.username}}</span>
+                                    </a>
+                                    <span>({{contextUser.userplaycount}}</span><span ng-show="contextUser.userloved==1"> <i class="fa fa-heart"></i></span>)
+                                    <span ng-show="$last==false"> </span>
+                                </span>
                             </span>
                         </div>
                         <div ng-show="isPlaying()||getActiveUserCount()>0">
                             <i class="fa fa-thumbs-down"></i>
                             <span class="skippers">
-                                <span class="text-muted" ng-hide="skippers.length==0">
-                                    (<span ng-repeat="skipper in skippers">{{skipper}}<span ng-show="$last==false">, </span></span>)
+                                <span ng-repeat="skipper in skippers">
+                                    <span class="skipper">
+                                        <span class="badge">{{skipper}}</span>
+                                        <span ng-show="$last==false"> </span>
+                                    </span>
                                 </span>
-                                <span>{{skippers.length}} of {{skippersNeeded()}} needed to skip</span>
+                                <span ng-hide="skippers.length==0">{{skippers.length}} of </span>
+                                <span>{{skippersNeeded()}} <ng-pluralize count="skippersNeeded()" when="{'one': 'vote', 'other': 'votes'}"></ng-pluralize> needed to skip</span>
                             </span>
                         </div>
                     </div>
-
-                    <div class="clearfix">
+                    <div class="panel-footer clearfix"> 
                         <div class="pull-left current-track-buttons">
-                            <button class="btn btn-primary" ng-hide="isLoggedIn()" ng-disabled="!config" ng-click="login()">Login via Last.fm</button>
-                            <button type="button" class="btn btn-primary btn-skip btn-tooltip" ng-click="skip()" ng-disabled="!isActive() || skipped" ng-show="isLoggedIn()" data-toggle="tooltip" title="… or “?skip explanation“ in the chat">
-                                <i class="fa fa-thumbs-down"></i> Skip
+                            <button class="btn btn-primary" ng-hide="isLoggedIn()" ng-disabled="getState()!='open'" ng-click="login()">Login via Last.fm</button>
+                            <button  tooltip type="button" class="btn btn-primary btn-skip" ng-click="skip()" ng-disabled="!isActive() || skipped || getState()!='open'" ng-show="isLoggedIn()" tooltip data-placement="top" title="… or “?skip explanation“ in the chat">
+                                <i class="fa fa-thumbs-down"></i>
                             </button>
-                            <button type="button" class="btn btn-danger btn-tooltip" ng-show="isLoggedIn()&&loved" ng-click="unlove()" data-toggle="tooltip" title="Un-love this track">
+                            <button type="button" class="btn btn-danger" ng-show="isLoggedIn()&&loved" ng-disabled="getState()!='open'" ng-click="unlove()" tooltip title="Un-love this track">
                                 <i class="fa fa-heart"></i>
                             </button>
-                            <button type="button" class="btn btn-default btn-tooltip" ng-show="isLoggedIn()&&!loved"ng-click="love()">
+                            <button type="button" class="btn btn-default" tooltip ng-show="isLoggedIn()&&!loved" ng-disabled="getState()!='open'" ng-click="love()" title="Love this track">
                                 <i class="fa fa-heart-o"></i>
                             </button>
                         </div>
 
                         <div class="pull-right" ng-show="isLoggedIn()">
-                            <button type="button" class="btn btn-default {{isActive()?'btn-success':'btn-danger'}} btn-tooltip" ng-click="setActive(!isActive())" data-toggle="tooltip" title="Sit out / in">
+                            <button type="button" class="btn btn-default {{isActive()?'btn-success':'btn-danger'}}" ng-click="setActive(!isActive())" ng-disabled="getState()!='open'" tooltip title="Sit out / in">
                                 <i class="{{isActive()?'fa fa-sign-out':'fa fa-sign-in'}}"></i>
                             </button>
 
-                            <button type="button" ng-show="isScrobbling()" class="btn btn-default btn-success btn-tooltip" ng-click="setScrobbling(false)" ng-disabled="!isActive()" data-toggle="tooltip" title="Turn scrobbling off">
+                            <button type="button" ng-show="isScrobbling()" ng-disabled="getState()!='open'" class="btn btn-default btn-success" ng-click="setScrobbling(false)" ng-disabled="!isActive()" tooltip title="Turn scrobbling off">
                                 <i class="fa icon-lastfm"></i>
                             </button>
 
-                            <button type="button" ng-hide="isScrobbling()" class="btn btn-default btn-danger btn-tooltip" ng-click="setScrobbling(true)" ng-disabled="!isActive()" data-toggle="tooltip" title="Turn scrobbling on">
+                            <button type="button" ng-hide="isScrobbling()" ng-disabled="getState()!='open'" class="btn btn-default btn-danger" ng-click="setScrobbling(true)" ng-disabled="!isActive()" tooltip title="Turn scrobbling on">
                                 <i class="fa icon-lastfm"></i>
                             </button>
 
-                            <button type="button" class="btn btn-default btn-tooltip btn-volume" ng-click="muted=!muted">
+                            <button type="button" class="btn btn-default btn-volume" ng-disabled="getState()!='open'" ng-click="toggleMuted()">
                                 <i class="{{muted?'fa fa-volume-off':'fa fa-volume-up'}}"></i>
 
                                 <div class="volume-inline-block" ng-click="clickOnVolumeBar()">
@@ -183,40 +190,41 @@
                 </div>
             </div>
 
-            <div ng-show="isLoggedIn()" class="col-md-10 col-xs-12">
-                <div class="panel panel-default" ng-controller="ChatController">
-                    <div class="panel-body chat-content"></div>
-                    <div class="panel-footer">
-                     <div class="input-group input-group-sm">
-                        <span class="input-group-addon">{{config.username}}</span>
-                        <input type="text" class="form-control chat-input" ng-keyup="onKeyUp()">
-                     </div>
+            <!-- The listeners area -->
+            <div ng-show="isLoggedIn()" class="col-sm-4 hidden-xs">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <ng-pluralize count="getActiveUserCount()" when="{'one': '1 Listener', 'other': '{} Listeners'}"></ng-pluralize>
+                    </div>
+                    <div class="listeners panel-body">
+                        <span ng-repeat="(username, user) in users">
+                            <span class="user {{user.active&&user.allowed?'user--active':'user--inactive'}}">
+                                <a target="_blank" href="http://www.last.fm/user/{{username}}">
+                                    <img class="icon-user img-circle" ng-src="{{user.image?user.image.replace('http://img2-ak.lst.fm/', 'https://secure-img2.last.fm/'):'/img/crr_40_alpha.png'}}"/>
+                                    <span tooltip title="{{user.active?('active &bull; ')+(user.scrobbling?'scrobbling':'not scrobbling')+(user.muted?' &bull; muted':''):'inactive'}}" class="badge">{{username}}</span>
+                                </a>
+                                <span ng-show="$last==false">&nbsp;</span>
+                            </span>
+                        </span>
                     </div>
                 </div>
             </div>
-            <div ng-show="isLoggedIn()" class="col-md-2 col-xs-12">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <ng-pluralize
-                             count="getActiveUserCount()"
-                             when="{'one': '1 Listener', 'other': '{} Listeners'}">
-                        </ng-pluralize>
+
+            <!-- The chat area -->
+            <div ng-show="isLoggedIn()" class="col-xs-12">
+                <div class="panel panel-default chat-area" ng-controller="ChatController">
+                    <div class="panel-body chat-content"></div>
+                    <div class="panel-footer">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">{{config.username}}</span>
+                            <input type="text" class="form-control chat-input" ng-keyup="onKeyUp()">
+                        </div>
                     </div>
-                    <ul class="list-group listener-list">
-                        <li ng-repeat="(username, user) in users" class="clearfix list-group-item {{user.active&&user.allowed?'user--active':'user--inactive'}}">
-                            <span class="pull-left">
-                                <img class="icon-user img-circle" ng-src="{{user.image?user.image.replace('http://img2-ak.lst.fm/', 'https://secure-img2.last.fm/'):'/img/crr_40_alpha.png'}}"/>
-                                <a target="_blank" href="http://www.last.fm/user/{{username}}">{{username}}</a>
-                            </span>
-                            <i ng-show="user.active && user.scrobbling && user.allowed" class="pull-right icon-lastfm"></i>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>
 
         <!-- Modal for spotify search -->
-
         <div class="modal fade" id="spotifySearch" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" ng-controller="SpotifySearchController">
             <div class="modal-dialog">
                 <div class="modal-content">
