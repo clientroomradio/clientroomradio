@@ -26,13 +26,13 @@ function VotingController($scope, socket) {
 
     $scope.getId = function() {
         return useSessionId ? $scope.config.session : id;
-    } 
+    };
 
     $scope.userHasVoted = function() {
         if ($scope.votes && $scope.votes.hasOwnProperty($scope.config.username)) {
             return $scope.votes[$scope.config.username];
         }
-    }
+    };
 
     $scope.hasBeenDecided = function() {
         return $scope.decision !== null;
@@ -41,7 +41,7 @@ function VotingController($scope, socket) {
     $scope.isVoting = function() {
         // there are votes and it hasn't been decided
         return $scope.votes && !$scope.hasBeenDecided();
-    }
+    };
 
     socket.updateVotesCallback.add(function (voting) {
         if (voting.id === $scope.getId()) {

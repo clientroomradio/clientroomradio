@@ -2,18 +2,17 @@ function initClientRoomRadio(socketUrl) {
     angular.module("crrAngular", [])
     .service("socket", Socket)
     .service("notificationManager", NotificationManager)
-
     .value("SOCKJS_URL", socketUrl)
-    .directive('tooltip', function(){
+    .directive("tooltip", function() {
         return {
-            restrict: 'A',
+            restrict: "A",
             link: function(scope, element, attrs){
                 $(element).hover(function(){
                     // on mouseenter
-                    $(element).tooltip('show');
+                    $(element).tooltip("show");
                 }, function(){
                     // on mouseleave
-                    $(element).tooltip('hide');
+                    $(element).tooltip("hide");
                 });
             }
         };

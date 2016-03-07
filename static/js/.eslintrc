@@ -3,7 +3,6 @@
         "node": false,
         "es6": false,
         "browser": true,
-        "jquery": true,
-        "underscore": true
+        "jquery": true
     }
 }

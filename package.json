@@ -23,15 +23,15 @@
     "crr-setup": "./bin/setup.js"
   },
   "eslintConfig": {
-        "env": {
-            "browser": false,
-            "node": true,
-            "es6": true
-        },
-        "rules": {
-            "indent": [2, 4],
-            "quotes": [2, "double"],
-            "semi": [2, "always"]
-        }
+    "env": {
+      "browser": false,
+      "node": true,
+      "es6": true
+    },
+    "rules": {
+    "indent": [2, 4],
+      "quotes": [2, "double"],
+      "semi": [2, "always"]
     }
+  }
 }
