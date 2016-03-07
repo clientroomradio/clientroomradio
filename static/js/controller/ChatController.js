@@ -138,10 +138,10 @@ function ChatController($scope, $element, $compile, socket) {
 
             if (data.user) {
                 $(".chat-name", $el).text(data.user);
-            } else if (data.data.hasOwnProperty("data")) {
-                $(".chat-name", $el).text(data.data.data.username);
+            } else if (data.hasOwnProperty("data")) {
+                $(".chat-name", $el).text(data.data.username);
             } else {
-                $(".chat-name", $el).text($scope.config.name);
+                $(".chat-name", $el).text($scope.config.username);
             }
 
             $(".chat-time", $el).text(getTimeString(data.timestamp));
@@ -199,10 +199,6 @@ function ChatController($scope, $element, $compile, socket) {
     function scrollDown() {
         $chatContent.scrollTop($chatContent[0].scrollHeight);
     }
-
-    $scope.$watch("isLoggedIn()", function () {
-        scrollDown();
-    });
 
     function updateContainer() {
         var containerHeight = $(window).height();
