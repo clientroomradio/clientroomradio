@@ -22,7 +22,7 @@ var lastfm = new LastFmNode({
 
 lastfm.request("auth.getToken", {
     handlers: {
-        success: function(getTokenData) {
+        success: getTokenData => {
             var token = getTokenData.token;
             var prompt = "Please go to this URL and authorize the app: " +
                             "http://www.last.fm/api/auth?api_key=" + args.lfmApiKey + "&token=" + token + "\n" +
@@ -34,7 +34,7 @@ lastfm.request("auth.getToken", {
             lastfm.request("auth.getSession", {
                 token: token,
                 handlers: {
-                    success: function(getSessionData) {
+                    success: getSessionData => {
                         var sk = getSessionData.session.key;
                         console.log("We got a session key:", sk);
 
@@ -55,7 +55,7 @@ lastfm.request("auth.getToken", {
                 }
             });
         },
-        error: function(error) {
+        error: error => {
             console.error("Error", error);
         }
     }
