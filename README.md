@@ -1,4 +1,4 @@
-# Client Room Radio
+# Client Room Radio [![Build Status](https://travis-ci.org/clientroomradio/clientroomradio.svg?branch=master)](https://travis-ci.org/clientroomradio/clientroomradio)
 
 ## Development Setup Instructions
 
