@@ -22,7 +22,8 @@
     "mocha": "2.4.5",
     "mocha-phantomjs": "4.0.2",
     "eslint": "2.3.0",
-    "chai": "3.5.0"
+    "chai": "3.5.0",
+    "chai-spies": "0.7.1"
   },
   "scripts": {
     "test": "npm run-script test-lint && npm run-script test-node && npm run-script test-browser",
