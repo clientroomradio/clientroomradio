@@ -38,19 +38,19 @@ describe("a MainController", function() {
         it("should return the currect duration", function() {
             mockScope.currentTrack = {};
 
-            mockScope.currentTrack.duration = 1;
+            mockScope.currentTrack.duration = 1000;
             expect(mockScope.durationInText()).to.equal("0:01");
 
-            mockScope.currentTrack.duration = 10;
+            mockScope.currentTrack.duration = 10000;
             expect(mockScope.durationInText()).to.equal("0:10");
 
-            mockScope.currentTrack.duration = 59;
+            mockScope.currentTrack.duration = 59000;
             expect(mockScope.durationInText()).to.equal("0:59");
 
-            mockScope.currentTrack.duration = 60;
+            mockScope.currentTrack.duration = 60000;
             expect(mockScope.durationInText()).to.equal("1:00");
 
-            mockScope.currentTrack.duration = 61;
+            mockScope.currentTrack.duration = 61000;
             expect(mockScope.durationInText()).to.equal("1:01");
         });
 

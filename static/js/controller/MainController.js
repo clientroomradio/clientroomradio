@@ -210,12 +210,16 @@ function MainController($scope, socket, notificationManager) {
     };
 
     // Update progress bar
+    $scope.progressValueNow = function() {
+        return $scope.currentPositionInTrack * 100;
+    };
+
     $scope.progressBarStyle = function() {
-        return {"width": ($scope.currentPositionInTrack / ($scope.currentTrack.duration * 10)) + "%"};
+        return {"width": $scope.progressValueNow() + "%"};
     };
 
     $scope.durationInText = function() {
-        var totalSeconds = $scope.currentTrack.duration;
+        var totalSeconds = Math.round($scope.currentTrack.duration / 1000);
         var minutes = Math.floor(totalSeconds / 60);
         var remainder = "" + totalSeconds % 60;
 
@@ -262,11 +266,6 @@ function MainController($scope, socket, notificationManager) {
     });
 
     socket.newTrackCallback.add(function (data) {
-        if (Object.keys($scope.currentTrack) === 0) {
-            // this is a new track so set the position to 0
-            $scope.currentPositionInTrack = 0;
-        }
-
         $scope.currentTrack = data;
 
         $scope.loved = false;
@@ -287,7 +286,7 @@ function MainController($scope, socket, notificationManager) {
     });
 
     socket.progressCallback.add(function (progress) {
-        $scope.currentPositionInTrack = $scope.currentTrack.duration * progress;
+        $scope.currentPositionInTrack = progress;
         $scope.$apply();
     });
 

@@ -118,7 +118,7 @@
                         <p ng-hide="isLoggedIn()||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
 
                         <div class="progress" ng-show="isPlaying()||getActiveUserCount()>0">
-                            <div class="progress-bar" role="progressbar" aria-valuenow="{{currentPositionInTrack}}" aria-valuemin="0" aria-valuemax="{{currentTrack.duration}}" ng-style="progressBarStyle()"></div>
+                            <div class="progress-bar" role="progressbar" aria-valuenow="{{progressValueNow()}}" aria-valuemin="0" aria-valuemax="100" ng-style="progressBarStyle()"></div>
                         </div>
 
                         <div id="audio-player"></div>
