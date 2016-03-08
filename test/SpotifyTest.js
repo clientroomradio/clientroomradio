@@ -33,7 +33,9 @@ describe("Spotify", () => {
         mockError = null;
 
         mockSpotifyWeb = {
-            login: chai.spy((username, password, callback) => { callback(mockError, mockSp); } )
+            login: chai.spy((username, password, callback) => {
+                setTimeout(() => {callback(mockError, mockSp); }, 0);
+            })
         };
 
         mockSpTrack = {
@@ -48,36 +50,62 @@ describe("Spotify", () => {
         };
     });
 
-    describe("#isLoggedIn()", () => {
-        it("should return false when there was an error on login", () => {
+    describe("#on(\"login\")", () => {
+        it("should emit login with error on login with error", (done) => {
             mockError = "error";
 
             var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
-            expect(spotify.isLoggedIn()).to.equal(false);
+            spotify.on("login", (err) => {
+                expect(err).to.equal(mockError);
+                done();
+            });
         });
 
-        it("should return true when logged in", () => {
+        it("shouldn't emit login with error on login without error", (done) => {
             var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
-            expect(spotify.isLoggedIn()).to.equal(true);
+            spotify.on("login", (err) => {
+                expect(err).to.be.null;
+                done();
+            });
+        });
+    });
+
+    describe("#isLoggedIn()", () => {
+        it("shouldn't be logged in after login error", (done) => {
+            mockError = "error";
+
+            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify.on("login", (err) => {
+                expect(spotify.isLoggedIn()).to.be.false;
+                done();
+            });
+        });
+
+        it("should be logged in after successful login", (done) => {
+            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify.on("login", (err) => {
+                expect(spotify.isLoggedIn()).to.be.true;
+                done();
+            });
         });
     });
 
     describe("#playTrack", () => {
-        it("should call get with the spotify uri", () => {
+        it("should call get with the spotify uri", (done) => {
             var spotifyUri = "spotify:track:1234567890";
             var requester = "test-user";
             var handlers = {
-                success: (track, port) => {
-                },
-                error: error => {
-                }
+                success: (track, port) => {},
+                error: error => {}
             };
             var optionalTrack;
 
             var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
-            spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-
-            expect(mockSp.get).to.have.been.called.with(spotifyUri);
+            spotify.on("login", (err) => {
+                spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
+                expect(mockSp.get).to.have.been.called.with(spotifyUri);
+                done();
+            });
         });
     });
 });
