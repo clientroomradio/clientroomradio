@@ -145,7 +145,7 @@
                                     </span>
                                 </span>
                                 <span ng-hide="skippers.length==0">{{skippers.length}} of </span>
-                                <span>{{skippersNeeded()}} <ng-pluralize count="skippersNeeded()" when="{'one': 'vote', 'other': 'votes'}"></ng-pluralize> needed to skip</span>
+                                <span>{{skipLimit}} <ng-pluralize count="skipLimit" when="{'one': 'vote', 'other': 'votes'}"></ng-pluralize> needed to skip</span>
                             </span>
                         </div>
                     </div>

@@ -35,7 +35,7 @@ var userDao = new UserDao(dataStore, lastfmClient, socket, config, logger);
 var chat = new Chat(socket, dataStore, userDao, config);
 var votingManager = new VotingManager(chat, socket, userDao);
 var currentTrackManager = new CurrentTrackManager(socket, chat, logger);
-var skipManager = new SkipManager(socket, chat);
+var skipManager = new SkipManager(userDao, socket, chat);
 
 // Nothing depends on those:
 new PermissionManager(dataStore, userDao, votingManager, chat, socket, lastfmClient, config, logger);

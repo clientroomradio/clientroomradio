@@ -5,6 +5,7 @@ function MainController($scope, socket, notificationManager) {
     $scope.currentTrack = {};
     $scope.users = {};
     $scope.skippers = [];
+    $scope.skipLimit = 0;
     $scope.currentPositionInTrack = 0;
     $scope.loved = false;
     $scope.skipped = false;
@@ -85,10 +86,6 @@ function MainController($scope, socket, notificationManager) {
     };
 
     // Some helper functions
-    $scope.skippersNeeded = function() {
-        return Math.ceil($scope.getActiveUserCount() / 2);
-    };
-
     $scope.getRadioName = function() {
         return $scope.config ? $scope.config.radioname : "Client Room Radio";
     };
@@ -296,7 +293,8 @@ function MainController($scope, socket, notificationManager) {
     });
 
     socket.skippersCallback.add(function (data) {
-        $scope.skippers = data;
+        $scope.skippers = data.skippers;
+        $scope.skipLimit = data.skipLimit;
         $scope.skipped = false;
 
         $scope.skippers.forEach(function (skipper) {

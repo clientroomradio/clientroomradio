@@ -63,8 +63,8 @@ var NotificationManager = function(socket) {
             }
         });
 
-        socket.skipCallback.add(function(skip) {
-            notify(skip.skipper.username + " skipped!", skip.skippers.join(", "), skip.skipper.image);
+        socket.skipCallback.add(function(data) {
+            notify(data.skipper.username + " skipped!", data.text, data.skipper.image);
         });
     }, 3000);
 

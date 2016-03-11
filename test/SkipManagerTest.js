@@ -13,6 +13,8 @@ describe("SkipManager", () => {
     var mockSocket,
         mockChat,
         mockUser,
+        mockUserDao,
+        mockRadioUsers,
         capturedOnSkipCallback,
         skipManager;
 
@@ -31,7 +33,14 @@ describe("SkipManager", () => {
             username: "test-user"
         };
 
-        skipManager = new SkipManager(mockSocket, mockChat);
+        mockRadioUsers = ["test-user"];
+
+        mockUserDao = {
+            on: (key, callback) => {},
+            getRadioUsernames: () => { return mockRadioUsers; }
+        };
+
+        skipManager = new SkipManager(mockUserDao, mockSocket, mockChat);
     });
 
     describe("#getSkippers()", () => {
@@ -61,7 +70,7 @@ describe("SkipManager", () => {
 
         it("shouldn't add a skipper twice", () => {
             mockUser["active"] = true;
-            skipManager.skippers = ["test-user"];
+            skipManager.data.skippers = ["test-user"];
 
             capturedOnSkipCallback(mockUser, {text: skipText});
 
@@ -89,8 +98,9 @@ describe("SkipManager", () => {
         it("should emit change when active user skips", (done) => {
             mockUser["active"] = true;
 
-            skipManager.on("change", (skippers) => {
-                expect(skippers).to.deep.equal([mockUser.username]);
+            skipManager.on("change", (data) => {
+                expect(data.skippers).to.deep.equal([mockUser.username]);
+                expect(data.skipLimit).to.equal(1);
                 done();
             });
 
@@ -100,9 +110,9 @@ describe("SkipManager", () => {
         it("should emit skip when active user skips", (done) => {
             mockUser["active"] = true;
 
-            skipManager.on("skip", (user, skippers) => {
+            skipManager.on("skip", (user, text) => {
                 expect(user).to.equal(mockUser);
-                expect(skippers).to.deep.equal([mockUser.username]);
+                expect(text).to.equal(skipText);
                 done();
             });
 
@@ -112,19 +122,39 @@ describe("SkipManager", () => {
 
     describe("#clear()", () => {
         beforeEach(() => {
-            skipManager.skippers = ["test-user"];
+            skipManager.data.skippers = ["test-user"];
         });
 
         it("should clear the skippers", (done) => {
             expect(skipManager.getSkippers()).to.deep.equal(["test-user"]);
 
-            skipManager.on("change", (skippers) => {
-                expect(skippers).to.be.empty;
+            skipManager.on("change", (data) => {
+                expect(data.skippers).to.be.empty;
+                expect(data.skipLimit).to.equal(1);
                 done();
             });
 
             skipManager.clear();
             expect(skipManager.getSkippers()).to.be.empty;
+        });
+    });
+
+    describe("#getSkipLimit()", () => {
+        it("should return the correct value for the number of radio users", () => {
+            mockRadioUsers = [];
+            expect(skipManager.getSkipLimit()).to.equal(0);
+            mockRadioUsers.push("test-user");
+            expect(skipManager.getSkipLimit()).to.equal(1);
+            mockRadioUsers.push("test-user");
+            expect(skipManager.getSkipLimit()).to.equal(1);
+            mockRadioUsers.push("test-user");
+            expect(skipManager.getSkipLimit()).to.equal(2);
+            mockRadioUsers.push("test-user");
+            expect(skipManager.getSkipLimit()).to.equal(2);
+            mockRadioUsers.push("test-user");
+            expect(skipManager.getSkipLimit()).to.equal(3);
+            mockRadioUsers.push("test-user");
+            expect(skipManager.getSkipLimit()).to.equal(3);
         });
     });
 });
