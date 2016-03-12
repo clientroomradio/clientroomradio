@@ -62,4 +62,21 @@ describe("UserDao", () => {
             expect(userDao.getUsers()).to.have.ownProperty(username);
         });
     });
+
+    describe("#getScrobbleUsers()", () => {
+        it("should return scrobbling users", () => {
+            userDao.addUser("user", "session1", "sk", true);
+            userDao.addUser("user-not-allowed", "session2", "sk", false);
+            userDao.addUser("user-not-active", "session3", "sk", true);
+            userDao.getUsers()["user-not-active"].active = false;
+            userDao.addUser("user-muted", "session4", "sk", true);
+            userDao.getUsers()["user-muted"].muted = true;
+            userDao.addUser("user-not-scrobbling", "session5", "sk", true);
+            userDao.getUsers()["user-not-scrobbling"].scrobbling = false;
+
+            expect(Object.keys(userDao.getScrobbleUsers()).length).to.equal(2);
+            expect(userDao.getScrobbleUsers()).to.have.property("user");
+            expect(userDao.getScrobbleUsers()).to.have.property("user-muted");
+        });
+    });
 });
