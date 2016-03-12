@@ -107,5 +107,29 @@ describe("Spotify", () => {
                 done();
             });
         });
+
+        it("should call success", (done) => {
+            var spotifyUri = "spotify:track:1234567890";
+            var requester = "test-user";
+            var handlers = {
+                success: (track, port) => {
+                    expect(track.identifier).to.equal(spotifyUri);
+                    expect(track.artists[0].name).to.equal(mockSpTrack.artist[0].name);
+                    expect(track.name).to.equal(mockSpTrack.name);
+                    expect(track.duration).to.equal(mockSpTrack.duration);
+                    expect(track.extension.requester).to.equal(requester);
+                    expect(track.extension.artistpage).to.equal(`http://www.last.fm/music/${encodeURIComponent(mockSpTrack.artist[0].name)}`);
+                    expect(track.extension.trackpage).to.equal(`http://www.last.fm/music/${encodeURIComponent(mockSpTrack.artist[0].name)}/_/${encodeURIComponent(mockSpTrack.name)}`);
+                    done();
+                },
+                error: error => {}
+            };
+            var optionalTrack;
+
+            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify.on("login", (err) => {
+                spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
+            });
+        });
     });
 });
