@@ -39,7 +39,7 @@ sudo ln -fs /vagrant/static /var/www/clientroomradio/html
 sudo initctl reload-configuration
 
 # enable the site and reload the config
-sudo a2enmod proxy proxy_http ssl rewrite
+sudo a2enmod proxy proxy_http proxy_wstunnel ssl rewrite
 sudo a2dissite 000-default.conf
 sudo a2ensite clientroomradio.conf
 sudo service apache2 restart
