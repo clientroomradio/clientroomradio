@@ -15,7 +15,9 @@ describe("Spotify", () => {
         mockSpotifyWeb,
         mockSp,
         mockSpTrack,
-        mockError;
+        mockUserDao,
+        mockError,
+        spotify;
 
     beforeEach(() => {
         mockConfig = {
@@ -41,20 +43,34 @@ describe("Spotify", () => {
         mockSpTrack = {
             artist: [{name: "artist"}],
             name: "title",
-            duration: 2000 // 2 seconds long
+            duration: 2000, // 2 seconds long
+            play: () => {
+                return {
+                    // a mock stream
+                    pipe: () => {}
+                };
+            }
         };
 
         mockSp = {
             get: chai.spy((uri, callback) => { callback(null, mockSpTrack); } ),
             isTrackAvailable: (spTrack, country) => { return true; }
         };
+
+        mockUserDao = {
+            broadcast: () => {}
+        };
+    });
+
+    afterEach(() => {
+        spotify.close();
     });
 
     describe("#on(\"login\")", () => {
         it("should emit login with error on login with error", (done) => {
             mockError = "error";
 
-            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify = new Spotify(mockUserDao, mockConfig, mockLogger, mockSpotifyWeb);
             spotify.on("login", (err) => {
                 expect(err).to.equal(mockError);
                 done();
@@ -62,7 +78,7 @@ describe("Spotify", () => {
         });
 
         it("shouldn't emit login with error on login without error", (done) => {
-            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify = new Spotify(mockUserDao, mockConfig, mockLogger, mockSpotifyWeb);
             spotify.on("login", (err) => {
                 expect(err).to.be.null;
                 done();
@@ -74,7 +90,7 @@ describe("Spotify", () => {
         it("shouldn't be logged in after login error", (done) => {
             mockError = "error";
 
-            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify = new Spotify(mockUserDao, mockConfig, mockLogger, mockSpotifyWeb);
             spotify.on("login", (err) => {
                 expect(spotify.isLoggedIn()).to.be.false;
                 done();
@@ -82,7 +98,7 @@ describe("Spotify", () => {
         });
 
         it("should be logged in after successful login", (done) => {
-            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify = new Spotify(mockUserDao, mockConfig, mockLogger, mockSpotifyWeb);
             spotify.on("login", (err) => {
                 expect(spotify.isLoggedIn()).to.be.true;
                 done();
@@ -100,7 +116,7 @@ describe("Spotify", () => {
             };
             var optionalTrack;
 
-            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify = new Spotify(mockUserDao, mockConfig, mockLogger, mockSpotifyWeb);
             spotify.on("login", (err) => {
                 spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
                 expect(mockSp.get).to.have.been.called.with(spotifyUri);
@@ -126,7 +142,7 @@ describe("Spotify", () => {
             };
             var optionalTrack;
 
-            var spotify = new Spotify(mockConfig, mockLogger, mockSpotifyWeb);
+            spotify = new Spotify(mockUserDao, mockConfig, mockLogger, mockSpotifyWeb);
             spotify.on("login", (err) => {
                 spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
             });

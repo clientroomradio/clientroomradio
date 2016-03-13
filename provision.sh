@@ -1,10 +1,6 @@
 # update repo and install out dependencies
 sudo apt-get update
-sudo apt-get install -y apache2 make clang libvlc-dev vlc phantomjs
-
-# mocha-phantomjs only seems to look in /usr/bin so instead of 
-# passing a -p flag, lets symlink it here in this special case
-sudo ln -s /usr/bin/phantomjs /usr/local/bin/phantomjs
+sudo apt-get install -y apache2 make clang
 
 # install node 5.7.1 via nvm
 wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
@@ -24,7 +20,6 @@ sudo chown vagrant /var/crr
 sudo chown vagrant /var/crr/data
 sudo chown vagrant /var/log/crr.log
 sudo chown vagrant /var/log/crr.winston.log
-
 
 # install Client Room Radio as a node package
 (cd /vagrant && rm -rf node_modules && npm install)
