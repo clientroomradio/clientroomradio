@@ -12,7 +12,8 @@ var config = {
     "host": "localhost",
     "chatBacklogLength": 100,
     "port": 3000,
-    "stationOverride": null
+    "stationOverride": null,
+    "noRepeatDays": 10
 };
 
 // for nodejs
