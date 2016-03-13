@@ -80,7 +80,7 @@
         </nav>
 
         <!-- Main area -->             
-        <div ng-cloak ng-show="getState()!='loading'" class="container main-area">
+        <div ng-cloak ng-hide="config==null" class="container main-area">
 
             <!-- The logged out info area -->
             <div class="col-sm-12" ng-hide="isLoggedIn()" ng-controller="VotingController" ng-init="initWithSession()">

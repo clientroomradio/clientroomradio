@@ -231,14 +231,10 @@ function MainController($scope, socket, notificationManager) {
         // in this case we wait until we've recieved our first config
         switch (data) {
         case SockJS.OPEN:
-            if ($scope.state !== "loading") {
-                $scope.state = "open";
-            }
+            $scope.state = "open";
             break;
         case SockJS.CONNECTING:
-            if ($scope.state !== "loading") {
-                $scope.state = "connecting";
-            }
+            $scope.state = "connecting";
             break;
         case SockJS.CLOSING:
         case SockJS.CLOSED:
@@ -251,13 +247,6 @@ function MainController($scope, socket, notificationManager) {
     });
 
     socket.configCallback.add(function (data) {
-        if ($scope.state === "loading") {
-            // we're in the loading state and have recieved our first config
-            // so go into the open state
-            // we never go back to the loading state so this can't happen twice
-            $scope.state = "open";
-        }
-
         $scope.config = data;
         $scope.$apply();
     });
