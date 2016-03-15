@@ -47,7 +47,8 @@ describe("Spotify", () => {
             play: () => {
                 return {
                     // a mock stream
-                    pipe: () => {}
+                    pipe: () => {},
+                    on: () => {}
                 };
             }
         };
