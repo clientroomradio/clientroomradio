@@ -12,7 +12,6 @@ var LastfmClient = require("../lib/LastfmClient.js");
 describe("LastfmClient", () => {
     var mockConfig,
         mockLogger,
-        mockDataStore,
         mockLasfm,
         capturedParams,
         lastfmClient;
@@ -29,11 +28,6 @@ describe("LastfmClient", () => {
             error: () => {}
         };
 
-        mockDataStore = {
-            read: () => {},
-            record: () => {}
-        };
-
         capturedParams = {};
 
         mockLasfm = {
@@ -43,7 +37,7 @@ describe("LastfmClient", () => {
             })
         };
 
-        lastfmClient = new LastfmClient(mockConfig, mockLogger, mockDataStore, mockLasfm);
+        lastfmClient = new LastfmClient(mockConfig, mockLogger, mockLasfm);
     });
 
     describe("#scrobble()", () => {

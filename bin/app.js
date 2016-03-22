@@ -27,11 +27,11 @@ var config = require("/etc/crr/config.js");
 // DI
 var logger = new Logger(config);
 var dataStore = new DataStore(logger);
-var lastfmClient = new LastfmClient(config, logger, dataStore);
+var lastfmClient = new LastfmClient(config, logger);
 var socket = new Socket(logger);
 var socketServer = new SocketServer(socket, config, logger);
 var userDao = new UserDao(dataStore, lastfmClient, socket, config, logger);
-var spotify = new Spotify(userDao, config, logger);
+var spotify = new Spotify(userDao, config, logger, dataStore);
 var chat = new Chat(socket, dataStore, userDao, config);
 var votingManager = new VotingManager(chat, socket, userDao);
 var currentTrackManager = new CurrentTrackManager(socket, chat, logger);
