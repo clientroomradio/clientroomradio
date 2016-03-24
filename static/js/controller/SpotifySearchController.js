@@ -7,15 +7,14 @@ function SpotifySearchController($scope, socket) {
       "https://api.spotify.com/v1/search/",
       {
         q: $scope.searchTerm,
-        type: "track"
+        type: "track",
+        market: "GB"
       },
       function(data) {
         // filter the search reults for ones we can play
         $scope.tracks = [];
         data.tracks.items.forEach(function(trackItem) {
-          if (trackItem.available_markets.indexOf("GB") !== -1) {
-            $scope.tracks.push(trackItem);
-          }
+          $scope.tracks.push(trackItem);
         });
         $scope.$apply();
       }
