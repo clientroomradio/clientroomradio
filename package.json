@@ -19,12 +19,13 @@
     "throttle": ""
   },
   "devDependencies": {
-    "mocha": "2.4.5",
-    "mocha-phantomjs": "4.0.2",
-    "eslint": "2.4.0",
     "chai": "3.5.0",
     "chai-spies": "0.7.1",
-    "istanbul": "0.4.2"
+    "eslint": "2.4.0",
+    "eslint-config-google": "^0.4.0",
+    "istanbul": "0.4.2",
+    "mocha": "2.4.5",
+    "mocha-phantomjs": "4.0.2"
   },
   "scripts": {
     "test": "npm run-script test-lint && npm run-script test-node && npm run-script test-browser",
@@ -38,15 +39,11 @@
     "crr-setup": "./bin/setup.js"
   },
   "eslintConfig": {
+    "extends": "google",
     "env": {
       "browser": false,
       "node": true,
       "es6": true
-    },
-    "rules": {
-      "indent": [2, 4],
-      "quotes": [2, "double"],
-      "semi": [2, "always"]
     }
   }
 }

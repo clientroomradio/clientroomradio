@@ -10,103 +10,111 @@ var expect = chai.expect;
 var Backend = require("../lib/Backend.js");
 
 describe("Backend", () => {
-    var mockRadioUsernames,
-        mockUserDao,
-        mockCurrentTrackManager,
-        mockLastfmClient,
-        mockSpotify,
-        mockSkipManager,
-        mockSocket,
-        mockChat,
-        mockLogger,
-        mockIsPlaying,
-        mockIsLoggedIn,
-        backend;
+  var mockRadioUsernames;
+  var mockUserDao;
+  var mockCurrentTrackManager;
+  var mockLastfmClient;
+  var mockSpotify;
+  var mockSkipManager;
+  var mockSocket;
+  var mockChat;
+  var mockLogger;
+  var mockIsPlaying;
+  var mockIsLoggedIn;
+  var backend;
 
-    beforeEach(() => {
-        mockRadioUsernames = [];
+  beforeEach(() => {
+    mockRadioUsernames = [];
 
-        mockUserDao = {
-            on: () => {},
-            broadcast: () => {},
-            getRadioUsernames: () => { return mockRadioUsernames; }
-        };
+    mockUserDao = {
+      on: () => {},
+      broadcast: () => {},
+      getRadioUsernames: () => {
+        return mockRadioUsernames;
+      }
+    };
 
-        mockCurrentTrackManager = {};
-        mockLastfmClient = {
-            getPlaylist: chai.spy(),
-            getStationUrl: () => { return "mock://station/url"; }
-        };
-        
-        mockIsPlaying = false;
-        mockIsLoggedIn = true;
+    mockCurrentTrackManager = {};
+    mockLastfmClient = {
+      getPlaylist: chai.spy(),
+      getStationUrl: () => {
+        return "mock://station/url";
+      }
+    };
 
-        mockSpotify = {
-            on: () => {},
-            isPlaying: () => { return mockIsPlaying; },
-            isLoggedIn: () => { return mockIsLoggedIn; }
-        };
-        
-        mockSkipManager = {
-            on: () => {}
-        };
+    mockIsPlaying = false;
+    mockIsLoggedIn = true;
 
-        mockSocket = {
-            on: () => {}
-        };
+    mockSpotify = {
+      on: () => {},
+      isPlaying: () => {
+        return mockIsPlaying;
+      },
+      isLoggedIn: () => {
+        return mockIsLoggedIn;
+      }
+    };
 
-        mockChat = {};
+    mockSkipManager = {
+      on: () => {}
+    };
 
-        mockLogger = {
-            info: () => {},
-            error: () => {}
-        };
+    mockSocket = {
+      on: () => {}
+    };
 
-        backend = new Backend(mockUserDao,
-                                mockCurrentTrackManager,
-                                mockLastfmClient,
-                                mockSpotify,
-                                mockSkipManager,
-                                mockSocket,
-                                mockChat,
-                                mockLogger);
+    mockChat = {};
+
+    mockLogger = {
+      info: () => {},
+      error: () => {}
+    };
+
+    backend = new Backend(mockUserDao,
+      mockCurrentTrackManager,
+      mockLastfmClient,
+      mockSpotify,
+      mockSkipManager,
+      mockSocket,
+      mockChat,
+      mockLogger);
+  });
+
+  describe("#isBingo()", () => {
+    it("should always be false when there is one user", () => {
+      expect(backend.isBingo(["test-user"], {})).to.be.false;
+      expect(backend.isBingo(["test-user"], {"test-user": {}})).to.be.false;
     });
 
-    describe("#isBingo()", () => {
-        it("should always be false when there is one user", () => {
-            expect(backend.isBingo(["test-user"], {})).to.be.false;
-            expect(backend.isBingo(["test-user"], {"test-user": {}})).to.be.false;
-        });
-
-        it("should be false when not all users have listened", () => {
-            expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {}})).to.be.false;
-            expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {}, "test-user-away": {}})).to.be.false;
-        });
-
-        it("should be true when all listeners have listened", () => {
-            expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {}, "test-user-too": {}})).to.be.true;
-        });
+    it("should be false when not all users have listened", () => {
+      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {}})).to.be.false;
+      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {}, "test-user-away": {}})).to.be.false;
     });
 
-    describe("#startRadio()", () => {
-        it("should start radio when not playing", () => {
-            mockRadioUsernames = ["test-user"];
-            backend.startRadio(mockRadioUsernames);
-            expect(mockLastfmClient.getPlaylist).to.have.been.called.with(mockRadioUsernames);
-        });
-
-        it("should not start radio when playing", () => {
-            mockRadioUsernames = ["test-user"];
-            mockIsPlaying = true;
-            backend.startRadio(mockRadioUsernames);
-            expect(mockLastfmClient.getPlaylist).to.not.have.been.called;
-        });
-
-        it("should not start radio when not logged in", () => {
-            mockRadioUsernames = ["test-user"];
-            mockIsLoggedIn = false;
-            backend.startRadio(mockRadioUsernames);
-            expect(mockLastfmClient.getPlaylist).to.not.have.been.called;
-        });
+    it("should be true when all listeners have listened", () => {
+      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {}, "test-user-too": {}})).to.be.true;
     });
+  });
+
+  describe("#startRadio()", () => {
+    it("should start radio when not playing", () => {
+      mockRadioUsernames = ["test-user"];
+      backend.startRadio(mockRadioUsernames);
+      expect(mockLastfmClient.getPlaylist).to.have.been.called.with(mockRadioUsernames);
+    });
+
+    it("should not start radio when playing", () => {
+      mockRadioUsernames = ["test-user"];
+      mockIsPlaying = true;
+      backend.startRadio(mockRadioUsernames);
+      expect(mockLastfmClient.getPlaylist).to.not.have.been.called;
+    });
+
+    it("should not start radio when not logged in", () => {
+      mockRadioUsernames = ["test-user"];
+      mockIsLoggedIn = false;
+      backend.startRadio(mockRadioUsernames);
+      expect(mockLastfmClient.getPlaylist).to.not.have.been.called;
+    });
+  });
 });

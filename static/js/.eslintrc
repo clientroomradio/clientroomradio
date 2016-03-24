@@ -4,5 +4,8 @@
         "es6": false,
         "browser": true,
         "jquery": true
+    },
+    "globals": {
+        "SockJS": true
     }
 }

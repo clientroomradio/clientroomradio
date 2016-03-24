@@ -10,84 +10,84 @@ var expect = chai.expect;
 var CurrentTrackManager = require("../lib/CurrentTrackManager.js");
 
 describe("CurrentTrackManager", () => {
-    var mockSocket,
-        mockChat,
-        mockLogger,
-        mockTrack,
-        currentTrackManager;
+  var mockSocket;
+  var mockChat;
+  var mockLogger;
+  var mockTrack;
+  var currentTrackManager;
 
-    beforeEach(() => {
-        mockSocket = {
-            on: () => {}
-        };
+  beforeEach(() => {
+    mockSocket = {
+      on: () => {}
+    };
 
-        mockChat = {
-            newTrack: chai.spy()
-        };
+    mockChat = {
+      newTrack: chai.spy()
+    };
 
-        mockLogger = {
-            info: () => {},
-            error: () => {}
-        };
+    mockLogger = {
+      info: () => {},
+      error: () => {}
+    };
 
-        mockTrack = {
-            identifier: "id",
-            context: {}
-        };
+    mockTrack = {
+      identifier: "id",
+      context: {}
+    };
 
-        currentTrackManager = new CurrentTrackManager(mockSocket,
-                                                        mockChat,
-                                                        mockLogger);
+    currentTrackManager = new CurrentTrackManager(mockSocket,
+      mockChat,
+      mockLogger);
+  });
+
+  describe("#setCurrentTrack()", () => {
+    it("should do things when called", done => {
+      currentTrackManager.on("change", newTrack => {
+        expect(newTrack).to.equal(mockTrack);
+        done();
+      });
+
+      currentTrackManager.setCurrentTrack(mockTrack);
+      expect(mockChat.newTrack).to.have.been.called.with(mockTrack);
     });
 
-    describe("#setCurrentTrack()", () => {
-        it("should do things when called", (done) => {
-            currentTrackManager.on("change", (newTrack) => {
-                expect(newTrack).to.equal(mockTrack);
-                done();
-            });
+    it("should not do things when called with the same track", done => {
+      currentTrackManager.setCurrentTrack(mockTrack);
 
-            currentTrackManager.setCurrentTrack(mockTrack);
-            expect(mockChat.newTrack).to.have.been.called.with(mockTrack);
-        });
+      currentTrackManager.on("change", newTrack => {
+        expect(newTrack).to.equal(mockTrack);
+        done();
+      });
 
-        it("should not do things when called with the same track", (done) => {
-            currentTrackManager.setCurrentTrack(mockTrack);
+      currentTrackManager.setCurrentTrack(mockTrack);
+      expect(mockChat.newTrack).to.not.have.been.called;
+    });
+  });
 
-            currentTrackManager.on("change", (newTrack) => {
-                expect(newTrack).to.equal(mockTrack);
-                done();
-            });
-
-            currentTrackManager.setCurrentTrack(mockTrack);
-            expect(mockChat.newTrack).to.not.have.been.called;
-        });
+  describe("#getCurrentTrack()", () => {
+    it("should return an empty track at startup", () => {
+      expect(currentTrackManager.getCurrentTrack()).to.be.empty;
     });
 
-    describe("#getCurrentTrack()", () => {
-        it("should return an empty track at startup", () => {
-            expect(currentTrackManager.getCurrentTrack()).to.be.empty;
-        });
-
-        it("should return the current track", () => {
-            currentTrackManager.setCurrentTrack(mockTrack);
-            expect(currentTrackManager.getCurrentTrack()).to.equal(mockTrack);
-        });
+    it("should return the current track", () => {
+      currentTrackManager.setCurrentTrack(mockTrack);
+      expect(currentTrackManager.getCurrentTrack()).to.equal(mockTrack);
     });
+  });
 
-    describe("#updateLoveFlag()", () => {
-        it("should update the love flag for a user", (done) => {
-            var username = "test-user";
-            currentTrackManager.setCurrentTrack(mockTrack);
+  describe("#updateLoveFlag()", () => {
+    it("should update the love flag for a user", done => {
+      var username = "test-user";
+      currentTrackManager.setCurrentTrack(mockTrack);
 
-            currentTrackManager.on("change", (newTrack) => {
-                expect(newTrack.context[username].username).to.equal(username);
-                expect(newTrack.context[username].userloved).to.be.true;
-                expect(newTrack.context[username].userplaycount).to.equal(0);
-                done();
-            });
-            
-            currentTrackManager.updateLoveFlag(username, true);
-        });
+      currentTrackManager.on("change", newTrack => {
+        expect(newTrack.context[username].username).to.equal(username);
+        expect(newTrack.context[username].userloved).to.be.true;
+        expect(newTrack.context[username].userplaycount).to.equal(0);
+        done();
+      });
+
+      currentTrackManager.updateLoveFlag(username, true);
     });
+  });
 });

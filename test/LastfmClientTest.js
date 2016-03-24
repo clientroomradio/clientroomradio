@@ -10,103 +10,107 @@ var expect = chai.expect;
 var LastfmClient = require("../lib/LastfmClient.js");
 
 describe("LastfmClient", () => {
-    var mockConfig,
-        mockLogger,
-        mockLasfm,
-        capturedParams,
-        lastfmClient;
+  var mockConfig;
+  var mockLogger;
+  var mockLasfm;
+  var capturedParams;
+  var lastfmClient;
+
+  beforeEach(() => {
+    mockConfig = {
+      lfm: {
+        api_key: "api_key",
+        secret: "secret"
+      }
+    };
+
+    mockLogger = {
+      info: () => {},
+      error: () => {}
+    };
+
+    capturedParams = {};
+
+    mockLasfm = {
+      request: chai.spy((method, params) => {
+        capturedParams = params;
+        params.handlers.success({});
+      })
+    };
+
+    lastfmClient = new LastfmClient(mockConfig, mockLogger, mockLasfm);
+  });
+
+  describe("#scrobble()", () => {
+    var track;
+    var scrobbleUsers;
+    var skippers;
 
     beforeEach(() => {
-        mockConfig = {
-            lfm: {
-                api_key: "api_key",
-                secret: "secret"}
-        };
+      track = {
+        artists: [{name: "artist"}],
+        name: "title",
+        duration: 60000, // one minute long
+        timestamp: new Date().getTime() - 45000, // we started listening 45 seconds ago
+        extension: {}
+      };
 
-        mockLogger = {
-            info: () => {},
-            error: () => {}
-        };
+      scrobbleUsers = {
+        "test-user": {
+          username: "test-user",
+          sk: "sk"
+        }
+      };
 
-        capturedParams = {};
-
-        mockLasfm = {
-            request: chai.spy((method, params) => {
-                capturedParams = params;
-                params.handlers.success({});
-            })
-        };
-
-        lastfmClient = new LastfmClient(mockConfig, mockLogger, mockLasfm);
+      skippers = [];
     });
 
-    describe("#scrobble()", () => {
-        var track, scrobbleUsers, skippers;
-
-        beforeEach(() => {
-            track = {
-                artists: [{name: "artist"}],
-                name: "title",
-                duration: 60000, // one minute long
-                timestamp: new Date().getTime() - 45000, // we started listening 45 seconds ago
-                extension: {}
-            };
-
-            scrobbleUsers = {
-                "test-user": {
-                    username: "test-user",
-                    sk: "sk"
-                }
-            };
-
-            skippers = [];
-        });
-
-        it("should scrobble for non skippers", () => {
-            lastfmClient.scrobble(track, scrobbleUsers, skippers);
-            expect(mockLasfm.request).to.have.been.called.with("track.scrobble");
-        });
-
-        it("shouldn't scrobble for skippers", () => {
-            skippers.push("test-user");
-            lastfmClient.scrobble(track, scrobbleUsers, skippers);
-            expect(mockLasfm.request).to.not.have.been.called;
-        });
+    it("should scrobble for non skippers", () => {
+      lastfmClient.scrobble(track, scrobbleUsers, skippers);
+      expect(mockLasfm.request).to.have.been.called.with("track.scrobble");
     });
 
-    describe("#setLoveStatus()", () => {
-        var track, user;
-
-        beforeEach(() => {
-            track = {
-                artists: [{name: "artist"}],
-                name: "title"
-            };
-
-            user = {
-                username: "test-user",
-                sk: "sk"
-            };
-        });
-
-        it("should call track.love when asked to love", (done) => {
-            lastfmClient.setLoveStatus(user, track, true, () => {
-                expect(mockLasfm.request).to.have.been.called.with("track.love");
-                expect(capturedParams).to.have.property("track", "title");
-                expect(capturedParams).to.have.property("artist", "artist");
-                expect(capturedParams).to.have.property("sk", "sk");
-                done();
-            });
-        });
-
-        it("should call track.unlove when asked to unlove", (done) => {
-            lastfmClient.setLoveStatus(user, track, false, () => {
-                expect(mockLasfm.request).to.have.been.called.with("track.unlove");
-                expect(capturedParams).to.have.property("track", "title");
-                expect(capturedParams).to.have.property("artist", "artist");
-                expect(capturedParams).to.have.property("sk", "sk");
-                done();
-            });
-        });
+    it("shouldn't scrobble for skippers", () => {
+      skippers.push("test-user");
+      lastfmClient.scrobble(track, scrobbleUsers, skippers);
+      expect(mockLasfm.request).to.not.have.been.called;
     });
+  });
+
+  describe("#setLoveStatus()", () => {
+    var track;
+    var user;
+
+    beforeEach(() => {
+      track = {
+        artists: [{name: "artist"}],
+        name: "title"
+      };
+
+      user = {
+        username: "test-user",
+        sk: "sk"
+      };
+    });
+
+    it("should call track.love when asked to love", done => {
+      lastfmClient.setLoveStatus(user, track, true, () => {
+        expect(mockLasfm.request).to.have.been.called.with("track.love");
+        expect(capturedParams).to.have.property("track", "title");
+        expect(capturedParams).to.have.property("artist", "artist");
+        expect(capturedParams).to.have.property("sk", "sk");
+        done();
+      });
+    });
+
+    it("should call track.unlove when asked to unlove", done => {
+      lastfmClient.setLoveStatus(user, track, false, () => {
+        expect(mockLasfm.request).to.have.been.called.with("track.unlove");
+        expect(capturedParams).to.have.property("track", "title");
+        expect(capturedParams).to.have.property("artist", "artist");
+        expect(capturedParams).to.have.property("sk", "sk");
+        done();
+      });
+    });
+  });
 });
