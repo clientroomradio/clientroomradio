@@ -16,7 +16,7 @@ parser.addArgument(["spPassword"], {help: "The Spotify Premium account password 
 var args = parser.parseArgs();
 
 var lastfm = new LastFmNode({
-  api_key: args.lfmApiKey,
+  api_key: args.lfmApiKey, // eslint-disable-line
   secret: args.lfmApiSecret
 });
 

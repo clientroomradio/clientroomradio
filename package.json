@@ -23,15 +23,24 @@
     "chai-spies": "0.7.1",
     "eslint": "2.4.0",
     "eslint-config-google": "^0.4.0",
+    "eslint-plugin-angular": "^1.0.0",
+    "eslint-config-angular": "^0.5.0",
     "istanbul": "0.4.2",
     "mocha": "2.4.5",
-    "mocha-phantomjs": "4.0.2"
+    "angular": "1.5.2",
+    "angular-mocks": "1.5.2",
+    "phantomjs-prebuilt": "",
+    "karma": "",
+    "karma-chai": "",
+    "karma-mocha": "",
+    "karma-phantomjs-launcher": "",
+    "karma-mocha-reporter": "^1.1.6"
   },
   "scripts": {
     "test": "npm run-script test-lint && npm run-script test-node && npm run-script test-browser",
     "test-lint": "eslint .",
     "test-node": "mocha",
-    "test-browser": "mocha-phantomjs ./static/test.html",
+    "test-browser": "karma start",
     "test-coverage": "istanbul cover _mocha -- -R spec"
   },
   "bin": {
@@ -41,9 +50,7 @@
   "eslintConfig": {
     "extends": "google",
     "env": {
-      "browser": false,
-      "node": true,
-      "es6": true
+      "browser": false
     }
   }
 }

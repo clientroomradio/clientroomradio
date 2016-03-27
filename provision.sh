@@ -1,6 +1,6 @@
 # update repo and install out dependencies
 sudo apt-get update
-sudo apt-get install -y apache2 make clang
+sudo apt-get install -y apache2 build-essential make clang
 
 # install node 5.7.1 via nvm
 wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
@@ -22,7 +22,8 @@ sudo chown vagrant /var/log/crr.log
 sudo chown vagrant /var/log/crr.winston.log
 
 # install Client Room Radio as a node package
-(cd /vagrant && rm -rf node_modules && npm install)
+(cd /vagrant && rm -rf node_modules)
+(cd /vagrant && npm install)
 
 # link the installed files into the correct places  
 sudo ln -fs /vagrant/config/apache2.vagrant.conf /etc/apache2/sites-available/clientroomradio.conf

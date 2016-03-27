@@ -3,7 +3,7 @@ var config = {
   scrobbleToHost: false,
   whitelist: true,
   lfm: {
-    api_key: "<API_KEY>",
+    apiKey: "<API_KEY>",
     secret: "<SECRET>",
     sk: "<SK>"
   },

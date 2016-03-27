@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-controller="MainController" ng-app="crrAngular" id="clientroomradio-com">
+<html ng-controller="MainController" ng-app="crr" id="clientroomradio-com">
     <head>
         <meta charset="UTF-8" />
         <title ng:bind-template="{{isPlaying()?currentTrack.artists[0].name+' – '+currentTrack.name+' | ':''}}{{getRadioName()}}">Client Room Radio</title>
@@ -259,14 +259,14 @@
         <!-- Javascript - Libs -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular-mocks.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
         <script src="/js/lib/sockjs-0.3.min.js"></script>
         <script src="/js/lib/jquery.cookie.js"></script>
         <script src="/js/lib/jquery.jplayer.min.js"></script>
         <script src="/js/lib/bootstrap-slider.js"></script>
         <script src="/js/lib/WebNotification.js"></script>
-        <script src="/js/lib/twitter.widgets.js"></script>
 
         <!-- Javascript - Controllers -->
         <script src="/js/controller/MainController.js"></script>

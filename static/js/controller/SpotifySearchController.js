@@ -1,4 +1,6 @@
-function SpotifySearchController($scope, socket) {
+"use strict";
+
+this.SpotifySearchController = function($scope, $log, $timeout, socket) {
   $scope.choosenTrack = null;
 
   $scope.update = _.debounce(function() {
@@ -8,14 +10,10 @@ function SpotifySearchController($scope, socket) {
       {
         q: $scope.searchTerm,
         type: "track",
-        market: "GB"
+        market: "GB" // only tracks available in GB
       },
       function(data) {
-        // filter the search reults for ones we can play
-        $scope.tracks = [];
-        data.tracks.items.forEach(function(trackItem) {
-          $scope.tracks.push(trackItem);
-        });
+        $scope.tracks = data.tracks.items;
         $scope.$apply();
       }
       );
@@ -23,10 +21,10 @@ function SpotifySearchController($scope, socket) {
 
   $scope.clickTrack = function(track) {
     $scope.choosenTrack = track;
-    console.log(track);
+    $log.log(track);
   };
 
   $scope.request = function() {
     socket.sendRequest($scope.choosenTrack);
   };
-}
+};

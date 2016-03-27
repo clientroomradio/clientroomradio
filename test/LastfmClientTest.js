@@ -19,7 +19,7 @@ describe("LastfmClient", () => {
   beforeEach(() => {
     mockConfig = {
       lfm: {
-        api_key: "api_key",
+        apiKey: "api_key",
         secret: "secret"
       }
     };

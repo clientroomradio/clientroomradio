@@ -1,4 +1,6 @@
-function VotingController($scope, socket) {
+"use strict";
+
+this.VotingController = function($scope, socket) {
   var id = null;
   var useSessionId = false;
 
@@ -51,4 +53,4 @@ function VotingController($scope, socket) {
       $scope.$apply();
     }
   });
-}
+};

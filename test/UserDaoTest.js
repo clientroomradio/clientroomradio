@@ -34,7 +34,7 @@ describe("UserDao", () => {
 
     mockConfig = {
       lfm: {
-        api_key: "key"
+        apiKey: "key"
       }
     };
 

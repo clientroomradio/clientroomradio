@@ -1,5 +1,6 @@
+"use strict";
 
-function ChatController($scope, $element, $compile, socket) {
+this.ChatController = function($scope, $element, $compile, $log, socket) {
   var $chatContent = $(".chat-content", $element);
   var $input = $(".chat-input", $element);
 
@@ -71,9 +72,8 @@ function ChatController($scope, $element, $compile, socket) {
           $(".chat-inner-text", $el).text("skipped");
         }
       } else if (data.system === "spotifyRequest") {
-        var track = data.data;
-        if (track.href && track.artists && track.name) {
-          $(".chat-inner-text", $el).html("requested <a href=\"" + track.href + "\">" + track.artists[0].name + " — " + track.name + "</a>");
+        if (data.data.href && data.data.artists && data.data.name) {
+          $(".chat-inner-text", $el).html("requested <a href=\"" + data.data.href + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
         }
       } else if (data.system === "alreadySkipped") {
         $(".chat-inner-text", $el).text("has already skipped, but tried anyway.");
@@ -98,8 +98,7 @@ function ChatController($scope, $element, $compile, socket) {
       } else if (data.system === "skipSuccessful") {
         $(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
       } else if (data.system === "spotifyRequestComplete") {
-        var track = data.data;
-        $(".chat-inner-text", $el).html("request ready <a href=\"" + track.identifier + "\">" + track.artists[0].name + " — " + track.name + "</a>");
+        $(".chat-inner-text", $el).html("request ready <a href=\"" + data.data.identifier + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
       } else if (data.system === "startVoting") {
         var vote = data.data;
         $el = $voteChatLineTemplate.clone();
@@ -131,7 +130,7 @@ function ChatController($scope, $element, $compile, socket) {
         }
 
         $(".chat-img", $el).html("<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\"><img class=\"album-art media-object img-thumbnail\" src=\"" + (data.data.image ? encodeURI(data.data.image.replace("http://img2-ak.lst.fm/", "https://secure-img2.last.fm/")) : "/img/crr_128.png") + "\"/></a>");
-        $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a>" + " – " + "<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
+        $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a> – <a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
       } else {
         $(".chat-inner-text", $el).html(linkify(data.text));
       }
@@ -159,7 +158,7 @@ function ChatController($scope, $element, $compile, socket) {
   });
 
   $element.bind("resize", function() {
-    console.log("resized");
+    $log.log("resized");
   });
 
   $input.keyup(function(e) {
@@ -235,4 +234,4 @@ function ChatController($scope, $element, $compile, socket) {
 
     return replacedText;
   }
-}
+};

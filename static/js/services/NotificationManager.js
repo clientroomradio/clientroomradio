@@ -1,13 +1,13 @@
 "use strict";
 
-var NotificationManager = function(socket) {
+this.NotificationManager = function($window, $timeout, $log, socket) {
   var that = this;
   var config = null;
 
   function notify(title, text, image) {
     if (!that.permissionNeeded()) {
       image = image || "/img/crr_128.png";
-      var notification = window.Notification(
+      var notification = new $window.Notification(
         title,
         {
           icon: image,
@@ -17,10 +17,10 @@ var NotificationManager = function(socket) {
 
       notification.onclick = function() {
         notification.close();
-        window.focus();
+        $window.focus();
       };
 
-      setTimeout(function() {
+      $timeout(function() {
         notification.close();
       }, 3000);
     }
@@ -29,7 +29,7 @@ var NotificationManager = function(socket) {
   socket.newVoteCallback.add(function(data) {
     var text = "There's a new vote";
 
-    console.log(data);
+    $log.log(data);
 
     if (data.type === "newUser") {
       text = data.user + " wants to join. Let them?";
@@ -54,7 +54,7 @@ var NotificationManager = function(socket) {
   });
 
   // There's also always one happening on pageload. Avoid that by not enabling this from start
-  setTimeout(function() {
+  $timeout(function() {
     // newTrack updates can happen more than once
     var lastIdentifier = null;
     socket.newTrackCallback.add(function(track) {
@@ -70,20 +70,12 @@ var NotificationManager = function(socket) {
   }, 3000);
 
   that.request = function() {
-    window.Notification.requestPermission(function() {
+    $window.Notification.requestPermission(function() {
       // alert("Permissions state: " + window.Notification.permission);
     });
   };
 
   that.permissionNeeded = function() {
-    return window.Notification && window.Notification.permission !== "granted";
+    return $window.Notification && $window.Notification.permission !== "granted";
   };
-
-  function getNotification() {
-    if (window.Notification) {
-      return true;
-    }
-
-    return false;
-  }
 };

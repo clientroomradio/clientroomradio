@@ -24,26 +24,34 @@ var VotingManager = require("../lib/VotingManager.js");
 // Instances
 var config = require("/etc/crr/config.js");
 
-// DI
-var logger = new Logger(config);
-var dataStore = new DataStore(logger);
-var lastfmClient = new LastfmClient(config, logger);
-var socket = new Socket(logger);
-var socketServer = new SocketServer(socket, config, logger);
-var userDao = new UserDao(dataStore, lastfmClient, socket, config, logger);
-var spotify = new Spotify(userDao, config, logger, dataStore);
-var chat = new Chat(socket, dataStore, userDao, config);
-var votingManager = new VotingManager(chat, socket, userDao);
-var currentTrackManager = new CurrentTrackManager(socket, chat, logger);
-var skipManager = new SkipManager(userDao, socket, chat);
+class ClientRoomRadio {
+  constructor() {
+    // DI
+    this.logger = new Logger(config);
+    this.dataStore = new DataStore(this.logger);
+    this.lastfmClient = new LastfmClient(config, this.logger);
+    this.socket = new Socket(this.logger);
+    this.socketServer = new SocketServer(this.socket, config, this.logger);
+    this.userDao = new UserDao(this.dataStore, this.lastfmClient, this.socket, config, this.logger);
+    this.spotify = new Spotify(this.userDao, config, this.logger, this.dataStore);
+    this.chat = new Chat(this.socket, this.dataStore, this.userDao, config);
+    this.votingManager = new VotingManager(this.chat, this.socket, this.userDao);
+    this.currentTrackManager = new CurrentTrackManager(this.socket, this.chat, this.logger);
+    this.skipManager = new SkipManager(this.userDao, this.socket, this.chat);
 
-// Nothing depends on those:
-new PermissionManager(dataStore, userDao, votingManager, chat, socket, lastfmClient, config, logger);
-new Backend(userDao, currentTrackManager, lastfmClient, spotify, skipManager, socket, chat, logger);
-new FrontendUpdater(socket, userDao, currentTrackManager, skipManager, chat);
-new LoveManager(socket, currentTrackManager, chat, lastfmClient, logger);
-new EndOfDayRequestManager(userDao, votingManager, socket);
-new UserActivityFlagManager(userDao, chat, socket);
+    // Nothing depends on those:
+    this.permissionManager = new PermissionManager(this.dataStore, this.userDao, this.votingManager, this.chat, this.socket, this.lastfmClient, config, this.logger);
+    this.backend = new Backend(this.userDao, this.currentTrackManager, this.lastfmClient, this.spotify, this.skipManager, this.socket, this.chat, this.logger);
+    this.frontendUpdater = new FrontendUpdater(this.socket, this.userDao, this.currentTrackManager, this.skipManager, this.chat);
+    this.loveManager = new LoveManager(this.socket, this.currentTrackManager, this.chat, this.lastfmClient, this.logger);
+    this.endOfDayRequestManager = new EndOfDayRequestManager(this.userDao, this.votingManager, this.socket);
+    this.userActivityFlagManager = new UserActivityFlagManager(this.userDao, this.chat, this.socket);
+  }
 
-// Start
-socketServer.start();
+  start() {
+    this.socketServer.start();
+  }
+}
+
+var clientRoomRadio = new ClientRoomRadio();
+clientRoomRadio.start();

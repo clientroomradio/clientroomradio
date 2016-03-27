@@ -1,6 +1,7 @@
 "use strict";
 
-function MainController($scope, socket, notificationManager) {
+this.MainController = function($scope, $document, $log, $window,
+                                $location, socket, notificationManager) {
   $scope.config = null;
   $scope.currentTrack = {};
   $scope.users = {};
@@ -14,10 +15,10 @@ function MainController($scope, socket, notificationManager) {
   $scope.state = "loading";
 
   $scope.login = function() {
-    location.href = "http://www.last.fm/api/auth/?api_key=" + $scope.config.api_key + "&cb=" + $(location).attr("href") + "login.html";
+    $window.location.href = "http://www.last.fm/api/auth/?api_key=" + $scope.config.apiKey + "&cb=" + $location.protocol() + "://" + $location.host() + "/login.html";
   };
 
-  function logout() {
+  var logout = function() {
     // clear our session so a refresh won't log them back in
     $.cookie("session", "");
 
@@ -33,7 +34,7 @@ function MainController($scope, socket, notificationManager) {
     $scope.muted = false;
     $scope.bingo = false;
     $scope.$apply();
-  }
+  };
 
   $scope.logout = function() {
     // they clicked logout so tell the backend
@@ -73,7 +74,7 @@ function MainController($scope, socket, notificationManager) {
   };
 
   $scope.skip = function(message) {
-    $(".btn-skip").tooltip("hide");
+    angular.element(".btn-skip").tooltip("hide");
     socket.sendSkip(message);
   };
 
@@ -118,66 +119,69 @@ function MainController($scope, socket, notificationManager) {
     socket.endOfDayRequest();
   };
 
-  $(document).ready(function() {
+  $document.ready(function() {
     var volume = $.cookie("volume");
-    if (volume === undefined) {
+    if (angular.isUndefined(volume)) {
       volume = 1;
     }
 
     var state = "stopped";
 
-    function restart(player) {
+    var restart = function(player) {
       state = "starting";
 
       player.jPlayer("setMedia", {
         mp3: "/stream.mp3"
       });
       player.jPlayer("play");
-    }
+    };
 
-    $("#audio-player").jPlayer({
+    angular.element("#audio-player").jPlayer({
       playing: function(event) {
-        console.log("started", event);
+        $log.log("started", event);
         state = "playing";
       },
       ended: function(event) {
-        console.log("ended", event);
+        $log.log("ended", event);
         state = "stopped";
       },
       error: function(error) {
-        console.log("there was an error", error);
+        $log.log("there was an error", error);
         state = "stopped";
       },
       ready: function() {
-        var player = $(this);
+        var player = angular.element(this);
         restart(player);
 
-        function updateMute() {
-          if ($scope.muted || !$scope.config || !$scope.config.active || !$scope.config.allowed) {
+        var updateMute = function() {
+          if ($scope.muted ||
+                !$scope.config ||
+                !$scope.config.active ||
+                !$scope.config.allowed) {
             // muted
             state = "muted";
             player.jPlayer("clearMedia");
           } else {
             // restart playback
-            console.log("restarting audio");
+            $log.log("restarting audio");
             restart(player);
           }
-        }
+        };
 
-        function checkPlaying(time) {
+        var checkPlaying = function(time) {
           if (time !== 0 && state === "stopped") {
             restart(player);
           }
-        }
+        };
 
         $scope.$watch("muted", updateMute);
         $scope.$watch("config.active", updateMute);
         $scope.$watch("config.allowed", updateMute);
         $scope.$watch("currentPositionInTrack", checkPlaying);
 
-        $(".volume-slider-init").on("slide", function(ev) {
+        angular.element(".volume-slider-init").on("slide", function(ev) {
           volume = 1 - ev.value;
-          console.log(volume);
+          $log.log(volume);
           $.cookie("volume", volume);
           player.jPlayer("volume", volume);
         });
@@ -188,7 +192,7 @@ function MainController($scope, socket, notificationManager) {
       supplied: "mp3"
     });
 
-    var sliderInit = $(".volume-slider-init");
+    var sliderInit = angular.element(".volume-slider-init");
     if (sliderInit.length !== 0) {
       sliderInit.slider().slider("setValue", 1 - volume);
     }
@@ -200,8 +204,8 @@ function MainController($scope, socket, notificationManager) {
   };
 
   $scope.clickOnVolumeBar = function(e) {
-    var event = e || window.event;
-    console.log(event);
+    var event = e || $window.event;
+    $log.log(event);
     event.stopPropagation();
 
     $scope.muted = false;
@@ -222,14 +226,14 @@ function MainController($scope, socket, notificationManager) {
   $scope.durationInText = function() {
     var totalSeconds = Math.round($scope.currentTrack.duration / 1000);
     var minutes = Math.floor(totalSeconds / 60);
-    var remainder = totalSeconds % 60;
+    var remainder = String(totalSeconds % 60);
 
     remainder = "00".substring(0, 2 - remainder.length) + remainder;
     return minutes + ":" + remainder;
   };
 
   socket.readyStateCallback.add(function(data) {
-    console.log("ready state changed", data);
+    $log.log("ready state changed", data);
 
     // ignore open and connecting in the loading state
     // in this case we wait until we've recieved our first config
@@ -260,7 +264,7 @@ function MainController($scope, socket, notificationManager) {
 
     $scope.loved = false;
     if (data.context &&
-        typeof data.context[$scope.config.username] !== "undefined" &&
+        angular.isDefined(data.context[$scope.config.username]) &&
         data.context[$scope.config.username].userloved === "1") {
       $scope.loved = true;
     }
@@ -304,4 +308,4 @@ function MainController($scope, socket, notificationManager) {
       $scope.$apply();
     }
   });
-}
+};
