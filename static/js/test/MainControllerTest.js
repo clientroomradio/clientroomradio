@@ -45,6 +45,8 @@ describe("MainController", function() {
     it("should return the currect duration", function() {
       $scope.currentTrack = {};
 
+      expect($scope.durationInText()).to.equal("0:00");
+
       $scope.currentTrack.duration = 1000;
       expect($scope.durationInText()).to.equal("0:01");
 

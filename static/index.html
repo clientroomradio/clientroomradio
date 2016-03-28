@@ -107,7 +107,6 @@
                             <a target="_blank" ng-href="{{currentTrack.extension.artistpage}}">{{currentTrack.artists[0].name}}</a>
                             –
                             <a target="_blank" ng-href="{{currentTrack.extension.trackpage}}">{{currentTrack.name}}</a>
-                            ({{durationInText()}})
                         </h4>
 
                         <div  ng-hide="isPlaying()">
@@ -117,8 +116,11 @@
 
                         <p ng-hide="isLoggedIn()||isPlaying()">{{getActiveUserCount()===0?"Join the party to get started.":"Join the party!"}}</p>
 
-                        <div class="progress" ng-show="isPlaying()||getActiveUserCount()>0">
-                            <div class="progress-bar" role="progressbar" aria-valuenow="{{progressValueNow()}}" aria-valuemin="0" aria-valuemax="100" ng-style="progressBarStyle()"></div>
+                        <div ng-show="isPlaying()||getActiveUserCount()>0">
+                            <span class="pull-right">&nbsp;<span class="badge">{{durationInText()}}</span></span>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="{{progressValueNow()}}" aria-valuemin="0" aria-valuemax="100" ng-style="progressBarStyle()"></div>
+                            </div>
                         </div>
 
                         <div id="audio-player"></div>

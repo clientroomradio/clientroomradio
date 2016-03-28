@@ -224,7 +224,8 @@ this.MainController = function($scope, $document, $log, $window,
   };
 
   $scope.durationInText = function() {
-    var totalSeconds = Math.round($scope.currentTrack.duration / 1000);
+    var duration = $scope.currentTrack.duration || 0;
+    var totalSeconds = Math.round(duration / 1000);
     var minutes = Math.floor(totalSeconds / 60);
     var remainder = String(totalSeconds % 60);
 
