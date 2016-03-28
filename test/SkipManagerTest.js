@@ -14,8 +14,11 @@ describe("SkipManager", () => {
   var mockChat;
   var mockUser;
   var mockUserDao;
+  var mockCurrentTrackManager;
   var mockRadioUsers;
+  var mockLogger;
   var capturedOnSkipCallback;
+  var capturedCurrentTrackChangeCallback;
   var skipManager;
 
   beforeEach(() => {
@@ -28,7 +31,8 @@ describe("SkipManager", () => {
     mockChat = {
       userHasAlreadySkipped: chai.spy(),
       inactiveUserWantsToSkip: chai.spy(),
-      userSkipped: chai.spy()
+      userSkipped: chai.spy(),
+      skipSuccessful: chai.spy()
     };
 
     mockUser = {
@@ -44,7 +48,17 @@ describe("SkipManager", () => {
       }
     };
 
-    skipManager = new SkipManager(mockUserDao, mockSocket, mockChat);
+    mockCurrentTrackManager = {
+      on: (key, callback) => {
+        capturedCurrentTrackChangeCallback = callback;
+      }
+    };
+
+    mockLogger = {
+      info: () => {}
+    };
+
+    skipManager = new SkipManager(mockUserDao, mockCurrentTrackManager, mockSocket, mockChat, mockLogger);
   });
 
   describe("#getSkippers()", () => {
@@ -74,7 +88,7 @@ describe("SkipManager", () => {
 
     it("shouldn't add a skipper twice", () => {
       mockUser.active = true;
-      skipManager.data.skippers = ["test-user"];
+      skipManager.skippers = ["test-user"];
 
       capturedOnSkipCallback(mockUser, {text: skipText});
 
@@ -114,7 +128,7 @@ describe("SkipManager", () => {
     it("should emit skip when active user skips", done => {
       mockUser.active = true;
 
-      skipManager.on("skip", (user, text) => {
+      skipManager.on("userSkip", (user, text) => {
         expect(user).to.equal(mockUser);
         expect(text).to.equal(skipText);
         done();
@@ -124,21 +138,21 @@ describe("SkipManager", () => {
     });
   });
 
-  describe("#clear()", () => {
+  describe("currentTrackManager.on(\"change\")", () => {
     beforeEach(() => {
-      skipManager.data.skippers = ["test-user"];
+      skipManager.skippers = ["test-user"];
     });
 
     it("should clear the skippers", done => {
-      expect(skipManager.getSkippers()).to.deep.equal(["test-user"]);
-
+      // test that we get a change callback and the data is correct
       skipManager.on("change", data => {
         expect(data.skippers).to.be.empty;
         expect(data.skipLimit).to.equal(1);
         done();
       });
 
-      skipManager.clear();
+      // change to an empty track
+      capturedCurrentTrackChangeCallback({});
       expect(skipManager.getSkippers()).to.be.empty;
     });
   });
