@@ -3,6 +3,7 @@ initClientRoomRadio('/sockjs'); // eslint-disable-line
 describe("ChatController", function() {
   var $el;
   var $scope;
+  var $window;
   var socket;
   var chatController; // eslint-disable-line
 
@@ -11,10 +12,19 @@ describe("ChatController", function() {
   beforeEach(inject(function($rootScope, $controller) { // eslint-disable-line
     $scope = $rootScope.$new();
 
-    $el = angular.element("<div><div class=\"chat-content\"></div><input class=\"chat-input\" /></div>");
+    $el = angular.element(
+      "<div>" +
+        "<div class=\"chat-content\"></div>" +
+        "<input class=\"chat-input\"/>" +
+      "</div>");
 
     $scope.config = {
       username: "test-user"
+    };
+
+    $window = {
+      innerHeight: 20,
+      resize: function() {}
     };
 
     socket = {
@@ -28,6 +38,7 @@ describe("ChatController", function() {
     chatController = $controller('ChatController', {
       $scope: $scope,
       $element: $el,
+      $window: $window,
       socket: socket
     });
   }));

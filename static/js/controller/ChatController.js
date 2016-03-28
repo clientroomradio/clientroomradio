@@ -1,13 +1,13 @@
 "use strict";
 
-this.ChatController = function($scope, $element, $compile, $log, socket) {
-  var $chatContent = $(".chat-content", $element);
-  var $input = $(".chat-input", $element);
+this.ChatController = function($scope, $element, $compile, $log, $window, socket) {
+  var $chatContent = angular.element(".chat-content", $element);
+  var $input = angular.element(".chat-input", $element);
 
-  var $newTrackChatLineTemplate = $("<div class=\"chat-line chat-line--new-track clearfix\"><span class=\"chat-time pull-left\"></span><span class=\"chat-text\"><span class=\"chat-img pull-left\"></span><span><div class=\"chat-inner-text\"></div><div class=\"chat-extra-text\"></div></span></span></div>");
-  var $simpleChatLineTemplate = $("<div class=\"chat-line chat-line--text\"><span class=\"chat-time\"></span><span class=\"chat-text\"><span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span></span></div>");
+  var $newTrackChatLineTemplate = angular.element("<div class=\"chat-line chat-line--new-track clearfix\"><span class=\"chat-time pull-left\"></span><span class=\"chat-text\"><span class=\"chat-img pull-left\"></span><span><div class=\"chat-inner-text\"></div><div class=\"chat-extra-text\"></div></span></span></div>");
+  var $simpleChatLineTemplate = angular.element("<div class=\"chat-line chat-line--text\"><span class=\"chat-time\"></span><span class=\"chat-text\"><span class=\"chat-name\"></span> <span class=\"chat-inner-text\"></span></span></div>");
   var $voteChatLineTemplate =
-  $("<div class=\"chat-line chat-line--sys chat-line--vote clearfix\" ng-controller=\"VotingController\">" +
+  angular.element("<div class=\"chat-line chat-line--sys chat-line--vote clearfix\" ng-controller=\"VotingController\">" +
       "<div class=\"pull-left\">" +
         "<span class=\"chat-time\"></span>" +
         "<span class=\"chat-text\">" +
@@ -29,7 +29,7 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
       "</div>" +
     "</div>");
 
-  function getTimeString(timestamp) {
+  var getTimeString = function(timestamp) {
     var currentTime = new Date(timestamp);
     var hours = currentTime.getHours();
     var minutes = currentTime.getMinutes();
@@ -47,7 +47,7 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
     }
 
     return hours + ":" + minutes + " " + suffix;
-  }
+  };
 
   socket.chatCallback.add(function(data) {
     var isScrolledDown = ($chatContent.scrollTop() + $chatContent.innerHeight() === $chatContent[0].scrollHeight);
@@ -63,62 +63,62 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
     }
 
     if (data.system === "clear") {
-      $(".chat-content").empty();
+      angular.element(".chat-content").empty();
     } else {
       if (data.system === "skip") {
         if (data.text) {
-          $(".chat-inner-text", $el).text("skipped: \"" + data.text + "\"");
+          angular.element(".chat-inner-text", $el).text("skipped: \"" + data.text + "\"");
         } else {
-          $(".chat-inner-text", $el).text("skipped");
+          angular.element(".chat-inner-text", $el).text("skipped");
         }
       } else if (data.system === "spotifyRequest") {
         if (data.data.href && data.data.artists && data.data.name) {
-          $(".chat-inner-text", $el).html("requested <a href=\"" + data.data.href + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
+          angular.element(".chat-inner-text", $el).html("requested <a href=\"" + data.data.href + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
         }
       } else if (data.system === "alreadySkipped") {
-        $(".chat-inner-text", $el).text("has already skipped, but tried anyway.");
+        angular.element(".chat-inner-text", $el).text("has already skipped, but tried anyway.");
       } else if (data.system === "inactiveUserWantsToSkip") {
-        $(".chat-inner-text", $el).text("tried to skip whilst sitting out. Not in here you don't!");
+        angular.element(".chat-inner-text", $el).text("tried to skip whilst sitting out. Not in here you don't!");
       } else if (data.system === "love") {
-        $(".chat-inner-text", $el).text("just loved this track");
+        angular.element(".chat-inner-text", $el).text("just loved this track");
       } else if (data.system === "unlove") {
-        $(".chat-inner-text", $el).text("just un-loved this track");
+        angular.element(".chat-inner-text", $el).text("just un-loved this track");
       } else if (data.system === "scrobbleOff") {
-        $(".chat-inner-text", $el).text("turned scrobbling off");
+        angular.element(".chat-inner-text", $el).text("turned scrobbling off");
       } else if (data.system === "scrobbleOn") {
-        $(".chat-inner-text", $el).text("turned scrobbling on");
+        angular.element(".chat-inner-text", $el).text("turned scrobbling on");
       } else if (data.system === "timedOut") {
-        $(".chat-inner-text", $el).text("has lost their connection and has been removed from the radio");
+        angular.element(".chat-inner-text", $el).text("has lost their connection and has been removed from the radio");
       } else if (data.system === "left") {
-        $(".chat-inner-text", $el).text("left");
+        angular.element(".chat-inner-text", $el).text("left");
       } else if (data.system === "join") {
-        $(".chat-inner-text", $el).text("joined");
+        angular.element(".chat-inner-text", $el).text("joined");
       } else if (data.system === "newUser") {
-        $(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
+        angular.element(".chat-inner-text", $el).text("has been voted in! Client Room Radio welcomes you!");
       } else if (data.system === "skipSuccessful") {
-        $(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
+        angular.element(".chat-inner-text", $el).text("SKIP SUCCESSFUL! " + data.data.join(", ") + " voted to skip");
       } else if (data.system === "spotifyRequestComplete") {
-        $(".chat-inner-text", $el).html("request ready <a href=\"" + data.data.identifier + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
+        angular.element(".chat-inner-text", $el).html("request ready <a href=\"" + data.data.identifier + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
       } else if (data.system === "startVoting") {
         var vote = data.data;
         $el = $voteChatLineTemplate.clone();
         if (vote.type === "endOfDay") {
-          $(".chat-inner-text", $el).text("wants to call it a day.");
+          angular.element(".chat-inner-text", $el).text("wants to call it a day.");
         } else if (vote.type === "newUser") {
-          $(".chat-inner-text", $el).text("wants to join.");
+          angular.element(".chat-inner-text", $el).text("wants to join.");
         }
         $el.attr("ng-init", "init(\"" + vote.id + "\")");
       } else if (data.system === "becomesInactive") {
         if (data.text) {
-          $(".chat-inner-text", $el).text("sat out: \"" + data.text + "\"");
+          angular.element(".chat-inner-text", $el).text("sat out: \"" + data.text + "\"");
         } else {
-          $(".chat-inner-text", $el).text("sat out");
+          angular.element(".chat-inner-text", $el).text("sat out");
         }
       } else if (data.system === "becomesActive") {
         if (data.text) {
-          $(".chat-inner-text", $el).text("rejoined: \"" + data.text + "\"");
+          angular.element(".chat-inner-text", $el).text("rejoined: \"" + data.text + "\"");
         } else {
-          $(".chat-inner-text", $el).text("rejoined");
+          angular.element(".chat-inner-text", $el).text("rejoined");
         }
       } else if (data.system === "newTrack") {
         $el = $newTrackChatLineTemplate.clone();
@@ -126,24 +126,24 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
 
         if (data.data.extension.requester) {
           $el.addClass("chat-line--request-track");
-          $(".chat-extra-text", $el).text("requested by " + data.data.extension.requester);
+          angular.element(".chat-extra-text", $el).text("requested by " + data.data.extension.requester);
         }
 
-        $(".chat-img", $el).html("<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\"><img class=\"album-art media-object img-thumbnail\" src=\"" + (data.data.image ? encodeURI(data.data.image.replace("http://img2-ak.lst.fm/", "https://secure-img2.last.fm/")) : "/img/crr_128.png") + "\"/></a>");
-        $(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a> – <a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
+        angular.element(".chat-img", $el).html("<a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\"><img class=\"album-art media-object img-thumbnail\" src=\"" + (data.data.image ? encodeURI(data.data.image.replace("http://img2-ak.lst.fm/", "https://secure-img2.last.fm/")) : "/img/crr_128.png") + "\"/></a>");
+        angular.element(".chat-inner-text", $el).html("<h4><a target=\"_blank\" href=\"" + data.data.extension.artistpage + "\">" + data.data.artists[0].name + "</a> – <a target=\"_blank\" href=\"" + data.data.extension.trackpage + "\">" + data.data.name + "</a></h4>");
       } else {
-        $(".chat-inner-text", $el).html(linkify(data.text));
+        angular.element(".chat-inner-text", $el).html(linkify(data.text));
       }
 
       if (data.user) {
-        $(".chat-name", $el).text(data.user);
+        angular.element(".chat-name", $el).text(data.user);
       } else if (data.hasOwnProperty("data")) {
-        $(".chat-name", $el).text(data.data.username);
+        angular.element(".chat-name", $el).text(data.data.username);
       } else {
-        $(".chat-name", $el).text($scope.config.username);
+        angular.element(".chat-name", $el).text($scope.config.username);
       }
 
-      $(".chat-time", $el).text(getTimeString(data.timestamp));
+      angular.element(".chat-time", $el).text(getTimeString(data.timestamp));
 
       if (data.system === "startVoting") {
         $chatContent.append($compile($el)($scope));
@@ -170,7 +170,7 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
         inputText = inputText.substring(6);
         socket.sendSkip(inputText);
       } else if (inputText.indexOf("?request") === 0) {
-        var search = $("#spotifySearch");
+        var search = angular.element("#spotifySearch");
         search.modal("show");
         var inputElement = search.find(".modal-body input");
         inputElement.val(inputText.substring(9));
@@ -197,28 +197,28 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
     }
   });
 
-  function scrollDown() {
+  var scrollDown = function() {
     $chatContent.scrollTop($chatContent[0].scrollHeight);
-  }
+  };
 
-  function updateContainer() {
-    var containerHeight = $(window).height();
+  var updateContainer = function() {
+    var containerHeight = $window.innerHeight;
     $chatContent.css("height", Math.max(200, containerHeight - 355));
     scrollDown();
-  }
+  };
 
   // Resize chat area
-  $(document).ready(function() {
+  angular.element(document).ready(function() {
     updateContainer();
-    $(window).resize(function() {
+    angular.element($window).resize(function() {
       updateContainer();
     });
   });
 
   // Taken from http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
-  function linkify(inputText) {
+  var linkify = function(inputText) {
     // Escape first
-    inputText = $("<div/>").text(inputText).html();
+    inputText = angular.element("<div/>").text(inputText).html();
 
     var replacedText;
     var replacePattern1;
@@ -233,5 +233,5 @@ this.ChatController = function($scope, $element, $compile, $log, socket) {
     replacedText = replacedText.replace(replacePattern2, "$1<a target=\"_blank\" href=\"http://$2\" target=\"_blank\">$2</a>");
 
     return replacedText;
-  }
+  };
 };
