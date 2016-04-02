@@ -137,8 +137,8 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
 
       if (data.user) {
         angular.element(".chat-name", $el).text(data.user);
-      } else if (data.hasOwnProperty("data")) {
-        angular.element(".chat-name", $el).text(data.data.username);
+      } else if (data.hasOwnProperty("data") && data.data.hasOwnProperty("data")) {
+        angular.element(".chat-name", $el).text(data.data.data.username);
       } else {
         angular.element(".chat-name", $el).text($scope.config.username);
       }
