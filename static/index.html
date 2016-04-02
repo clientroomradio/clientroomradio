@@ -200,8 +200,8 @@
                     </div>
                     <div class="listeners panel-body">
                         <span ng-repeat="(username, user) in users">
-                            <span class="user {{user.active&&user.allowed?'user--active':'user--inactive'}}">
-                                <a target="_blank" href="http://www.last.fm/user/{{username}}">
+                            <span class="nowrap user {{user.active&&user.allowed?'user--active':'user--inactive'}}">
+                                <a class="nowrap" target="_blank" href="http://www.last.fm/user/{{username}}">
                                     <img class="icon-user img-circle" ng-src="{{user.image?user.image.replace('http://img2-ak.lst.fm/', 'https://secure-img2.last.fm/'):'/img/crr_40_alpha.png'}}"/>
                                     <span tooltip title="{{user.active?('active &bull; ')+(user.scrobbling?'scrobbling':'not scrobbling')+(user.muted?' &bull; muted':''):'inactive'}}" class="badge">{{username}}</span>
                                 </a>
