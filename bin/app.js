@@ -62,6 +62,7 @@ class ClientRoomRadio {
   }
 
   start() {
+    this.spotify.login();
     this.socketServer.start();
   }
 }
