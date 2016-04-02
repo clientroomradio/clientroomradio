@@ -154,27 +154,27 @@
                     <div class="panel-footer clearfix"> 
                         <div class="pull-left current-track-buttons">
                             <button class="btn btn-primary" ng-hide="isLoggedIn()" ng-disabled="getState()!='open'" ng-click="login()">Login via Last.fm</button>
-                            <button  tooltip type="button" class="btn btn-primary btn-skip" ng-click="skip()" ng-disabled="!isActive() || skipped || getState()!='open'" ng-show="isLoggedIn()" tooltip data-placement="top" title="… or “?skip explanation“ in the chat">
+                            <button  type="button" class="btn btn-primary btn-skip" ng-click="skip()" ng-disabled="!isActive() || skipped || getState()!='open'" ng-show="isLoggedIn()" tooltip data-toggle="tooltip" data-placement="top" title="… or “?skip explanation“ in the chat">
                                 <i class="fa fa-thumbs-down"></i>
                             </button>
-                            <button type="button" class="btn btn-danger" ng-show="isLoggedIn()&&loved" ng-disabled="getState()!='open'" ng-click="unlove()" tooltip title="Un-love this track">
+                            <button type="button" class="btn btn-danger" ng-show="isLoggedIn()&&loved" ng-disabled="getState()!='open'" ng-click="unlove()" tooltip data-toggle="tooltip" title="Un-love this track">
                                 <i class="fa fa-heart"></i>
                             </button>
-                            <button type="button" class="btn btn-default" tooltip ng-show="isLoggedIn()&&!loved" ng-disabled="getState()!='open'" ng-click="love()" title="Love this track">
+                            <button type="button" class="btn btn-default" tooltip data-toggle="tooltip" ng-show="isLoggedIn()&&!loved" ng-disabled="getState()!='open'" ng-click="love()" title="Love this track">
                                 <i class="fa fa-heart-o"></i>
                             </button>
                         </div>
 
                         <div class="pull-right" ng-show="isLoggedIn()">
-                            <button type="button" class="btn btn-default {{isActive()?'btn-success':'btn-danger'}}" ng-click="setActive(!isActive())" ng-disabled="getState()!='open'" tooltip title="Sit out / in">
+                            <button type="button" class="btn btn-default {{isActive()?'btn-success':'btn-danger'}}" ng-click="setActive(!isActive())" ng-disabled="getState()!='open'" tooltip data-toggle="tooltip" title="Sit out / in">
                                 <i class="{{isActive()?'fa fa-sign-out':'fa fa-sign-in'}}"></i>
                             </button>
 
-                            <button type="button" ng-show="isScrobbling()" ng-disabled="getState()!='open'" class="btn btn-default btn-success" ng-click="setScrobbling(false)" ng-disabled="!isActive()" tooltip title="Turn scrobbling off">
+                            <button type="button" ng-show="isScrobbling()" ng-disabled="getState()!='open'" class="btn btn-default btn-success" ng-click="setScrobbling(false)" ng-disabled="!isActive()" tooltip title="Turn scrobbling off" data-toggle="tooltip">
                                 <i class="fa icon-lastfm"></i>
                             </button>
 
-                            <button type="button" ng-hide="isScrobbling()" ng-disabled="getState()!='open'" class="btn btn-default btn-danger" ng-click="setScrobbling(true)" ng-disabled="!isActive()" tooltip title="Turn scrobbling on">
+                            <button type="button" ng-hide="isScrobbling()" ng-disabled="getState()!='open'" class="btn btn-default btn-danger" ng-click="setScrobbling(true)" ng-disabled="!isActive()" tooltip title="Turn scrobbling on" data-toggle="tooltip">
                                 <i class="fa icon-lastfm"></i>
                             </button>
 
@@ -203,7 +203,7 @@
                             <span class="nowrap user {{user.active&&user.allowed?'user--active':'user--inactive'}}">
                                 <a class="nowrap" target="_blank" href="http://www.last.fm/user/{{username}}">
                                     <img class="icon-user img-circle" ng-src="{{user.image?user.image.replace('http://img2-ak.lst.fm/', 'https://secure-img2.last.fm/'):'/img/crr_40_alpha.png'}}"/>
-                                    <span tooltip title="{{user.active?('active &bull; ')+(user.scrobbling?'scrobbling':'not scrobbling')+(user.muted?' &bull; muted':''):'inactive'}}" class="badge">{{username}}</span>
+                                    <span tooltip data-toggle="tooltip" title="{{user.active?('active &bull; ')+(user.scrobbling?'scrobbling':'not scrobbling')+(user.muted?' &bull; muted':''):'inactive'}}" class="badge">{{username}}</span>
                                 </a>
                                 <span ng-show="$last==false">&nbsp;</span>
                             </span>

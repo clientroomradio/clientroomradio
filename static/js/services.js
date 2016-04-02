@@ -14,13 +14,10 @@ this.initClientRoomRadio = function(socketUrl) {
     .directive("tooltip", function() {
       return {
         restrict: "A",
-        link: function(scope, element) {
-          angular.element(element).hover(function() {
-            // on mouseenter
-            angular.element(element).tooltip("show");
-          }, function() {
-            // on mouseleave
-            angular.element(element).tooltip("hide");
+        link: function() {
+          angular.element("body").tooltip({
+            selector: '[data-toggle="tooltip"]',
+            container: 'body'
           });
         }
       };
