@@ -74,6 +74,8 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
       } else if (data.system === "spotifyRequest") {
         if (data.data.href && data.data.artists && data.data.name) {
           angular.element(".chat-inner-text", $el).html("requested <a href=\"" + data.data.href + "\">" + data.data.artists[0].name + " — " + data.data.name + "</a>");
+        } else if (data.data.uri) {
+          angular.element(".chat-inner-text", $el).html("requested " + data.data.uri);
         }
       } else if (data.system === "alreadySkipped") {
         angular.element(".chat-inner-text", $el).text("has already skipped, but tried anyway.");
@@ -170,11 +172,8 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
         inputText = inputText.substring(6);
         socket.sendSkip(inputText);
       } else if (inputText.indexOf("?request") === 0) {
-        var search = angular.element("#spotifySearch");
-        search.modal("show");
-        var inputElement = search.find(".modal-body input");
-        inputElement.val(inputText.substring(9));
-        inputElement.trigger("input");
+        inputText = inputText.substring(9);
+        socket.sendRequest({uri: inputText});
       } else if (inputText.indexOf("?away") === 0) {
         inputText = inputText.substring(6);
         socket.sendActiveStatus(false, inputText);
