@@ -246,7 +246,7 @@ describe("Spotify", () => {
     });
 
     it("should call success", done => {
-      var spotifyUri = "1234567890";
+      var spotifyUri = "spotify:track:1234567890";
       var requester = "test-user";
       var handlers = {
         success: track => {
