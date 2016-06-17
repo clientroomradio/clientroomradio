@@ -7,7 +7,7 @@
     "body-parser": "1.15.0",
     "request": "2.69.0",
     "lastfm": "0.9.2",
-    "spotify-web": "https://github.com/Farami/node-spotify-web/tarball/master",
+    "spotify-web": "https://github.com/romualdr/node-spotify-web/tarball/master",
     "winston": "2.2.0",
     "express": "4.13.4",
     "cookie-parser": "1.4.1",
