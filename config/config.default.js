@@ -1,5 +1,6 @@
 var config = {
   radioname: "Client Room Radio",
+  affiliate: "youtube",
   scrobbleToHost: false,
   whitelist: true,
   lfm: {

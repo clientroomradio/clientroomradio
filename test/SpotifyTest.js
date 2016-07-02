@@ -9,16 +9,13 @@ var expect = chai.expect;
 // the unit under test
 var Spotify = require("../lib/Spotify.js");
 
-describe("Spotify", () => {
+describe("Player", () => {
   var mockConfig;
   var mockLogger;
-  var mockSpotifyWeb;
   var mockSp;
-  var mockSpTrack;
-  var mockUserDao;
-  var mockSkipManager;
+  var mockSpotifyWeb;
+  var mockTrack;
   var mockError;
-  var mockDataStore;
   var spotify;
 
   beforeEach(() => {
@@ -35,21 +32,9 @@ describe("Spotify", () => {
       error: () => {}
     };
 
-    mockSkipManager = {
-      on: () => {}
-    };
-
     mockError = null;
 
-    mockSpotifyWeb = {
-      login: chai.spy((username, password, callback) => {
-        setTimeout(() => {
-          callback(mockError, mockSp);
-        }, 0);
-      })
-    };
-
-    mockSpTrack = {
+    mockTrack = {
       artist: [{name: "artist"}],
       name: "title",
       duration: 2000, // 2 seconds long
@@ -64,52 +49,44 @@ describe("Spotify", () => {
 
     mockSp = {
       get: chai.spy((uri, callback) => {
-        callback(null, mockSpTrack);
+        callback(null, mockTrack);
       }),
       isTrackAvailable: () => {
         return true;
       }
     };
 
-    mockUserDao = {
-      broadcast: () => {}
-    };
-
-    mockDataStore = {
-      read: () => {},
-      record: () => {}
+    mockSpotifyWeb = {
+      login: (username, password, callback) => {
+        callback(mockError, mockSp);
+      }
     };
 
     spotify = new Spotify(
-      mockUserDao,
-      mockSkipManager,
       mockConfig,
       mockLogger,
-      mockDataStore,
       mockSpotifyWeb);
-  });
-
-  afterEach(() => {
-    spotify.close();
   });
 
   describe("#on(\"login\")", () => {
     it("should emit login with error on login with error", done => {
       mockError = "error";
 
-      spotify.login();
       spotify.on("login", err => {
         expect(err).to.equal(mockError);
         done();
       });
+
+      spotify.login();
     });
 
     it("shouldn't emit login with error on login without error", done => {
-      spotify.login();
       spotify.on("login", err => {
         expect(err).to.be.null;
         done();
       });
+
+      spotify.login();
     });
   });
 
@@ -117,156 +94,21 @@ describe("Spotify", () => {
     it("shouldn't be logged in after login error", done => {
       mockError = "error";
 
-      spotify.login();
       spotify.on("login", () => {
         expect(spotify.isLoggedIn()).to.be.false;
         done();
       });
+
+      spotify.login();
     });
 
     it("should be logged in after successful login", done => {
-      spotify.login();
       spotify.on("login", () => {
         expect(spotify.isLoggedIn()).to.be.true;
         done();
       });
-    });
-  });
-
-  describe("#playTrack", () => {
-    it("should call get", done => {
-      var spotifyUri = "spotify:track:1234567890";
-      var requester = "test-user";
-      var handlers = {
-        success: () => {},
-        error: () => {}
-      };
-      var optionalTrack;
 
       spotify.login();
-      spotify.on("login", () => {
-        spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-        expect(mockSp.get).to.have.been.called.with(spotifyUri);
-        done();
-      });
-    });
-
-    it("should play track (request hasn't been played before)", done => {
-      var spotifyUri = "spotify:track:1234567890";
-      var requester = "test-user";
-      var handlers = {
-        success: chai.spy(),
-        error: chai.spy()
-      };
-      var optionalTrack;
-
-      expect(spotify.isPlayedTrack(spotifyUri)).to.be.false;
-
-      spotify.login();
-      spotify.on("login", () => {
-        spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-        expect(handlers.success).to.have.been.called();
-        expect(handlers.error).to.not.have.been.called();
-        done();
-      });
-    });
-
-    it("should play track (request has been played before)", done => {
-      var spotifyUri = "spotify:track:1234567890";
-      var requester = "test-user";
-      var handlers = {
-        success: chai.spy(),
-        error: chai.spy()
-      };
-      var optionalTrack;
-
-      spotify.playedTracks = [
-        {
-          id: "1234567890",
-          timestamp: new Date().getTime()
-        }
-      ];
-
-      expect(spotify.isPlayedTrack(spotifyUri)).to.be.true;
-
-      spotify.login();
-      spotify.on("login", () => {
-        spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-        expect(handlers.success).to.have.been.called();
-        expect(handlers.error).to.not.have.been.called();
-        done();
-      });
-    });
-
-    it("should play track (non-request hasn't been played before)", done => {
-      var spotifyUri = "spotify:track:1234567890";
-      var requester;
-      var handlers = {
-        success: chai.spy(),
-        error: chai.spy()
-      };
-      var optionalTrack;
-
-      expect(spotify.isPlayedTrack(spotifyUri)).to.be.false;
-
-      spotify.login();
-      spotify.on("login", () => {
-        spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-        expect(handlers.success).to.have.been.called();
-        expect(handlers.error).to.not.have.been.called();
-        done();
-      });
-    });
-
-    it("shouldn't play track (non-request has been played before)", done => {
-      var spotifyUri = "spotify:track:1234567890";
-      var requester;
-      var handlers = {
-        success: chai.spy(),
-        error: chai.spy()
-      };
-      var optionalTrack;
-
-      spotify.playedTracks = [
-        {
-          id: "1234567890",
-          timestamp: new Date().getTime()
-        }
-      ];
-
-      expect(spotify.isPlayedTrack(spotifyUri)).to.be.true;
-
-      spotify.login();
-      spotify.on("login", () => {
-        spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-        expect(handlers.success).to.not.have.been.called();
-        expect(handlers.error).to.have.been.called();
-        done();
-      });
-    });
-
-    it("should call success", done => {
-      var spotifyUri = "spotify:track:1234567890";
-      var requester = "test-user";
-      var handlers = {
-        success: track => {
-          expect(track.identifier).to.equal(spotifyUri);
-          expect(track.artists[0].name).to.equal(mockSpTrack.artist[0].name);
-          expect(track.name).to.equal(mockSpTrack.name);
-          expect(track.duration).to.equal(mockSpTrack.duration);
-          expect(track.extension.requester).to.equal(requester);
-          expect(track.extension.artistpage).to.equal(`http://www.last.fm/music/${encodeURIComponent(mockSpTrack.artist[0].name)}`);
-          expect(track.extension.trackpage).to.equal(`http://www.last.fm/music/${encodeURIComponent(mockSpTrack.artist[0].name)}/_/${encodeURIComponent(mockSpTrack.name)}`);
-          done();
-        },
-        error: () => {}
-      };
-      var optionalTrack;
-
-      spotify.login();
-      spotify.on("login", () => {
-        spotify.playTrack(spotifyUri, requester, handlers, optionalTrack);
-      });
     });
   });
 });
