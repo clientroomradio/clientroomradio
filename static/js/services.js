@@ -1,12 +1,13 @@
 "use strict";
 
-/* globals Socket, NotificationManager, ChatController, MainController, SpotifySearchController, VotingController */
+/* globals Socket, NotificationManager, ChatController, MainController, SpotifySearchController, YouTubeSearchController, VotingController */
 
 this.initClientRoomRadio = function(socketUrl) {
   angular.module('crr', [])
     .controller("ChatController", ChatController)
     .controller("MainController", MainController)
     .controller("SpotifySearchController", SpotifySearchController)
+    .controller("YouTubeSearchController", YouTubeSearchController)
     .controller("VotingController", VotingController)
     .factory("socket", socket)
     .factory("notificationManager", notificationManager)
