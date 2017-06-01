@@ -16,10 +16,10 @@
     "http-proxy": "1.13.2",
     "argparse": "1.0.6",
     "cli-interact": "0.1.9",
-    "throttle": "",
-    "ytdl-core": "",
-    "fluent-ffmpeg": "",
-    "through2": ""
+    "throttle": "1.0.3",
+    "ytdl-core": "0.11.2",
+    "fluent-ffmpeg": "2.1.0",
+    "through2": "2.0.3"
   },
   "devDependencies": {
     "chai": "3.5.0",

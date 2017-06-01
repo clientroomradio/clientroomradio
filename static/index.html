@@ -227,7 +227,7 @@
         </div>
 
         <!-- Modal for spotify search -->
-        <div class="modal fade" id="spotifySearch" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" ng-controller="SpotifySearchController">
+        <div class="modal fade" id="spotifySearch" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" ng-controller="YouTubeSearchController">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -242,7 +242,7 @@
                                 class="list-group-item {{choosenTrack.href == track.href?'active':''}}"
                                 ng-repeat="track in tracks"
                                 ng-click="clickTrack(track)">
-                                {{track.artists[0].name}} - {{track.name}}
+                                <span ng-show="track.artists">{{track.artists[0].name}} - </span>{{track.name}}
                             </a>
                         </div>
 
@@ -275,6 +275,7 @@
         <script src="/js/controller/ChatController.js"></script>
         <script src="/js/controller/VotingController.js"></script>
         <script src="/js/controller/SpotifySearchController.js"></script>
+        <script src="/js/controller/YouTubeSearchController.js"></script>
 
         <!-- Javascript - Services -->
         <script src="/js/services/Socket.js"></script>
