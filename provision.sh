@@ -6,8 +6,8 @@ sudo apt-get install -y apache2 build-essential make clang
 wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
 echo "source /home/vagrant/.nvm/nvm.sh" >> /home/vagrant/.profile
 source /home/vagrant/.profile
-nvm install 5.7.1
-nvm alias default 5.7.1
+nvm install 8.0.0
+nvm alias default 8.0.0
 
 # create our hidden home dir dirs
 sudo mkdir /etc/crr
