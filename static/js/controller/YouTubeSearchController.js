@@ -1,5 +1,7 @@
 "use strict";
 
+/* globals Util */
+
 this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
   $scope.choosenTrack = null;
 
@@ -10,7 +12,7 @@ this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
       {
         q: $scope.searchTerm,
         part: "snippet",
-        maxResults: 25,
+        maxResults: 10,
         type: "video",
         videoCategoryId: "10", // Music
         key: "AIzaSyCT2bCuVsNzFI6XmHIiwPHRt4V_wg5qv7w"
@@ -18,11 +20,17 @@ this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
       function(data) {
         $scope.tracks = data.items.map(function(item) {
           return {
-            // don't set artists property as we can't split artist and title at this point
-            // just show the title as the name of the track
-            name: item.snippet.title,
-            href: "https://www.youtube.com/watch?v=" + item.id.videoId,
-            uri: "https://www.youtube.com/watch?v=" + item.id.videoId
+            item: item,
+            artistTrack: Util.processYoutubeVideoTitle(item.snippet.title)
+          };
+        }).filter(function(thing) {
+          return !Util.isArtistTrackEmpty(thing.artistTrack);
+        }).map(function(thing) {
+          return {
+            artists: [{name: thing.artistTrack.artist}],
+            name: thing.artistTrack.track,
+            href: "https://www.youtube.com/watch?v=" + thing.item.id.videoId,
+            uri: "https://www.youtube.com/watch?v=" + thing.item.id.videoId
           };
         });
         $scope.$apply();

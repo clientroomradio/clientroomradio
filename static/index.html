@@ -66,7 +66,7 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse navbar-ex1-collapse navbar-right">
                     <ul class="nav navbar-nav" ng-show="isLoggedIn()" >
-                        <li><a data-toggle="modal" href="#spotifySearch">Play Track</a></li>
+                        <li><a data-toggle="modal" href="" data-target="#search">Play Track</a></li>
                         <li><a href="javascript:void(0)" ng-click="endOfDayRequest();">Stop CRR</a></li>
                         <li ng-show="NotificationPermissionNeeded()">
                             <a href="javascript:void(0)" ng-click="requestNotificationPermissions();">Enable Notifications</a>
@@ -227,22 +227,19 @@
         </div>
 
         <!-- Modal for spotify search -->
-        <div class="modal fade" id="spotifySearch" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" ng-controller="YouTubeSearchController">
+        <div class="modal fade" id="search" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" ng-controller="YouTubeSearchController">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Search for spotify track</h4>
+                        <h4 class="modal-title">Search for track to play</h4>
                     </div>
                     <div class="modal-body">
                         <input type="text" class="form-control spotify-search-input" ng-model="searchTerm" ng-change="update()" placeholder="Search term">
 
                         <div class="list-group">
-                            <a  ng-href="#"
-                                class="list-group-item {{choosenTrack.href == track.href?'active':''}}"
-                                ng-repeat="track in tracks"
-                                ng-click="clickTrack(track)">
-                                <span ng-show="track.artists">{{track.artists[0].name}} - </span>{{track.name}}
+                            <a class="list-group-item {{choosenTrack.href == track.href?'active':''}}" ng-repeat="track in tracks" ng-click="clickTrack(track)">
+                                {{track.artists[0].name}} - {{track.name}}
                             </a>
                         </div>
 
@@ -269,6 +266,7 @@
         <script src="/js/lib/jquery.jplayer.min.js"></script>
         <script src="/js/lib/bootstrap-slider.js"></script>
         <script src="/js/lib/WebNotification.js"></script>
+        <script src="/js/lib/util.js"></script>
 
         <!-- Javascript - Controllers -->
         <script src="/js/controller/MainController.js"></script>
