@@ -142,7 +142,7 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
       } else if (data.hasOwnProperty("data") && data.data.hasOwnProperty("data")) {
         angular.element(".chat-name", $el).text(data.data.data.username);
       } else {
-        angular.element(".chat-name", $el).text($scope.config.username);
+        angular.element(".chat-name", $el).text($scope.config.radioname);
       }
 
       angular.element(".chat-time", $el).text(getTimeString(data.timestamp));
