@@ -1,2 +1,3 @@
-static/js/lib
+static/js
+src/js/lib
 coverage

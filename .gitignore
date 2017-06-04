@@ -5,6 +5,7 @@ node_modules
 *.dat
 .vagrant
 /static/img/gen/
+/static/js/
 *.log
 *.pem
 /coverage
