@@ -15,7 +15,6 @@ const Util = {
         if (!videoTitle) {
             return this.emptyArtistTrack;
         }
-
         // Remove [genre] from the beginning of the title
         let title = videoTitle.replace(/^\[[^\]]+\]\s*-*\s*/i, '');
 
@@ -29,6 +28,17 @@ const Util = {
             }
         }
         return { artist, track };
+    },
+
+    /**
+     * decode a html encoded string such as "cats &amp dogs" to "cats & dogs".
+     * @param  {String} html The html encoded string
+     * @return {String} The decoded string
+     */
+    decodeHtml(html) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
     },
 
     /**
