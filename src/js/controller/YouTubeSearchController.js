@@ -21,7 +21,7 @@ this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
         $scope.tracks = data.items.map(function(item) {
           return {
             item: item,
-            artistTrack: Util.processYoutubeVideoTitle(item.snippet.title)
+            artistTrack: Util.processYoutubeVideoTitle(Util.decodeHtml(item.snippet.title))
           };
         }).filter(function(thing) {
           return !Util.isArtistTrackEmpty(thing.artistTrack);
