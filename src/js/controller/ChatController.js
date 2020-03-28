@@ -139,7 +139,7 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
 
       if (data.user) {
         angular.element(".chat-name", $el).text(data.user);
-      } else if (data.hasOwnProperty("data") && data.data.hasOwnProperty("data")) {
+      } else if (Object.prototype.hasOwnProperty.call(data, "data") && Object.prototype.hasOwnProperty.call(data.data, "data")) {
         angular.element(".chat-name", $el).text(data.data.data.username);
       } else {
         angular.element(".chat-name", $el).text($scope.config.radioname);
@@ -224,11 +224,11 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
     var replacePattern2;
 
     // URLs starting with http://, https://, or ftp://
-    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gim;
     replacedText = inputText.replace(replacePattern1, "<a target=\"_blank\" href=\"$1\" target=\"_blank\">$1</a>");
 
     // URLs starting with "www." (without // before it, or it"d re-link the ones done above).
-    replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    replacePattern2 = /(^|[^/])(www\.[\S]+(\b|$))/gim;
     replacedText = replacedText.replace(replacePattern2, "$1<a target=\"_blank\" href=\"http://$2\" target=\"_blank\">$2</a>");
 
     return replacedText;

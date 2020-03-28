@@ -63,7 +63,7 @@ describe("SkipManager", () => {
 
   describe("#getSkippers()", () => {
     it("should start with 0 skippers", () => {
-      expect(skipManager.getSkippers()).to.be.zero;
+      expect(skipManager.getSkippers()).to.be.an('array').that.is.empty;
     });
   });
 

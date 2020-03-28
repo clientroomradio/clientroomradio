@@ -32,11 +32,11 @@ Install some more dependencies through apt-get.
 apt-get install apache2 build-essential
 ```
 
-Install nodejs 8.0.0 through [nvm](https://github.com/creationix/nvm). Once nvm is installed:
+Install nodejs 10.15.3 through [nvm](https://github.com/creationix/nvm). Once nvm is installed:
 
 ```bash
-nvm install 8.0.0
-nvm alias default 8.0.0
+nvm install 10.15.3
+nvm alias default 10.15.3
 ```
 
 ### Install Client Room Radio
