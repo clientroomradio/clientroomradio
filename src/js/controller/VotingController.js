@@ -31,7 +31,7 @@ this.VotingController = function($scope, socket) {
   };
 
   $scope.userHasVoted = function() {
-    if ($scope.votes && $scope.votes.hasOwnProperty($scope.config.username)) {
+    if ($scope.votes && Object.prototype.hasOwnProperty.call($scope.votes, $scope.config.username)) {
       return $scope.votes[$scope.config.username];
     }
   };
