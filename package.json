@@ -20,7 +20,7 @@
     "throttle": "^1.0.3",
     "through2": "^3.0.1",
     "winston": "^3.2.1",
-    "ytdl-core": "^0.29.7"
+    "ytdl-core": "^2.0.1"
   },
   "devDependencies": {
     "angular": "^1.7.9",
