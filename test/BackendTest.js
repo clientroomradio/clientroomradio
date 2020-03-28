@@ -92,11 +92,11 @@ describe("Backend", () => {
     });
 
     it("should be true when all listeners have listened", () => {
-      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {"userplaycount":"0"}, "test-user-too": {"userplaycount":"2"}})).to.be.false;
+      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {userplaycount: "0"}, "test-user-too": {userplaycount: "2"}})).to.be.false;
     });
 
     it("should be true when all listeners have listened", () => {
-      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {"userplaycount":"1"}, "test-user-too": {"userplaycount":"2"}})).to.be.true;
+      expect(backend.isBingo(["test-user", "test-user-too"], {"test-user": {userplaycount: "1"}, "test-user-too": {userplaycount: "2"}})).to.be.true;
     });
   });
 
