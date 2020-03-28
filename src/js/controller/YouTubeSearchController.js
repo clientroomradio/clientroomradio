@@ -15,7 +15,7 @@ this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
         maxResults: 10,
         type: "video",
         videoCategoryId: "10", // Music
-        key: "AIzaSyCT2bCuVsNzFI6XmHIiwPHRt4V_wg5qv7w"
+        key: "AIzaSyAIIwR4EXwcKuH9WZ3EJWJWhg8SCI-te4s"
       },
       function(data) {
         $scope.tracks = data.items.map(function(item) {
