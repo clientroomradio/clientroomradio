@@ -29,7 +29,7 @@ var config = require("/etc/crr/config.js");
 class ClientRoomRadio {
   constructor() {
     // DI
-    this.logger = new Logger(config);
+    this.logger = Logger;
     this.dataStore = new DataStore(this.logger);
     this.lastfmClient = new LastfmClient(config, this.logger);
     this.socket = new Socket(this.logger);
