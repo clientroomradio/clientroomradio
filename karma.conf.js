@@ -1,6 +1,8 @@
 // Karma configuration
 // Generated on Fri Mar 25 2016 21:07:05 GMT+0000 (GMT)
 
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+
 module.exports = function(config) {
   config.set({
 
@@ -42,13 +44,6 @@ module.exports = function(config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['mocha'],
 
-    plugins: [
-      'karma-chai',
-      'karma-mocha',
-      'karma-mocha-reporter',
-      'karma-phantomjs-launcher'
-    ],
-
     // web server port
     port: 9876,
 
@@ -64,7 +59,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['ChromeHeadless'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
