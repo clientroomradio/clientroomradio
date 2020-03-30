@@ -6,12 +6,14 @@
   "dependencies": {
     "argparse": "^1.0.10",
     "body-parser": "^1.19.0",
+    "bootstrap-slider": "^10.6.2",
     "cli-interact": "^0.1.9",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
     "http-proxy": "^1.18.0",
     "jplayer": "^2.9.2",
+    "jquery.cookie": "^1.4.1",
     "lastfm": "^0.9.3",
     "node-uuid": "^1.4.8",
     "request": "^2.88.2",
@@ -39,7 +41,12 @@
     "puppeteer": "^2.1.1"
   },
   "scripts": {
-    "build": "babel src/js -d static/js && cp node_modules/jplayer/dist/jplayer/jquery.jplayer.min.js static/js/lib",
+    "build": "npm run-script build-ccr && npm run-script build-jplayer && npm run-script build-sockjs && npm run-script build-jquery.cookie && npm run-script build-bootstrap-slider",
+    "build-ccr": "babel --minified src/js -d static/js",
+    "build-jplayer": "cp node_modules/jplayer/dist/jplayer/jquery.jplayer.min.js static/js/lib",
+    "build-sockjs": "babel --minified node_modules/sockjs/lib --out-file static/js/lib/sockjs-0.3.min.js",
+    "build-jquery.cookie": "babel --minified node_modules/jquery.cookie/jquery.cookie.js -d static/js/lib",
+    "build-bootstrap-slider": "cp node_modules/bootstrap-slider/dist/bootstrap-slider.min.js static/js/lib",
     "postinstall": "npm run build",
     "test": "npm run-script test-lint && npm run-script test-node && npm run-script test-browser",
     "test-lint": "eslint .",
