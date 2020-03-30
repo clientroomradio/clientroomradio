@@ -1,6 +1,6 @@
 "use strict";
 
-this.ChatController = function($scope, $element, $compile, $log, $window, socket) {
+export function ChatController($scope, $element, $compile, $log, $window, socket) {
   var $chatContent = angular.element(".chat-content", $element);
   var $input = angular.element(".chat-input", $element);
 
@@ -233,4 +233,4 @@ this.ChatController = function($scope, $element, $compile, $log, $window, socket
 
     return replacedText;
   };
-};
+}

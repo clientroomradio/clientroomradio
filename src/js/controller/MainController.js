@@ -1,6 +1,6 @@
 "use strict";
 
-this.MainController = function($scope, $document, $log, $window,
+export function MainController($scope, $document, $log, $window,
                                 $location, socket, notificationManager) {
   $scope.config = null;
   $scope.currentTrack = {};
@@ -309,4 +309,4 @@ this.MainController = function($scope, $document, $log, $window,
       $scope.$apply();
     }
   });
-};
+}

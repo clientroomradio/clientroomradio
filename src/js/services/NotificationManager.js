@@ -1,6 +1,6 @@
 "use strict";
 
-this.NotificationManager = function($window, $timeout, $log, socket) {
+export function NotificationManager($window, $timeout, $log, socket) {
   var that = this;
   var config = null;
 
@@ -78,4 +78,4 @@ this.NotificationManager = function($window, $timeout, $log, socket) {
   that.permissionNeeded = function() {
     return $window.Notification && $window.Notification.permission !== "granted";
   };
-};
+}

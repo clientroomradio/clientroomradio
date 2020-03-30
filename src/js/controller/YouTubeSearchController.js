@@ -2,7 +2,7 @@
 
 /* globals Util */
 
-this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
+export function YouTubeSearchController($scope, $log, $timeout, socket) {
   $scope.choosenTrack = null;
 
   $scope.update = _.debounce(function() {
@@ -46,4 +46,4 @@ this.YouTubeSearchController = function($scope, $log, $timeout, socket) {
   $scope.request = function() {
     socket.sendRequest($scope.choosenTrack);
   };
-};
+}

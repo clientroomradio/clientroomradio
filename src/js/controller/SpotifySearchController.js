@@ -1,6 +1,6 @@
 "use strict";
 
-this.SpotifySearchController = function($scope, $log, $timeout, socket) {
+export function SpotifySearchController($scope, $log, $timeout, socket) {
   $scope.choosenTrack = null;
 
   $scope.update = _.debounce(function() {
@@ -27,4 +27,4 @@ this.SpotifySearchController = function($scope, $log, $timeout, socket) {
   $scope.request = function() {
     socket.sendRequest($scope.choosenTrack);
   };
-};
+}

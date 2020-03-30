@@ -1,6 +1,6 @@
 "use strict";
 
-this.VotingController = function($scope, socket) {
+export function VotingController($scope, socket) {
   var id = null;
   var useSessionId = false;
 
@@ -53,4 +53,4 @@ this.VotingController = function($scope, socket) {
       $scope.$apply();
     }
   });
-};
+}

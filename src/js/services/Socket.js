@@ -1,6 +1,6 @@
 "use strict";
 
-this.Socket = function($log, $timeout, $interval, SOCKJS_URL) {
+export function Socket($log, $timeout, $interval, SOCKJS_URL) {
   var that = this;
   this.closeCallback = new $.Callbacks();
   this.chatCallback = new $.Callbacks();
@@ -186,4 +186,4 @@ this.Socket = function($log, $timeout, $interval, SOCKJS_URL) {
   }
 
   connect();
-};
+}

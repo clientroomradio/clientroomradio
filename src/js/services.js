@@ -2,7 +2,7 @@
 
 /* globals Socket, NotificationManager, ChatController, MainController, SpotifySearchController, YouTubeSearchController, VotingController */
 
-this.initClientRoomRadio = function(socketUrl) {
+export function initClientRoomRadio(socketUrl) {
   angular.module('crr', [])
     .controller("ChatController", ChatController)
     .controller("MainController", MainController)
@@ -33,4 +33,4 @@ this.initClientRoomRadio = function(socketUrl) {
   function notificationManager($window, $timeout, $log, socket) {
     return new NotificationManager($window, $timeout, $log, socket);
   }
-};
+}
