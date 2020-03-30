@@ -4,6 +4,9 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
     "argparse": "^1.0.10",
     "body-parser": "^1.19.0",
     "bootstrap-slider": "^10.6.2",
@@ -24,9 +27,6 @@
     "ytdl-core": "^2.0.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
     "angular": "^1.7.9",
     "angular-mocks": "^1.7.9",
     "chai": "^4.2.0",
