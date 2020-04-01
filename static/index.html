@@ -166,6 +166,9 @@
                         </div>
 
                         <div class="pull-right" ng-show="isLoggedIn()">
+
+                            <google-cast-launcher></google-cast-launcher>
+
                             <button type="button" class="btn btn-default {{isActive()?'btn-success':'btn-danger'}}" ng-click="setActive(!isActive())" ng-disabled="getState()!='open'" tooltip data-toggle="tooltip" title="Sit out / in">
                                 <i class="{{isActive()?'fa fa-sign-out':'fa fa-sign-in'}}"></i>
                             </button>
@@ -262,6 +265,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular-mocks.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
         <script src="/js/lib/sockjs-0.3.min.js"></script>
+        <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
         <script src="/js/lib/jquery.cookie.js"></script>
         <script src="/js/lib/jquery.jplayer.min.js"></script>
         <script src="/js/lib/bootstrap-slider.js"></script>

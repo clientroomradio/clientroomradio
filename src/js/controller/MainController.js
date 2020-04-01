@@ -14,6 +14,27 @@ this.MainController = function($scope, $document, $log, $window,
   $scope.bingo = false;
   $scope.state = "loading";
 
+  $window['__onGCastApiAvailable'] = function(isAvailable) {
+    console.log("hello! " + isAvailable)
+    if (isAvailable) {
+      initializeCastApi();
+    }
+  };
+
+  const initializeCastApi = function() {
+    cast.framework.CastContext.getInstance().setOptions({
+      receiverApplicationId: "1F6F6D79",
+      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    });
+
+    var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+    var mediaInfo = new chrome.cast.media.MediaInfo("https://clientroomradio.com/stream.mp3", "audio/mpeg");
+    var request = new chrome.cast.media.LoadRequest(mediaInfo);
+    castSession.loadMedia(request).then(
+      function() { console.log('Load succeed'); },
+      function(errorCode) { console.log('Error code: ' + errorCode); });
+  };
+
   $scope.login = function() {
     $window.location.href = "http://www.last.fm/api/auth/?api_key=" + $scope.config.apiKey + "&cb=" + $location.protocol() + "://" + $location.host() + "/login.html";
   };
