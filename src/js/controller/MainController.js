@@ -22,11 +22,24 @@ this.MainController = function($scope, $document, $log, $window,
   };
 
   const initializeCastApi = function() {
-    cast.framework.CastContext.getInstance().setOptions({
+    const castContext = cast.framework.CastContext.getInstance();
+    castContext.setOptions({
       receiverApplicationId: "1F6F6D79",
       autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
     });
 
+    castContext.addEventListener(
+      cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+      function(data) {
+        console.log(data.sessionState);
+        if (data.sessionState === cast.framework.SessionState.SESSION_STARTED) {
+          loadMedia();
+        }
+      }
+     );
+  };
+
+  const loadMedia = function() {
     var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
     var mediaInfo = new chrome.cast.media.MediaInfo("https://clientroomradio.com/stream.mp3", "audio/mpeg");
     var request = new chrome.cast.media.LoadRequest(mediaInfo);
