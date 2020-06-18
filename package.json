@@ -23,7 +23,7 @@
     "ytdl-core": "^2.0.1"
   },
   "devDependencies": {
-    "angular": "^1.7.9",
+    "angular": "^1.8.0",
     "angular-mocks": "^1.7.9",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
